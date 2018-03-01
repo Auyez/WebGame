@@ -7,8 +7,8 @@ public class Input {
 		keys = new boolean[255];
 	}
 	
-	public void press(char c) {
-		keys[(int) c] = true;
+	public void press(int c) {
+		keys[c] = true;
 	}
 	
 	public void releaseAll() {

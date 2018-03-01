@@ -1,5 +1,5 @@
 
-var socket = new WebSocket("ws://" + location.host + "/websocketendpoint");
+var socket = new WebSocket("ws://" + location.host + "/WebGame/websocketendpoint");
 var game = null;
 
 socket.onopen = function(event) {
