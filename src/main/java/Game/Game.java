@@ -36,10 +36,10 @@ public class Game implements Runnable {
                     Pair<Session, ByteBuffer> message = messages.remove();
                     ByteBuffer buffer = message.getRight();
                     Session session = message.getLeft();
-                    System.out.println(buffer.get());
-                    System.out.println(buffer.get());
+                    System.out.println(buffer.get(0));
+                    System.out.println(buffer.get(0));
                     System.out.println(buffer.getInt());
-                    System.out.println(buffer.get());
+                    System.out.println(buffer.get(0));
                 }
                 if(frameCount % 6 == 0)
                 	sendWorldState();
