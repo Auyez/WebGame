@@ -1,4 +1,5 @@
 import Game.Game;
+import Game.GameWorld;
 import Game.Protocol;
 import org.apache.commons.lang3.tuple.Pair;
 
@@ -75,9 +76,15 @@ class Lobby {
                 buffer.flip();
                 session.getBasicRemote().sendBinary(buffer);
             }
-
             gameMessages.clear();
-            gameThread = new Thread(new Game(gameMessages, sessions));
+            
+            Game game = new Game(gameMessages, sessions);
+            GameWorld gw = game.getWorld();
+            for (int id : sessions.values()) {
+            	gw.addPlayer(id);
+            }
+            
+            gameThread = new Thread(game);
             gameThread.start();
         } catch (Exception ex) {
             ex.printStackTrace();

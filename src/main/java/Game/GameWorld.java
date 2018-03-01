@@ -28,4 +28,13 @@ public class GameWorld {
 	}
 	
 	public List<Actor> getActors(){return actors;}
+	
+	public Player getPlayer(int id) {
+		
+		//for (Player p : players) {
+		//	if p.Pl
+		//}
+		
+		return null;
+	}
 }

@@ -23,4 +23,6 @@ public class Player extends Actor{
 		state.asIntBuffer().put(data);
 		return state;
 	}
+	
+	
 }
