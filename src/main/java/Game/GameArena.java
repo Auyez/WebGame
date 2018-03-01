@@ -2,15 +2,16 @@ package Game;
 
 import java.io.File;
 import java.util.Scanner;
+import javafx.util.Pair;
 
 public class GameArena {
 	private int[][] collision_map;
 	private int w, h, tileSize;
 	
 	public GameArena(String fileName) {
-		File file = new File(fileName);
+		//File file = new File(fileName);
 		try{
-			Scanner s = new Scanner(file);
+			Scanner s = new Scanner(ExampleMap.getMap());
 			String[] params = s.nextLine().split(" ");
 			
 			w = Integer.parseInt(params[0]);
@@ -30,8 +31,12 @@ public class GameArena {
 	}
 	
 	public boolean collides(Actor a) {
-		if(collision_map[a.getPosition().x/tileSize][a.getPosition().y/tileSize] == 1)
-			return true;
+		for(Pair<Integer, Integer> p : a.getLowerBoxPoints()) {
+			if(collision_map[p.getKey()/tileSize][p.getValue()/tileSize] == 1)
+				return true;
+		}
 		return false;
 	}
+	public int getWidth() {return w * tileSize;}
+	public int getHeight() {return h * tileSize;}
 }

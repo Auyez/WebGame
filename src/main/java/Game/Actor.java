@@ -3,6 +3,9 @@ package Game;
 import java.awt.Point;
 import java.awt.Rectangle;
 import java.nio.ByteBuffer;
+import java.util.ArrayList;
+import java.util.List;
+import javafx.util.Pair;
 
 public abstract class Actor{
 	public Point position;
@@ -24,7 +27,25 @@ public abstract class Actor{
 		hitbox = new Rectangle(x,y,w,h);
 		lowerBox = null;
 	}
+
+	public boolean collides() {
+		if (!gw.getArena().collides(this)) {
+			for(Actor b : gw.getActors()) {
+				if (this != b && hitbox.intersects(b.hitbox))
+					return true;
+			}
+		}
+		return false;
+	}
 	
+	public List<Pair<Integer, Integer>> getLowerBoxPoints() {
+		List<Pair<Integer, Integer>> p = new ArrayList<Pair<Integer, Integer>>();
+		p.add(new Pair<Integer,Integer>(position.x, position.y));
+		p.add(new Pair<Integer,Integer>(position.x + lowerBox.width, position.y));
+		p.add(new Pair<Integer,Integer>(position.x + lowerBox.width, position.y + lowerBox.height));
+		p.add(new Pair<Integer,Integer>(position.x, position.y + lowerBox.height));
+		return p;
+	}
 	public Rectangle getHitbox() {return hitbox;}
 	public Rectangle getLowerBox() {return lowerBox;}
 	public Point getPosition() {return position;}

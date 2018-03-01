@@ -17,7 +17,7 @@ public class Game implements Runnable {
     public Game(Queue<Pair<Session, ByteBuffer>> messages, Map<Session, Integer> sessions) {
         this.messages = messages;
         this.sessions = sessions;
-        gw = new GameWorld(800,800);
+        gw = new GameWorld();
     }
 
     public GameWorld getWorld() {return gw;}
@@ -53,7 +53,7 @@ public class Game implements Runnable {
     
     private void sendWorldState() {
     	if (gw.getActors().size() > 0) {
-    		ByteBuffer b = ByteBuffer.allocate(gw.getActors().size()*14 + 1 + 1);
+    		ByteBuffer b = ByteBuffer.allocate(gw.getActors().size()*17 + 1 + 1);
 	    	b.put(Protocol.Client.GAME_MSG);
 	    	b.put((byte) gw.getActors().size());
 	    	for (Actor a : gw.getActors())
