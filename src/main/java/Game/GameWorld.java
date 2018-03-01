@@ -7,14 +7,11 @@ import java.util.Random;
 import org.apache.commons.lang3.tuple.Pair;
 
 public class GameWorld {
-	private int width;
-	private int height;
 	private List<Actor> actors;
 	private List<Player> players;
 	private GameArena ga;
 	
-	public GameWorld(int w, int h) {
-		width = w; height = h;
+	public GameWorld() {
 		actors = new ArrayList<Actor>();
 		players = new ArrayList<Player>();
 		ga = new GameArena("map.txt");
@@ -22,10 +19,11 @@ public class GameWorld {
 	
 	public void addPlayer(int id) {
 		Random r = new Random();
-		Player p = new Player(r.nextInt(width), r.nextInt(height), 48, 48, 12, id, this);
+		Player p = new Player(r.nextInt(ga.getWidth()), r.nextInt(ga.getHeight()), 48, 48, 12, id, this);
 		actors.add(p);
 		players.add(p);
 	}
 	
+	public GameArena getArena() {return ga;}
 	public List<Actor> getActors(){return actors;}
 }

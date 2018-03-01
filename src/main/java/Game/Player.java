@@ -24,7 +24,8 @@ public class Player extends Actor{
 		else if(input.isKeyDown('s'))
 			y -= speed;
 		
-		setPosition(x,y);
+		if(!collides())
+			setPosition(x,y);
 		input.releaseAll();
 	}
 	
