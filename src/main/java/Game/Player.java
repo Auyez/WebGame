@@ -30,9 +30,14 @@ public class Player extends Actor{
 	}
 	
 	public ByteBuffer getState() {
-		int[] data = {0, position.x, position.y, 0, getId()};
-		ByteBuffer state = ByteBuffer.allocate(data.length * 4);
-		state.asIntBuffer().put(data);
+		//int[] data = {position.x, position.y, 0, getId()};
+		ByteBuffer state = ByteBuffer.allocate(17);
+		state.put((byte) 0); // always send 0 for now (player type = 0)
+		state.putInt(position.x);
+		state.putInt(position.y);
+		state.putInt(0);
+		state.putInt(getId());
+		state.clear();
 		return state;
 	}
 	

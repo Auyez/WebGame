@@ -25,7 +25,6 @@ class Lobby {
             ByteBuffer buffer = ByteBuffer.wrap(message);
             byte lobbyIndex = buffer.get();
             byte command = buffer.get();
-            System.out.println(buffer);
             switch (command) {
                 case Protocol.Server.ADD_PLAYER:
                     int playerId = buffer.getInt();
@@ -70,12 +69,20 @@ class Lobby {
     
     private void startGame() {
         try {
+        	// Starts game on Clients' side AND sets up all players
+        	byte numPlayers = (byte) sessions.size();
             for (Session session : sessions.keySet()) {
-                ByteBuffer buffer = ByteBuffer.allocate(6);
+                ByteBuffer buffer = ByteBuffer.allocate(3 + (4 * numPlayers));
                 buffer.put(Protocol.Client.START_GAME);
+                buffer.put(Protocol.Client.Game.PLAYER_SETUP); // Rewrite protocol so that player setup comes with start game
+                buffer.put(numPlayers);
+                for (int id : sessions.values()) {
+                	buffer.putInt(id);
+                }
                 buffer.flip();
                 session.getBasicRemote().sendBinary(buffer);
             }
+            
             gameMessages.clear();
             
             Game game = new Game(gameMessages, sessions);

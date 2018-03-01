@@ -63,11 +63,13 @@ public class Game implements Runnable {
     
     private void sendWorldState() {
     	if (gw.getActors().size() > 0) {
-    		ByteBuffer b = ByteBuffer.allocate(gw.getActors().size()*17 + 1 + 1);
+    		ByteBuffer b = ByteBuffer.allocate(gw.getActors().size()*17 + 3);
 	    	b.put(Protocol.Client.GAME_MSG);
+	    	b.put(Protocol.Client.Game.WORLD_STATE);
 	    	b.put((byte) gw.getActors().size());
-	    	for (Actor a : gw.getActors())
-	    			b.put(a.getState());
+	    	for (Actor a : gw.getActors()) {
+    			b.put(a.getState());	
+	    	}
 	    	b.flip();
 	    	for(Session s : sessions.keySet()) {
 	    		try{
