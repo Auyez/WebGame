@@ -25,23 +25,11 @@ public abstract class Actor{
 		lowerBox = null;
 	}
 	
+	public Rectangle getHitbox() {return hitbox;}
+	public Rectangle getLowerBox() {return lowerBox;}
+	public Point getPosition() {return position;}
+	public int getId() {return id;}
+	public void setPosition(int x, int y) {position.setLocation(x, y);}
 	public abstract void update();
-	
-	public Rectangle getHitbox() {
-		return hitbox;
-	}
-	
-	public Rectangle getLowerBox() {
-		return lowerBox;
-	}
-	
-	public Point getPosition() {
-		return position;
-	}
-	
-	public void setPosition(int x, int y) {
-		position.setLocation(x, y);
-	}
-	
 	public abstract ByteBuffer getState();
 }

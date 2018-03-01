@@ -11,14 +11,25 @@ public class Player extends Actor{
 	}
 	
 	public void update() {
+		int x,y;
+		int speed = 2;
+		x = getPosition().x;
+		y = getPosition().y;
 		if(input.isKeyDown('w'))
-			setPosition(getPosition().x, getPosition().y + 2);
+			y += speed;
+		else if(input.isKeyDown('d'))
+			x += speed;
+		else if(input.isKeyDown('a'))
+			x -= speed;
+		else if(input.isKeyDown('s'))
+			y -= speed;
 		
+		setPosition(x,y);
 		input.releaseAll();
 	}
 	
 	public ByteBuffer getState() {
-		int[] data = {position.x, position.y, 0};
+		int[] data = {0, position.x, position.y, 0, getId()};
 		ByteBuffer state = ByteBuffer.allocate(data.length * 4);
 		state.asIntBuffer().put(data);
 		return state;
