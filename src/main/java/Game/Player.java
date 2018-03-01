@@ -36,5 +36,7 @@ public class Player extends Actor{
 		return state;
 	}
 	
-	
+	public Input getInput() {
+		return input;
+	}
 }
