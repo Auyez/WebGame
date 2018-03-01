@@ -1,0 +1,26 @@
+SERVER
+-----------------
+lobbyIndex : byte
+	lobbyCmd : byte
+	ADD_PLAYER
+		playerId : int
+	GAME_MSG
+		gameCmd : byte
+		INPUT
+			x : byte
+			    y : byte
+			        a : int
+
+
+CLIENT
+----------------
+lobbyCmd : byte
+START_GAME
+GAME_MSG
+	gameCmd : byte
+	WORLD_STATE
+		numEntities : byte
+			entityType : byte
+				x : int
+					y : int
+						a : int

@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Lobbies</title>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+    <script src="lobbies.js"></script>
+    <script src="protocol.js"></script>
+    <script src="game/game.js"></script>
+</head>
+<body>
+    <ul id="nameList"></ul>
+    <input type="text" id="nameInput" name="nameInput">
+    <button type="button" onclick="onHostClick()">Host</button>
+    <button type="button" onclick="onJoinClick()">Join</button>
+    <br/>
+    <button type="button" onclick="refreshNameList()">Refresh</button>
+    <div id="chat">Your messages!</div>
+    <input type="text" id="msg" placeholder="Enter your message...">
+    <button onclick="sendMessage()">Send</button>
+    <div>You should visit<a href="localhost:8080/lobby.html"> this </a>first to make echo chat work (works only for Int8 type of msg)</div>
+</body>
+</html>
+</html>
