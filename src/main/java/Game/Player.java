@@ -13,15 +13,15 @@ public class Player extends Actor{
 	public void update() {
 		int x = 0;
 		int y = 0;
-		int speed = 2;
+		int speed = 4;
 		if(input.isKeyDown('w'))
-			y += speed;
+			y -= speed;
 		else if(input.isKeyDown('d'))
 			x += speed;
 		else if(input.isKeyDown('a'))
 			x -= speed;
 		else if(input.isKeyDown('s'))
-			y -= speed;
+			y += speed;
 		setPosition(getPosition().x + x, getPosition().y + y);
 		if(collides())
 			setPosition(getPosition().x - x, getPosition().y - y);

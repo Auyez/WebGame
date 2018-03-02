@@ -9,7 +9,6 @@ class Game {
         this.players = {}; // id -> player
         this.cursors = null;
         
-		//this.socket.send() // Sends to server that game is loaded and ready to receive PLAYER_SETUP
     }
 
 
@@ -19,11 +18,18 @@ class Game {
 
 
     create() {
+    	var ready = new DataView(new ArrayBuffer(4));
+        ready.setInt8(0, 0); // sends 0 as lobby index for now
+		ready.setInt8(1, Protocol.Server.GAME_MSG);
+		ready.setInt8(2, Protocol.Server.Game.READY);
+		socket.send(ready) // Sends to server that game is loaded and ready to receive PLAYER_SETUP
+		
+		
         this.cursors = this.game.input.keyboard.createCursorKeys();
         this.message = new DataView(new ArrayBuffer(4));
 		this.message.setInt8(0, 0); // sends 0 as lobby index for now
 		this.message.setInt8(1, Protocol.Server.GAME_MSG);
-		this.message.setInt8(2, Protocol.Server.Game.READY);
+		this.message.setInt8(2, Protocol.Server.Game.INPUT);
 		this.socket = socket; // Unnecessary?
 		this.message.setInt8(2, Protocol.Server.Game.INPUT);
     }

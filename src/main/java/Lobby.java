@@ -25,14 +25,15 @@ class Lobby {
             ByteBuffer buffer = ByteBuffer.wrap(message);
             byte lobbyIndex = buffer.get();
             byte command = buffer.get();
-            byte cmdType = buffer.get();
             switch (command) {
                 case Protocol.Server.ADD_PLAYER:
                     int playerId = buffer.getInt();
                     addPlayer(session, playerId);
                     break;
                 case Protocol.Server.GAME_MSG:
-                	/*if (cmdType == Protocol.Server.Game.READY) {
+                	byte cmdType = buffer.get();
+                	if (cmdType == Protocol.Server.Game.READY) {
+                		System.out.println("CLIENT IS READY!!!");
                     	byte numPlayers = (byte) sessions.size();
                         for (Session s : sessions.keySet()) {
                             ByteBuffer buf = ByteBuffer.allocate(3 + (4 * numPlayers));
@@ -43,11 +44,12 @@ class Lobby {
                             	buf.putInt(id);
                             }
                             buf.flip();
+                            System.out.println(buf);
                             s.getBasicRemote().sendBinary(buf);
                         }
                         break;
                     }
-                	*/
+                	
                     if (isGameRunning()) {
                         buffer.clear(); // reset the ByteBuffer position. Position was modified by get() methods.
                         gameMessages.add(Pair.of(session, buffer));
@@ -89,9 +91,8 @@ class Lobby {
         try {
         	// Starts game on Clients' side
             for (Session session : sessions.keySet()) {
-                ByteBuffer buffer = ByteBuffer.allocate(6);
+                ByteBuffer buffer = ByteBuffer.allocate(7);
                 buffer.put(Protocol.Client.START_GAME);
-                
                 buffer.flip();
                 session.getBasicRemote().sendBinary(buffer);
             }

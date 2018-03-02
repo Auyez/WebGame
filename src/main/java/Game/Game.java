@@ -48,7 +48,7 @@ public class Game implements Runnable {
                     }
                     
                 }
-                if(frameCount % 6 == 0)
+                if(frameCount % 1 == 0)
                 	sendWorldState();
                 long frameElapsedTime = System.currentTimeMillis() - frameStartTime;
                 long frameRemainingTime = 1000/FPS - frameElapsedTime;
