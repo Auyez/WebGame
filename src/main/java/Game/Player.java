@@ -11,10 +11,9 @@ public class Player extends Actor{
 	}
 	
 	public void update() {
-		int x,y;
+		int x = 0;
+		int y = 0;
 		int speed = 2;
-		x = getPosition().x;
-		y = getPosition().y;
 		if(input.isKeyDown('w'))
 			y += speed;
 		else if(input.isKeyDown('d'))
@@ -23,9 +22,9 @@ public class Player extends Actor{
 			x -= speed;
 		else if(input.isKeyDown('s'))
 			y -= speed;
-		
-		if(!collides())
-			setPosition(x,y);
+		setPosition(getPosition().x + x, getPosition().y + y);
+		if(collides())
+			setPosition(getPosition().x - x, getPosition().y - y);
 		input.releaseAll();
 	}
 	

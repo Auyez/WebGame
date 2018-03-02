@@ -25,16 +25,34 @@ class Lobby {
             ByteBuffer buffer = ByteBuffer.wrap(message);
             byte lobbyIndex = buffer.get();
             byte command = buffer.get();
+            byte cmdType = buffer.get();
             switch (command) {
                 case Protocol.Server.ADD_PLAYER:
                     int playerId = buffer.getInt();
                     addPlayer(session, playerId);
                     break;
                 case Protocol.Server.GAME_MSG:
+                	/*if (cmdType == Protocol.Server.Game.READY) {
+                    	byte numPlayers = (byte) sessions.size();
+                        for (Session s : sessions.keySet()) {
+                            ByteBuffer buf = ByteBuffer.allocate(3 + (4 * numPlayers));
+                            buf.put(Protocol.Client.GAME_MSG);
+                            buf.put(Protocol.Client.Game.PLAYER_SETUP);
+                            buf.put(numPlayers);
+                            for (int id : sessions.values()) {
+                            	buf.putInt(id);
+                            }
+                            buf.flip();
+                            s.getBasicRemote().sendBinary(buf);
+                        }
+                        break;
+                    }
+                	*/
                     if (isGameRunning()) {
                         buffer.clear(); // reset the ByteBuffer position. Position was modified by get() methods.
                         gameMessages.add(Pair.of(session, buffer));
                     }
+                    
                     break;
             }
 
@@ -69,16 +87,11 @@ class Lobby {
     
     private void startGame() {
         try {
-        	// Starts game on Clients' side AND sets up all players
-        	byte numPlayers = (byte) sessions.size();
+        	// Starts game on Clients' side
             for (Session session : sessions.keySet()) {
-                ByteBuffer buffer = ByteBuffer.allocate(3 + (4 * numPlayers));
+                ByteBuffer buffer = ByteBuffer.allocate(6);
                 buffer.put(Protocol.Client.START_GAME);
-                buffer.put(Protocol.Client.Game.PLAYER_SETUP); // Rewrite protocol so that player setup comes with start game
-                buffer.put(numPlayers);
-                for (int id : sessions.values()) {
-                	buffer.putInt(id);
-                }
+                
                 buffer.flip();
                 session.getBasicRemote().sendBinary(buffer);
             }

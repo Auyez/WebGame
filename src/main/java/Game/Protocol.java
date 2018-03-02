@@ -7,6 +7,7 @@ public class Protocol {
 
         public static class Game {
             public static final byte INPUT = 0;
+            public static final byte READY = 1;
         }
     }
 

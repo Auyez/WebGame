@@ -46,11 +46,18 @@ public abstract class Actor{
 		p.add(new Pair<Integer,Integer>(position.x, position.y + lowerBox.height));
 		return p;
 	}
+	public void setPosition(int x, int y) {
+		position.setLocation(x, y);
+		hitbox.setLocation(x, y);
+		if(lowerBox != null) {
+			lowerBox.setLocation(x, y);
+		}
+	}
+	
 	public Rectangle getHitbox() {return hitbox;}
 	public Rectangle getLowerBox() {return lowerBox;}
 	public Point getPosition() {return position;}
 	public int getId() {return id;}
-	public void setPosition(int x, int y) {position.setLocation(x, y);}
 	public abstract void update();
 	public abstract ByteBuffer getState();
 }

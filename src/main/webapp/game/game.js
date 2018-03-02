@@ -1,5 +1,5 @@
 class Game {
-    constructor(parent, buffer) {
+    constructor(parent) {
         this.game = new Phaser.Game(
                         800, 600, Phaser.AUTO, parent,
                             {
@@ -8,6 +8,8 @@ class Game {
                         );
         this.players = {}; // id -> player
         this.cursors = null;
+        
+		//this.socket.send() // Sends to server that game is loaded and ready to receive PLAYER_SETUP
     }
 
 
@@ -21,9 +23,9 @@ class Game {
         this.message = new DataView(new ArrayBuffer(4));
 		this.message.setInt8(0, 0); // sends 0 as lobby index for now
 		this.message.setInt8(1, Protocol.Server.GAME_MSG);
-		this.message.setInt8(2, Protocol.Server.Game.INPUT);
+		this.message.setInt8(2, Protocol.Server.Game.READY);
 		this.socket = socket; // Unnecessary?
-		
+		this.message.setInt8(2, Protocol.Server.Game.INPUT);
     }
 
     update() {

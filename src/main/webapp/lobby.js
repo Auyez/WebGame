@@ -11,7 +11,7 @@ socket.onopen = function(event) {
     dataView.setInt8(0, lobbyIndex);
     dataView.setInt8(1, Protocol.Server.ADD_PLAYER);
     dataView.setInt32(2, playerId);
-
+    console.log(buf);
     socket.send(buf);
 }
 
@@ -31,7 +31,7 @@ function onmessage(arrayBuffer) {
     var command = Protocol.Client.getLobbyCmd(dataView);
 
     if(command == Protocol.Client.START_GAME) {
-        game = new Game("game", arrayBuffer);
+        game = new Game("game");
     }
     if(game && command == Protocol.Client.GAME_MSG) {
         game.onmessage(arrayBuffer);

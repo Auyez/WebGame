@@ -4,7 +4,8 @@ var Protocol = {
         GAME_MSG : 1,
 
         Game : {
-            INPUT : 0
+            INPUT : 0,
+            READY: 1
         }
     },
 
