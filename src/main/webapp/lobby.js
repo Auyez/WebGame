@@ -5,7 +5,7 @@ var game = null;
 socket.onopen = function(event) {
     console.log('onopen::' + JSON.stringify(event, null, 4));
     var lobbyIndex = 0;
-    var playerId = 1;
+    var playerId = getRandomInt(1, 100000);
     var buf = new ArrayBuffer(6);
     var dataView = new DataView(buf);
     dataView.setInt8(0, lobbyIndex);
@@ -55,4 +55,10 @@ function toArrayBuf(int8arr) {
         dataView.setInt8(i, int8arr[i]);
     }
     return buf;
+}
+
+function getRandomInt(min, max) {
+  min = Math.ceil(min);
+  max = Math.floor(max);
+  return Math.floor(Math.random() * (max - min)) + min; //The maximum is exclusive and the minimum is inclusive
 }

@@ -11,7 +11,7 @@ class Lobby {
     private String name;
     private Map<Session, Integer> sessions = new HashMap<Session, Integer>(); // Session -> PlayerID map
     private Thread gameThread;
-    private Queue<Pair<Session, ByteBuffer>> gameMessages = new LinkedList<>();
+    private volatile Queue<Pair<Session, ByteBuffer>> gameMessages = new LinkedList<>();
 
 
     Lobby(String name) {
@@ -33,7 +33,6 @@ class Lobby {
                 case Protocol.Server.GAME_MSG:
                 	byte cmdType = buffer.get();
                 	if (cmdType == Protocol.Server.Game.READY) {
-                		System.out.println("CLIENT IS READY!!!");
                     	byte numPlayers = (byte) sessions.size();
                         for (Session s : sessions.keySet()) {
                             ByteBuffer buf = ByteBuffer.allocate(3 + (4 * numPlayers));
@@ -81,7 +80,7 @@ class Lobby {
         sessions.put(session, playerId);
         System.out.println(name + ": #" + playerId + " added");
 
-        if (sessions.size() >= 1) {
+        if (sessions.size() >= 2) {
             startGame(); // change start game only if all players checked "ready"
         }
     }
