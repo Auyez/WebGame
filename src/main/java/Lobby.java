@@ -51,7 +51,9 @@ class Lobby {
                 	
                     if (isGameRunning()) {
                         buffer.clear(); // reset the ByteBuffer position. Position was modified by get() methods.
-                        gameMessages.add(Pair.of(session, buffer));
+                        synchronized(gameMessages) {
+                        	gameMessages.add(Pair.of(session, buffer));
+                        }
                     }
                     
                     break;

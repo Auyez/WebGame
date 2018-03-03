@@ -13,7 +13,7 @@ class Game {
 
 
     preload() {
-        this.game.load.spritesheet('dude', 'game/assets/dude.png', 32, 48);
+        this.game.load.image('dude', 'game/assets/bitman.png');
         this.game.load.image('tile', 'game/assets/map.png');
     }
 

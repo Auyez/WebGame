@@ -30,13 +30,10 @@ public class GameArena {
 		}
 	}
 	
-	public boolean collides(Actor a) {
-		for(Pair<Integer, Integer> p : a.getLowerBoxPoints()) {
-				if(collision_map[p.getValue()/tileSize][p.getKey()/tileSize] == 1)
-					return true;
-		}
-		return false;
-	}
+	public int getEntry(int y, int x) {return collision_map[y][x];}
 	public int getWidth() {return w * tileSize;}
 	public int getHeight() {return h * tileSize;}
+	public int getTileWidth() {return w;}
+	public int getTileHeight() {return h;}
+	public int getTileSize() {return tileSize;}
 }
