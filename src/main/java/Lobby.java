@@ -13,7 +13,7 @@ class Lobby {
     private Thread gameThread;
     private volatile Queue<Pair<Session, ByteBuffer>> gameMessages = new LinkedList<>();
     private int readyCount = 0;
-    private int maxPlayers = 4;
+    private int maxPlayers = 1;
 
     Lobby(String name) {
         this.name = name;

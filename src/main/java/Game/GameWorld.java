@@ -18,10 +18,22 @@ public class GameWorld {
 	}
 	
 	public void addPlayer(int id) {
+		int w = 15;
+		int h = 30;
+		int lh = 10;
+		
+		Player p = null;
 		Random r = new Random();
-		Player p = new Player(r.nextInt(ga.getWidth()), r.nextInt(ga.getHeight()), 15, 30, 10, id, this);
-		while(p.collides())
-			p.setPosition(r.nextInt(ga.getWidth()), r.nextInt(ga.getHeight()));
+		int x,y;
+		do {
+			x = r.nextInt(ga.getWidth());
+			y = r.nextInt(ga.getHeight());
+			
+			if(p != null)
+				p.setPosition(x, y);
+			else
+				p = new Player(x, y, w, h, lh, id, this);		
+		}while(!(	( (x + w) < ga.getWidth()  ) && ( (y + h) < ga.getHeight() ) && !p.collides() 	));
 		actors.add(p);
 		players.add(p);
 	}
