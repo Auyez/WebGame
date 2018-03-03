@@ -19,7 +19,7 @@ public class GameWorld {
 	
 	public void addPlayer(int id) {
 		Random r = new Random();
-		Player p = new Player(r.nextInt(ga.getWidth()), r.nextInt(ga.getHeight()), 48, 48, 12, id, this);
+		Player p = new Player(r.nextInt(ga.getWidth()), r.nextInt(ga.getHeight()), 32, 48, 12, id, this);
 		actors.add(p);
 		players.add(p);
 	}

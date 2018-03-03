@@ -17,7 +17,7 @@ public class GameArena {
 			w = Integer.parseInt(params[0]);
 			h = Integer.parseInt(params[1]);
 			tileSize = Integer.parseInt(params[2]);
-			collision_map = new int[w][h];	
+			collision_map = new int[h][w];	
 			
 			for(int i = 0; s.hasNextLine(); i++) {
 				String[] line = s.nextLine().split(" ");
@@ -32,8 +32,8 @@ public class GameArena {
 	
 	public boolean collides(Actor a) {
 		for(Pair<Integer, Integer> p : a.getLowerBoxPoints()) {
-			if(collision_map[p.getKey()/tileSize][p.getValue()/tileSize] == 1)
-				return true;
+				if(collision_map[p.getValue()/tileSize][p.getKey()/tileSize] == 1)
+					return true;
 		}
 		return false;
 	}

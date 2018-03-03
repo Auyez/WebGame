@@ -17,7 +17,7 @@ public abstract class Actor{
 	public Actor(int x, int y, int w, int h, int lh, int id, GameWorld gw) {
 		position = new Point(x,y);
 		hitbox = new Rectangle(x,y,w,h);
-		lowerBox = new Rectangle(x,y,w,lh);
+		lowerBox = new Rectangle(x, y + (h - lh) , w, lh);
 		this.gw = gw;
 		this.id = id;
 	}
@@ -29,28 +29,28 @@ public abstract class Actor{
 	}
 
 	public boolean collides() {
-		if (!gw.getArena().collides(this)) {
-			for(Actor b : gw.getActors()) {
-				if (this != b && hitbox.intersects(b.hitbox))
-					return true;
-			}
+		if (gw.getArena().collides(this))
+				return true;
+		for(Actor b : gw.getActors()) {
+			if (this != b && hitbox.intersects(b.hitbox))
+				return true;
 		}
 		return false;
 	}
 	
 	public List<Pair<Integer, Integer>> getLowerBoxPoints() {
 		List<Pair<Integer, Integer>> p = new ArrayList<Pair<Integer, Integer>>();
-		p.add(new Pair<Integer,Integer>(position.x, position.y));
-		p.add(new Pair<Integer,Integer>(position.x + lowerBox.width, position.y));
-		p.add(new Pair<Integer,Integer>(position.x + lowerBox.width, position.y + lowerBox.height));
-		p.add(new Pair<Integer,Integer>(position.x, position.y + lowerBox.height));
+		p.add(new Pair<Integer,Integer>(lowerBox.x, lowerBox.y));
+		p.add(new Pair<Integer,Integer>(lowerBox.x + lowerBox.width, lowerBox.y));
+		p.add(new Pair<Integer,Integer>(lowerBox.x + lowerBox.width, lowerBox.y + lowerBox.height));
+		p.add(new Pair<Integer,Integer>(lowerBox.x, lowerBox.y + lowerBox.height));
 		return p;
 	}
 	public void setPosition(int x, int y) {
 		position.setLocation(x, y);
 		hitbox.setLocation(x, y);
 		if(lowerBox != null) {
-			lowerBox.setLocation(x, y);
+			lowerBox.setLocation(x, y + (hitbox.height - lowerBox.height) );
 		}
 	}
 	
