@@ -33,20 +33,20 @@ public class Game implements Runnable {
                 long frameStartTime = System.currentTimeMillis();
 
                 while (!messages.isEmpty()) {
-                    Pair<Session, ByteBuffer> message = messages.remove();
-                    ByteBuffer buffer = message.getRight();
-                    Session session = message.getLeft();
-                    
-                    int id = sessions.get(session);
-                    Player player = gw.getPlayer(id);
-                    byte gameCmd = buffer.get(2);
-                    if (gameCmd == Protocol.Server.Game.INPUT) {
-                    	byte key = buffer.get(3);
-                    	player.getInput().press(key);
-                    	player.update();
-                    	System.out.println(player.getPosition());
-                    }
-                    
+                	synchronized (messages) {
+                		Pair<Session, ByteBuffer> message = messages.remove();
+                		ByteBuffer buffer = message.getRight();
+                        Session session = message.getLeft();
+                        int id = sessions.get(session);
+                        Player player = gw.getPlayer(id);
+                        byte gameCmd = buffer.get(2);
+                        if (gameCmd == Protocol.Server.Game.INPUT) {
+                        	byte key = buffer.get(3);
+                        	player.getInput().press(key);
+                        	player.update();
+                        	System.out.println(player.getPosition());
+                        }
+                	}
                 }
                 if(frameCount % 1 == 0)
                 	sendWorldState();
