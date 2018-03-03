@@ -5,7 +5,7 @@ var game = null;
 socket.onopen = function(event) {
     console.log('onopen::' + JSON.stringify(event, null, 4));
     var lobbyIndex = 0;
-    var playerId = getRandomInt(1, 100000);
+    var playerId = getRandomInt(1, 2,147,483,637); // almost upper limit of int32 signed
     var buf = new ArrayBuffer(6);
     var dataView = new DataView(buf);
     dataView.setInt8(0, lobbyIndex);
