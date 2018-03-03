@@ -13,7 +13,7 @@ class Lobby {
     private Thread gameThread;
     private volatile Queue<Pair<Session, ByteBuffer>> gameMessages = new LinkedList<>();
     private int readyCount = 0;
-    private int maxPlayers = 2;
+    private int maxPlayers = 4;
 
     Lobby(String name) {
         this.name = name;
@@ -37,6 +37,7 @@ class Lobby {
                 		readyCount++;
                 		if (readyCount >= maxPlayers) {
                 			byte numPlayers = (byte) sessions.size();
+                			System.out.println(sessions.size());
                             for (Session s : sessions.keySet()) {
                                 ByteBuffer buf = ByteBuffer.allocate(3 + (4 * numPlayers));
                                 buf.put(Protocol.Client.GAME_MSG);
