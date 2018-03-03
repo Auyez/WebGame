@@ -43,7 +43,7 @@ class Lobby {
                             	buf.putInt(id);
                             }
                             buf.flip();
-                            System.out.println(buf);
+                            //System.out.println(buf);
                             s.getBasicRemote().sendBinary(buf);
                         }
                         break;
@@ -82,7 +82,7 @@ class Lobby {
         sessions.put(session, playerId);
         System.out.println(name + ": #" + playerId + " added");
 
-        if (sessions.size() >= 2) {
+        if (sessions.size() >= 3) {
             startGame(); // change start game only if all players checked "ready"
         }
     }

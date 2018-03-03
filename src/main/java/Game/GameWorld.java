@@ -20,12 +20,15 @@ public class GameWorld {
 	public void addPlayer(int id) {
 		Random r = new Random();
 		Player p = new Player(r.nextInt(ga.getWidth()), r.nextInt(ga.getHeight()), 15, 30, 10, id, this);
+		while(p.collides())
+			p.setPosition(r.nextInt(ga.getWidth()), r.nextInt(ga.getHeight()));
 		actors.add(p);
 		players.add(p);
 	}
 	
 	public GameArena getArena() {return ga;}
 	public List<Actor> getActors(){return actors;}
+	public List<Player> getPlayers(){return players;}
 	
 	public Player getPlayer(int id) {
 		for (Player p : players) {
