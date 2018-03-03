@@ -1,4 +1,8 @@
 
+//var lobbyIndex = parseInt(sessionStorage.getItem('LOBBY_INDEX'));
+//document.title = 'Lobby' + lobbyIndex;
+
+
 var socket = new WebSocket("ws://" + location.host + "/WebGame/websocketendpoint");
 var game = null;
 
@@ -31,6 +35,7 @@ function onmessage(arrayBuffer) {
     var command = Protocol.Client.getLobbyCmd(dataView);
 
     if(command == Protocol.Client.START_GAME) {
+    	document.getElementById('game').innerHTML = '';
         game = new Game("game");
     }
     if(game && command == Protocol.Client.GAME_MSG) {

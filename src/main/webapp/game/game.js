@@ -1,5 +1,6 @@
 class Game {
     constructor(parent) {
+    	
         this.game = new Phaser.Game(
                         800, 600, Phaser.AUTO, parent,
                             {
@@ -26,6 +27,9 @@ class Game {
 		
 		
         this.cursors = this.game.input.keyboard.createCursorKeys();
+		this.q = this.game.input.keyboard.addKey(Phaser.Keyboard.Q); //.onDown .onPress
+		//this.q.onDown.add(spellOne, )
+		
         this.message = new DataView(new ArrayBuffer(4));
 		this.message.setInt8(0, 0); // sends 0 as lobby index for now
 		this.message.setInt8(1, Protocol.Server.GAME_MSG);
@@ -82,16 +86,20 @@ class Game {
     	if (this.cursors.up.isDown){
         	this.message.setInt8(3, 'w'.charCodeAt(0));
         	this.socket.send(this.message);
-        } else if (this.cursors.down.isDown){
+        }
+    	if (this.cursors.down.isDown){
         	this.message.setInt8(3, 's'.charCodeAt(0));
         	this.socket.send(this.message);
-        } else if(this.cursors.left.isDown){
+        }
+    	if(this.cursors.left.isDown){
         	this.message.setInt8(3, 'a'.charCodeAt(0));
         	this.socket.send(this.message);
-        } else if(this.cursors.right.isDown){
+        }
+    	if(this.cursors.right.isDown){
         	this.message.setInt8(3, 'd'.charCodeAt(0));
         	this.socket.send(this.message);
         } 
+    	
     }
 
     onmessage(arrayBuf) {

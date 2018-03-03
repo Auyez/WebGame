@@ -13,7 +13,7 @@ class Lobby {
     private Thread gameThread;
     private volatile Queue<Pair<Session, ByteBuffer>> gameMessages = new LinkedList<>();
     private int readyCount = 0;
-    private int maxPlayers = 3;
+    private int maxPlayers = 2;
 
     Lobby(String name) {
         this.name = name;
@@ -75,7 +75,7 @@ class Lobby {
             System.out.println(name + ": #" + sessions.get(session) + " removed");
             sessions.remove(session);
 
-            if (sessions.isEmpty()) {
+            if (sessions.isEmpty() && gameThread != null) {
                 gameThread.interrupt(); // TODO: stop game properly
             }
         }

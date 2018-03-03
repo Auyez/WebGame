@@ -10,6 +10,7 @@ lobbyIndex : byte
 			x : byte
 			    y : byte
 			        a : int
+		READY
 
 
 CLIENT
@@ -24,3 +25,6 @@ GAME_MSG
 				x : int
 					y : int
 						a : int
+	PLAYER_SETUP
+		numPlayers : byte
+			playerId : int
