@@ -12,7 +12,8 @@ class Lobby {
     private Map<Session, Integer> sessions = new HashMap<Session, Integer>(); // Session -> PlayerID map
     private Thread gameThread;
     private volatile Queue<Pair<Session, ByteBuffer>> gameMessages = new LinkedList<>();
-
+    private int readyCount = 0;
+    private int maxPlayers = 2;
 
     Lobby(String name) {
         this.name = name;
@@ -33,20 +34,24 @@ class Lobby {
                 case Protocol.Server.GAME_MSG:
                 	byte cmdType = buffer.get();
                 	if (cmdType == Protocol.Server.Game.READY) {
-                    	byte numPlayers = (byte) sessions.size();
-                        for (Session s : sessions.keySet()) {
-                            ByteBuffer buf = ByteBuffer.allocate(3 + (4 * numPlayers));
-                            buf.put(Protocol.Client.GAME_MSG);
-                            buf.put(Protocol.Client.Game.PLAYER_SETUP);
-                            buf.put(numPlayers);
-                            for (int id : sessions.values()) {
-                            	buf.putInt(id);
+                		readyCount++;
+                		if (readyCount >= maxPlayers) {
+                			byte numPlayers = (byte) sessions.size();
+                            for (Session s : sessions.keySet()) {
+                                ByteBuffer buf = ByteBuffer.allocate(3 + (4 * numPlayers));
+                                buf.put(Protocol.Client.GAME_MSG);
+                                buf.put(Protocol.Client.Game.PLAYER_SETUP);
+                                buf.put(numPlayers);
+                                for (int id : sessions.values()) {
+                                	buf.putInt(id);
+                                }
+                                buf.flip();
+                                System.out.println(buf);
+                                s.getBasicRemote().sendBinary(buf);
                             }
-                            buf.flip();
-                            System.out.println(buf);
-                            s.getBasicRemote().sendBinary(buf);
-                        }
-                        break;
+                            readyCount = 0;
+                            break;
+                		}
                     }
                 	
                     if (isGameRunning()) {
@@ -82,7 +87,7 @@ class Lobby {
         sessions.put(session, playerId);
         System.out.println(name + ": #" + playerId + " added");
 
-        if (sessions.size() >= 2) {
+        if (sessions.size() >= maxPlayers) {
             startGame(); // change start game only if all players checked "ready"
         }
     }
