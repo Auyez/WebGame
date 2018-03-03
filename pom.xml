@@ -58,7 +58,7 @@
                 <version>2.2</version>
                 <configuration>
                     <port>8080</port>
-                    <path>/</path>
+                    <path>/WebGame</path>
                 </configuration>
             </plugin>
             <plugin>
