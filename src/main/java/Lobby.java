@@ -87,6 +87,7 @@ class Lobby {
         sessions.put(session, playerId);
         System.out.println(name + ": #" + playerId + " added");
 
+
         if (sessions.size() >= maxPlayers) {
             startGame(); // change start game only if all players checked "ready"
         }

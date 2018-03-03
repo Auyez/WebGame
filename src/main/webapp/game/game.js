@@ -16,8 +16,6 @@ class Game {
         this.game.load.image('dude', 'game/assets/bitman.png');
         this.game.load.image('tile', 'game/assets/map.png');
     }
-
-    
     
     create() {
     	var ready = new DataView(new ArrayBuffer(4));
@@ -97,9 +95,9 @@ class Game {
     }
 
     onmessage(arrayBuf) {
-        console.log("Game: ", new Int8Array(arrayBuf));
+        //console.log("Game: ", new Int8Array(arrayBuf));
         var dataView = new DataView(arrayBuf);
-        console.log("Game cmd: ", Protocol.Client.Game.getGameCmd(dataView) );
+        //console.log("Game cmd: ", Protocol.Client.Game.getGameCmd(dataView) );
 
         var command = Protocol.Client.Game.getGameCmd(dataView);
         if (command == Protocol.Client.Game.WORLD_STATE) {
@@ -108,6 +106,8 @@ class Game {
         }
 
         if (command == Protocol.Client.Game.PLAYER_SETUP) {
+        	//console.log(arrayBuf);
+        	console.log("Game: ", new Uint8Array(arrayBuf));
             var ids = Protocol.Client.Game.getPlayerSetup(dataView);
             this.addPlayers(ids);
         }
@@ -117,8 +117,8 @@ class Game {
         for (var i in ids) {
             var id = ids[i];
             var player = this.game.add.sprite(32, this.game.world.height - 150, 'dude');
-            player.animations.add('left', [0, 1, 2, 3], 10, true);
-            player.animations.add('right', [5, 6, 7, 8], 10, true);
+            //player.animations.add('left', [0, 1, 2, 3], 10, true);
+            //player.animations.add('right', [5, 6, 7, 8], 10, true);
             this.players[id] = player;
         }
     }

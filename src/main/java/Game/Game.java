@@ -44,7 +44,7 @@ public class Game implements Runnable {
                         	byte key = buffer.get(3);
                         	player.getInput().press(key);
                         	player.update();
-                        	System.out.println(player.getPosition());
+                        	//System.out.println(player.getPosition());
                         }
                 	}
                 }
