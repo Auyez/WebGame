@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Lobbies</title>
+</head>
+<body>
+    <ul id="lobbyList"></ul>
+
+    <script>
+        var lobbyList = document.getElementById('lobbyList');
+        var numLobbies = 4;
+
+        for(var i = 0; i < numLobbies; i++) {
+            var item = document.createElement('li');
+            var buttonName = document.createTextNode('Lobby' + i);
+            var button = document.createElement('button');
+            button.setAttribute('onclick', 'joinLobby(' + i + ')');
+            button.appendChild(buttonName);
+            item.appendChild(button);
+
+            lobbyList.appendChild(item);
+        }
+
+        function joinLobby(lobbyIndex) {
+            sessionStorage.setItem('lobbyIndex', lobbyIndex);
+            location.href = 'lobby.html';
+        }
+    </script>
+</body>
+</html>

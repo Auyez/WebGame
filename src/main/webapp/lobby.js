@@ -1,14 +1,14 @@
 
-//var lobbyIndex = parseInt(sessionStorage.getItem('LOBBY_INDEX'));
-//document.title = 'Lobby' + lobbyIndex;
-
+var lobbyIndex = parseInt(sessionStorage.getItem('lobbyIndex'));
+document.title = 'Lobby' + lobbyIndex;
+//var lobbyIndex = 0;
 
 var socket = new WebSocket("ws://" + location.host + "/WebGame/websocketendpoint");
 var game = null;
 
 socket.onopen = function(event) {
     console.log('onopen::' + JSON.stringify(event, null, 4));
-    var lobbyIndex = 0;
+    //var lobbyIndex = 0;
     var playerId = getRandomInt(1, 2147483637); // almost upper limit of int32 signed
     var buf = new ArrayBuffer(6);
     var dataView = new DataView(buf);
@@ -36,7 +36,7 @@ function onmessage(arrayBuffer) {
 
     if(command == Protocol.Client.START_GAME) {
     	document.getElementById('game').innerHTML = '';
-        game = new Game("game");
+        game = CreateGame("game", socket, lobbyIndex);
     }
     if(game && command == Protocol.Client.GAME_MSG) {
         game.onmessage(arrayBuffer);
