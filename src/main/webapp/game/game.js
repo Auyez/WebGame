@@ -144,27 +144,3 @@ function CreateGame(parent, socket, lobbyIndex) {
 	
 	return game;
 }
-
-
-class Game2 {
-    constructor(parent, socket, lobbyIndex) {
-    	
-    	// this in game.preload would refer to game
-        this.game = new Phaser.Game(
-                        800, 600, Phaser.AUTO, parent,
-                            {
-                            preload: function(){this.preload();},
-                            create: function(){this.create();}, 
-                            update: function(){this.update();}
-                            }
-                        );
-        this.players = {}; // id -> player
-        this.cursors = null;
-        this.socket = socket;
-        this.lobbyIndex = lobbyIndex;
-        
-    }
-
-
-
-}
