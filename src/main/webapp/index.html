@@ -1,0 +1,26 @@
+<html>
+	<head>
+	</head>
+	
+	<body>
+		<ul id='lobbyList'></ul>
+		
+		<script>
+		
+			lobbyList = document.getElementById('lobbyList');
+			for(var i = 0; i < 4; i++){
+				item = document.createElement('li');
+				lobbyButton = document.createElement('button');
+				lobbyButton.appendChild(document.createTextNode('Lobby' + i));
+				lobbyButton.setAttribute('onclick','joinLobby(' + i + ')');
+				item.appendChild(lobbyButton);
+				lobbyList.append(item);
+			}
+			
+			function joinLobby(index){
+				sessionStorage.setItem('LOBBY_INDEX',index);
+				location.href = 'lobby.html';
+			}
+		</script>
+	</body>
+</html>
