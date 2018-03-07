@@ -28,26 +28,12 @@ public class Game implements Runnable {
             final int FPS = 60;
             int frameCount = 0;
             boolean running = true;
-
+            
             while (running) {
-                long frameStartTime = System.currentTimeMillis();
-
-                while (!messages.isEmpty()) { // TODO Make separate method CLEAN CODE
-                	synchronized (messages) {
-                		Pair<Session, ByteBuffer> message = messages.remove();
-                		ByteBuffer buffer = message.getRight();
-                        Session session = message.getLeft();
-                        int id = sessions.get(session);
-                        Player player = gw.getPlayer(id);
-                        byte gameCmd = buffer.get(2);
-                        if (gameCmd == Protocol.Server.Game.INPUT) {
-                        	byte key = buffer.get(3);
-                        	player.getInput().press(key);
-                        	player.update();
-                        	//System.out.println(player.getPosition());
-                        }
-                	}
-                }
+                long frameStartTime = System.currentTimeMillis(); // TODO check whether Java optimizes this or not
+                
+                processMessages();
+                
                 if(frameCount % 1 == 0)
                 	sendWorldState();
                 long frameElapsedTime = System.currentTimeMillis() - frameStartTime;
@@ -60,6 +46,25 @@ public class Game implements Runnable {
             ex.printStackTrace();
         }
     }
+
+	private void processMessages() {
+		synchronized (messages) {	
+			while (!messages.isEmpty()) {
+				Pair<Session, ByteBuffer> message = messages.remove();
+				ByteBuffer buffer = message.getRight();
+		        Session session = message.getLeft();
+		        int id = sessions.get(session);
+		        Player player = gw.getPlayer(id);
+		        byte gameCmd = buffer.get(2);
+		        if (gameCmd == Protocol.Server.Game.INPUT) { // Will probably need refactoring in future
+		        	byte key = buffer.get(3);
+		        	player.getInput().press(key);
+		        	player.update();
+		        	//System.out.println(player.getPosition());
+		        }
+			}
+		}
+	}
     
     private void sendWorldState() {
     	if (gw.getActors().size() > 0) {
