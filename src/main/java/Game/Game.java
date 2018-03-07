@@ -32,7 +32,7 @@ public class Game implements Runnable {
             while (running) {
                 long frameStartTime = System.currentTimeMillis();
 
-                while (!messages.isEmpty()) {
+                while (!messages.isEmpty()) { // TODO Make separate method CLEAN CODE
                 	synchronized (messages) {
                 		Pair<Session, ByteBuffer> message = messages.remove();
                 		ByteBuffer buffer = message.getRight();

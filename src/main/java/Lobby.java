@@ -4,16 +4,19 @@ import Game.Protocol;
 import org.apache.commons.lang3.tuple.Pair;
 
 import javax.websocket.Session;
+
+import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.util.*;
 
 class Lobby {
+	private static final int MAX_PLAYERS = 2;
+	
     private String name;
     private Map<Session, Integer> sessions = new HashMap<Session, Integer>(); // Session -> PlayerID map
     private Thread gameThread;
     private volatile Queue<Pair<Session, ByteBuffer>> gameMessages = new LinkedList<>();
-    private int readyCount = 0;
-    private int maxPlayers = 2;
+    private int readyCount;
 
     Lobby(String name) {
         this.name = name;
@@ -24,7 +27,7 @@ class Lobby {
     public void onMessage(byte[] message, Session session) {
         try {
             ByteBuffer buffer = ByteBuffer.wrap(message);
-            byte lobbyIndex = buffer.get();
+            byte lobbyIndex = buffer.get(); // TODO get rid of this tumor (check .clear() in WebSocket class)
             byte command = buffer.get();
             switch (command) {
                 case Protocol.Server.ADD_PLAYER:
@@ -32,36 +35,7 @@ class Lobby {
                     addPlayer(session, playerId);
                     break;
                 case Protocol.Server.GAME_MSG:
-                	byte cmdType = buffer.get();
-                	if (cmdType == Protocol.Server.Game.READY) {
-                		readyCount++;
-                		if (readyCount >= maxPlayers) {
-                			byte numPlayers = (byte) sessions.size();
-                			System.out.println(sessions.size());
-                            for (Session s : sessions.keySet()) {
-                                ByteBuffer buf = ByteBuffer.allocate(3 + (4 * numPlayers));
-                                buf.put(Protocol.Client.GAME_MSG);
-                                buf.put(Protocol.Client.Game.PLAYER_SETUP);
-                                buf.put(numPlayers);
-                                for (int id : sessions.values()) {
-                                	buf.putInt(id);
-                                }
-                                buf.flip();
-                                System.out.println(buf);
-                                s.getBasicRemote().sendBinary(buf);
-                            }
-                            readyCount = 0;
-                            break;
-                		}
-                    }
-                	
-                    if (isGameRunning()) {
-                        buffer.clear(); // reset the ByteBuffer position. Position was modified by get() methods.
-                        synchronized(gameMessages) {
-                        	gameMessages.add(Pair.of(session, buffer));
-                        }
-                    }
-                    
+                	handleGameMessage(session, buffer);
                     break;
             }
 
@@ -69,6 +43,40 @@ class Lobby {
             ex.printStackTrace();
         }
     }
+
+	private void handleGameMessage(Session session, ByteBuffer buffer) throws IOException {
+		byte cmdType = buffer.get();
+		if (cmdType == Protocol.Server.Game.READY) {
+			readyCount++;
+			if (readyCount >= MAX_PLAYERS) {
+				sendPlayerSetup();
+			}
+		} else if (isGameRunning() ) {
+		    buffer.clear(); // reset the ByteBuffer position. Position was modified by get() methods.
+		    synchronized(gameMessages) {
+		    	gameMessages.add(Pair.of(session, buffer));
+		    }
+		}
+	}
+
+
+	private void sendPlayerSetup() throws IOException {
+		byte numPlayers = (byte) sessions.size();
+		
+		for (Session s : sessions.keySet()) {
+		    ByteBuffer buf = ByteBuffer.allocate(3 + (4 * numPlayers));
+		    buf.put(Protocol.Client.GAME_MSG);
+		    buf.put(Protocol.Client.Game.PLAYER_SETUP);
+		    buf.put(numPlayers);
+		    for (int id : sessions.values()) {
+		    	buf.putInt(id);
+		    }
+		    buf.flip();
+		    System.out.println(buf);
+		    s.getBasicRemote().sendBinary(buf);
+		}
+		readyCount = 0;
+	}
 
     public void onClose(Session session) {
         if (sessions.containsKey(session)) {
@@ -89,7 +97,7 @@ class Lobby {
         System.out.println(name + ": #" + playerId + " added");
 
 
-        if (sessions.size() >= maxPlayers) {
+        if (sessions.size() >= MAX_PLAYERS) {
             startGame(); // change start game only if all players checked "ready"
         }
     }
