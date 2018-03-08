@@ -1,26 +1,31 @@
-<html>
-	<head>
-	</head>
-	
-	<body>
-		<ul id='lobbyList'></ul>
-		
-		<script>
-		
-			lobbyList = document.getElementById('lobbyList');
-			for(var i = 0; i < 4; i++){
-				item = document.createElement('li');
-				lobbyButton = document.createElement('button');
-				lobbyButton.appendChild(document.createTextNode('Lobby' + i));
-				lobbyButton.setAttribute('onclick','joinLobby(' + i + ')');
-				item.appendChild(lobbyButton);
-				lobbyList.append(item);
-			}
-			
-			function joinLobby(index){
-				sessionStorage.setItem('LOBBY_INDEX',index);
-				location.href = 'lobby.html';
-			}
-		</script>
-	</body>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Lobbies</title>
+</head>
+<body>
+    <ul id="lobbyList"></ul>
+
+    <script>
+        var lobbyList = document.getElementById('lobbyList');
+        var numLobbies = 4;
+
+        for(var i = 0; i < numLobbies; i++) {
+            var item = document.createElement('li');
+            var buttonName = document.createTextNode('Lobby' + i);
+            var button = document.createElement('button');
+            button.setAttribute('onclick', 'joinLobby(' + i + ')');
+            button.appendChild(buttonName);
+            item.appendChild(button);
+
+            lobbyList.appendChild(item);
+        }
+
+        function joinLobby(lobbyIndex) {
+            sessionStorage.setItem('lobbyIndex', lobbyIndex);
+            location.href = 'lobby.html';
+        }
+    </script>
+</body>
 </html>
