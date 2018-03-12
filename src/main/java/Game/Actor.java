@@ -65,5 +65,5 @@ public abstract class Actor{
 	public Point getPosition() {return position;}
 	public int getId() {return id;}
 	public abstract void update();
-	public abstract ByteBuffer getState();
+	public abstract Protocol.Client.Entity getState();
 }

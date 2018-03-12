@@ -28,15 +28,14 @@ public class Player extends Actor{
 		input.releaseAll();
 	}
 	
-	public ByteBuffer getState() {
-		//int[] data = {position.x, position.y, 0, getId()};
-		ByteBuffer state = ByteBuffer.allocate(17);
-		state.put((byte) 0); // always send 0 for now (player type = 0)
-		state.putInt(position.x);
-		state.putInt(position.y);
-		state.putInt(0);
-		state.putInt(getId());
-		state.clear();
+	public Protocol.Client.Entity getState() {
+		Protocol.Client.Entity state = new Protocol.Client.Entity();
+		state.player = new Protocol.Client.Player();
+		state.player.x = position.x;
+		state.player.y = position.y;
+		state.player.a = 0;
+		state.player.id = getId();
+
 		return state;
 	}
 	
