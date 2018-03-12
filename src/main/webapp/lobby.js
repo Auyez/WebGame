@@ -1,7 +1,6 @@
 
 var lobbyIndex = parseInt(sessionStorage.getItem('lobbyIndex'));
 document.title = 'Lobby' + lobbyIndex;
-var lobbyIndex = 0;
 
 var socket = new WebSocket("ws://" + location.host + "/WebGame/websocketendpoint");
 var game = null;
