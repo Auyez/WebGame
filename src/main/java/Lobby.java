@@ -10,7 +10,7 @@ import java.nio.ByteBuffer;
 import java.util.*;
 
 class Lobby {
-	private static final int MAX_PLAYERS = 2;
+	private static final int MAX_PLAYERS = 3;
 	
     private String name;
     private Map<Session, Integer> sessions = new HashMap<Session, Integer>(); // Session -> PlayerID map
@@ -45,7 +45,7 @@ class Lobby {
     }
 
 	private void handleGameMessage(Session session, ByteBuffer buffer) throws IOException {
-		byte cmdType = buffer.get();
+		byte cmdType = buffer.get(2);
 		if (cmdType == Protocol.Server.Game.READY) {
 			readyCount++;
 			if (readyCount >= MAX_PLAYERS) {
