@@ -1,3 +1,6 @@
+import Game.ByteReader;
+import Game.Protocol;
+
 import javax.websocket.*;
 import javax.websocket.server.ServerEndpoint;
 import java.io.IOException;
@@ -16,9 +19,10 @@ public class WebSocketEndpoint {
     public void onMessage(byte[] message, Session session) throws IOException {
         if(message.length <= 0)
             return;
-        int lobbyIndex = message[0];
+        Protocol.Server.ServerMsg msg = Protocol.Server.ServerMsg.parse(new ByteReader(message));
+        int lobbyIndex = msg.lobbyIndex;
         if(0 <= lobbyIndex && lobbyIndex < LobbyList.getLobbies().size()) {
-            LobbyList.getLobbies().get(lobbyIndex).onMessage(message, session);
+            LobbyList.getLobbies().get(lobbyIndex).onMessage(msg.lobbyCmd, session);
         }
 
     }

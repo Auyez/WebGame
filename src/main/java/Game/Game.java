@@ -10,11 +10,11 @@ import java.util.Map;
 import java.util.Queue;
 
 public class Game implements Runnable {
-    private volatile Queue<Pair<Session, ByteBuffer>> messages;
+    private volatile Queue<Pair<Session, Protocol.Server.GameMsg>> messages;
     private Map<Session, Integer> sessions;
     private GameWorld gw;
     
-    public Game(Queue<Pair<Session, ByteBuffer>> messages, Map<Session, Integer> sessions) {
+    public Game(Queue<Pair<Session, Protocol.Server.GameMsg>> messages, Map<Session, Integer> sessions) {
         this.messages = messages;
         this.sessions = sessions;
         gw = new GameWorld();
@@ -50,14 +50,16 @@ public class Game implements Runnable {
 	private void processMessages() {
 		synchronized (messages) {	
 			while (!messages.isEmpty()) {
-				Pair<Session, ByteBuffer> message = messages.remove();
-				ByteBuffer buffer = message.getRight();
+				Pair<Session, Protocol.Server.GameMsg> message = messages.remove();
+				Protocol.Server.GameMsg gameMsg = message.getRight();
 		        Session session = message.getLeft();
+
 		        int id = sessions.get(session);
 		        Player player = gw.getPlayer(id);
-		        byte gameCmd = buffer.get(2);
-		        if (gameCmd == Protocol.Server.Game.INPUT) { // Will probably need refactoring in future
-		        	byte key = buffer.get(3);
+
+		        if (gameMsg.input != null) {
+		        	byte key = gameMsg.input.key;
+		        	System.out.println((char)key);
 		        	player.getInput().press(key);
 		        	player.update();
 		        	//System.out.println(player.getPosition());
@@ -68,19 +70,19 @@ public class Game implements Runnable {
     
     private void sendWorldState() {
     	if (gw.getActors().size() > 0) {
-    		ByteBuffer b = ByteBuffer.allocate(gw.getActors().size()*17 + 3);
-	    	b.put(Protocol.Client.GAME_MSG);
-	    	b.put(Protocol.Client.Game.WORLD_STATE);
-	    	b.put((byte) gw.getActors().size());
-	    	for (Actor a : gw.getActors()) {
-    			b.put(a.getState());	
-	    	}
-	    	b.flip();
+    	    Protocol.Client.ClientMsg message = new Protocol.Client.ClientMsg();
+            message.gameMsg = new Protocol.Client.GameMsg();
+            message.gameMsg.worldState = new Protocol.Client.WorldState();
+
+            for (Actor a : gw.getActors()) {
+                message.gameMsg.worldState.items.add(a.getState());
+            }
+
 	    	for(Session s : sessions.keySet()) {
 	    		try{
-	    			s.getBasicRemote().sendBinary(b);
+	    			s.getBasicRemote().sendBinary(ByteBuffer.wrap(message.bytes()));
 	    		}catch(Exception e) {
-	    			System.out.println(e.getMessage());
+	    			e.printStackTrace();
 	    		}
 	    	}
     	}

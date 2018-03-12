@@ -10,78 +10,59 @@ import java.nio.ByteBuffer;
 import java.util.*;
 
 class Lobby {
-	private static final int MAX_PLAYERS = 2;
+	private static final int MAX_PLAYERS = 1;
 	
     private String name;
     private Map<Session, Integer> sessions = new HashMap<Session, Integer>(); // Session -> PlayerID map
     private Thread gameThread;
-    private volatile Queue<Pair<Session, ByteBuffer>> gameMessages = new LinkedList<>();
+    private volatile Queue<Pair<Session, Protocol.Server.GameMsg>> gameMessages = new LinkedList<>();
     private int readyCount;
 
     Lobby(String name) {
         this.name = name;
     }
 
-    
-    // TODO: find a better way of parsing messages
-    public void onMessage(byte[] message, Session session) {
-        try {
-            ByteBuffer buffer = ByteBuffer.wrap(message);
-            byte lobbyIndex = buffer.get(); // TODO get rid of this tumor (check .clear() in WebSocket class)
-            byte command = buffer.get();
-            switch (command) {
-                case Protocol.Server.ADD_PLAYER:
-                    int playerId = buffer.getInt();
-                    addPlayer(session, playerId);
-                    break;
-                case Protocol.Server.GAME_MSG:
-                	handleGameMessage(session, buffer);
-                    break;
-            }
 
-        } catch (Exception ex) {
-            ex.printStackTrace();
+    public void onMessage(Protocol.Server.LobbyCmd message, Session session) {
+        if (message.addPlayerId != null) {
+            addPlayer(session, message.addPlayerId);
+        } else if (message.ready != null) {
+            readyCount++;
+            if (readyCount >= MAX_PLAYERS) {
+                try {
+                    sendPlayerSetup();
+                } catch (IOException ex) {
+                    ex.printStackTrace(); // how should be deal with this?
+                }
+                readyCount = 0;
+            }
+        } else if (message.gameMsg != null) {
+            if (isGameRunning()) {
+                synchronized (gameMessages) {
+                    gameMessages.add(Pair.of(session, message.gameMsg));
+                }
+            }
         }
     }
 
-	private void handleGameMessage(Session session, ByteBuffer buffer) throws IOException {
-		byte cmdType = buffer.get();
-		if (cmdType == Protocol.Server.Game.READY) {
-			readyCount++;
-			if (readyCount >= MAX_PLAYERS) {
-				sendPlayerSetup();
-			}
-		} else if (isGameRunning() ) {
-		    buffer.clear(); // reset the ByteBuffer position. Position was modified by get() methods.
-		    synchronized(gameMessages) {
-		    	gameMessages.add(Pair.of(session, buffer));
-		    }
-		}
-	}
 
 
 	private void sendPlayerSetup() throws IOException {
-		byte numPlayers = (byte) sessions.size();
-		
 		for (Session s : sessions.keySet()) {
-		    ByteBuffer buf = ByteBuffer.allocate(3 + (4 * numPlayers));
-		    buf.put(Protocol.Client.GAME_MSG);
-		    buf.put(Protocol.Client.Game.PLAYER_SETUP);
-		    buf.put(numPlayers);
-		    for (int id : sessions.values()) {
-		    	buf.putInt(id);
-		    }
-		    buf.flip();
-		    System.out.println(buf);
-		    s.getBasicRemote().sendBinary(buf);
+            Protocol.Client.ClientMsg message = new Protocol.Client.ClientMsg();
+            message.gameMsg = new Protocol.Client.GameMsg();
+            message.gameMsg.playerSetup = new Protocol.Client.PlayerSetup();
+            message.gameMsg.playerSetup.items.addAll(sessions.values()); // add all ids
+
+		    s.getBasicRemote().sendBinary(ByteBuffer.wrap(message.bytes()));
 		}
-		readyCount = 0;
 	}
 
     public void onClose(Session session) {
         if (sessions.containsKey(session)) {
             System.out.println(name + ": #" + sessions.get(session) + " removed");
             sessions.remove(session);
+            // if game is running tell it that the player has exited
 
             if (sessions.isEmpty() && gameThread != null) {
                 gameThread.interrupt(); // TODO: stop game properly
@@ -107,15 +88,16 @@ class Lobby {
         try {
         	// Starts game on Clients' side
             for (Session session : sessions.keySet()) {
-                ByteBuffer buffer = ByteBuffer.allocate(7);
-                buffer.put(Protocol.Client.START_GAME);
-                buffer.flip();
-                session.getBasicRemote().sendBinary(buffer);
+                Protocol.Client.ClientMsg message = new Protocol.Client.ClientMsg();
+                message.startGame = new Protocol.Client.StartGame();
+
+                session.getBasicRemote().sendBinary(ByteBuffer.wrap(message.bytes()));
             }
             
             gameMessages.clear();
             
             Game game = new Game(gameMessages, sessions);
+            // Perhaps we should move this loop to Game
             GameWorld gw = game.getWorld();
             for (int id : sessions.values()) {
             	gw.addPlayer(id);

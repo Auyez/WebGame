@@ -1,7 +1,7 @@
 
 var lobbyIndex = parseInt(sessionStorage.getItem('lobbyIndex'));
 document.title = 'Lobby' + lobbyIndex;
-//var lobbyIndex = 0;
+var lobbyIndex = 0;
 
 var socket = new WebSocket("ws://" + location.host + "/WebGame/websocketendpoint");
 var game = null;
@@ -10,36 +10,32 @@ socket.onopen = function(event) {
     console.log('onopen::' + JSON.stringify(event, null, 4));
     //var lobbyIndex = 0;
     var playerId = getRandomInt(1, 2147483637); // almost upper limit of int32 signed
-    var buf = new ArrayBuffer(6);
-    var dataView = new DataView(buf);
-    dataView.setInt8(0, lobbyIndex);
-    dataView.setInt8(1, Protocol.Server.ADD_PLAYER);
-    dataView.setInt32(2, playerId);
-    console.log(buf);
-    socket.send(buf);
+
+    var servermsg = new Protocol.Server.ServerMsg();
+    servermsg.lobbyIndex = lobbyIndex;
+    servermsg.lobbyCmd = new Protocol.Server.LobbyCmd();
+    servermsg.lobbyCmd.addPlayerId = playerId;
+
+    socket.send(servermsg.bytes());
 }
 
 socket.onmessage = function(event) {
     var blob = event.data;
     var reader = new FileReader();
-    var command = null;
     reader.onload = function() {
         var arrayBuffer = reader.result;
-        onmessage(arrayBuffer);
+        var clientMsg = Protocol.Client.ClientMsg.parse(new ByteReader(arrayBuffer));
+        lobbyOnMessage(clientMsg);
     }
     reader.readAsArrayBuffer(blob);
 }
 
-function onmessage(arrayBuffer) {
-    var dataView = new DataView(arrayBuffer);
-    var command = Protocol.Client.getLobbyCmd(dataView);
-
-    if(command == Protocol.Client.START_GAME) {
-    	document.getElementById('game').innerHTML = '';
+function lobbyOnMessage(clientMsg) {
+    if (clientMsg.startGame != null) {
+        document.getElementById('game').innerHTML = '';
         game = CreateGame("game", socket, lobbyIndex);
-    }
-    if(game && command == Protocol.Client.GAME_MSG) {
-        game.onmessage(arrayBuffer);
+    } else if (clientMsg.gameMsg != null) {
+        game.onmessage(clientMsg.gameMsg);
     }
 }
 

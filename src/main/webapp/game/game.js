@@ -19,21 +19,24 @@ function CreateGame(parent, socket, lobbyIndex) {
     }
     
     function create() {
-    	var ready = new DataView(new ArrayBuffer(4));
-        ready.setInt8(0, lobbyIndex);
-		ready.setInt8(1, Protocol.Server.GAME_MSG);
-		ready.setInt8(2, Protocol.Server.Game.READY);
-		socket.send(ready) // Sends to server that game is loaded and ready to receive PLAYER_SETUP
-		
-		
+        var servermsg = new Protocol.Server.ServerMsg();
+		servermsg.lobbyIndex = lobbyIndex;
+		servermsg.lobbyCmd = new Protocol.Server.LobbyCmd();
+		servermsg.lobbyCmd.ready = new Protocol.Server.Ready();
+		// Sends to server that game is loaded and ready to receive playerSetup
+		socket.send(servermsg.bytes());
+
+
+        inputMessage = new Protocol.Server.ServerMsg();
+        inputMessage.lobbyIndex = lobbyIndex;
+        inputMessage.lobbyCmd = new Protocol.Server.LobbyCmd();
+        inputMessage.lobbyCmd.gameMsg = new Protocol.Server.GameMsg();
+        inputMessage.lobbyCmd.gameMsg.input = new Protocol.Server.Input();
+
+
         cursors = game.input.keyboard.createCursorKeys();
 		q = game.input.keyboard.addKey(Phaser.Keyboard.Q); //.onDown .onPress
 		//q.onDown.add(spellOne, )
-		
-        inputMessage = new DataView(new ArrayBuffer(4));
-		inputMessage.setInt8(0, lobbyIndex);
-		inputMessage.setInt8(1, Protocol.Server.GAME_MSG);
-		inputMessage.setInt8(2, Protocol.Server.Game.INPUT);
 		
 		
 		///////////////////////
@@ -81,41 +84,33 @@ function CreateGame(parent, socket, lobbyIndex) {
     }
 
     function update() {
+
     	if (cursors.up.isDown){
-        	inputMessage.setInt8(3, 'w'.charCodeAt(0));
-        	socket.send(inputMessage);
+            inputMessage.lobbyCmd.gameMsg.input.key = 'w'.charCodeAt(0);
+        	socket.send(inputMessage.bytes());
         }
     	if (cursors.down.isDown){
-        	inputMessage.setInt8(3, 's'.charCodeAt(0));
-        	socket.send(inputMessage);
+        	inputMessage.lobbyCmd.gameMsg.input.key = 's'.charCodeAt(0);
+            socket.send(inputMessage.bytes());
         }
     	if(cursors.left.isDown){
-        	inputMessage.setInt8(3, 'a'.charCodeAt(0));
-        	socket.send(inputMessage);
+        	inputMessage.lobbyCmd.gameMsg.input.key = 'a'.charCodeAt(0);
+            socket.send(inputMessage.bytes());
         }
     	if(cursors.right.isDown){
-        	inputMessage.setInt8(3, 'd'.charCodeAt(0));
-        	socket.send(inputMessage);
+        	inputMessage.lobbyCmd.gameMsg.input.key = 'd'.charCodeAt(0);
+            socket.send(inputMessage.bytes());
         } 
     	
     }
 
-    game.onmessage = function(arrayBuf) {
-        //console.log("Game: ", new Int8Array(arrayBuf));
-        var dataView = new DataView(arrayBuf);
-        //console.log("Game cmd: ", Protocol.Client.Game.getGameCmd(dataView) );
-
-        var command = Protocol.Client.Game.getGameCmd(dataView);
-        if (command == Protocol.Client.Game.WORLD_STATE) {
-            var worldState = Protocol.Client.Game.getWorldState(dataView);
-            updateEntities(worldState);
-        }
-
-        if (command == Protocol.Client.Game.PLAYER_SETUP) {
-        	//console.log(arrayBuf);
-        	console.log("Game: ", new Uint8Array(arrayBuf));
-            var ids = Protocol.Client.Game.getPlayerSetup(dataView);
+    game.onmessage = function(gameMsg) {
+        if (gameMsg.playerSetup != null) {
+            var ids = gameMsg.playerSetup.items;
             addPlayers(ids);
+        } else if (gameMsg.worldState != null) {
+            var entities = gameMsg.worldState.items;
+            updateEntities(entities);
         }
     }
 
@@ -129,14 +124,15 @@ function CreateGame(parent, socket, lobbyIndex) {
         }
     }
 
-    function updateEntities(worldState) {
-        for (var i in worldState) {
-            var entity = worldState[i];
-            if (entity.type == Protocol.Client.Game.Entity.PLAYER) {
-                if (entity.id in players) {
-                    var player = players[entity.id];
-                    player.x = entity.x;
-                    player.y = entity.y;
+    function updateEntities(entities) {
+        for (var i in entities) {
+            var entity = entities[i];
+            if (entity.player != null) {
+                if (entity.player.id in players) {
+                    console.log(entity.player);
+                    var player = players[entity.player.id];
+                    player.x = entity.player.x;
+                    player.y = entity.player.y;
                 }
             }
         }
