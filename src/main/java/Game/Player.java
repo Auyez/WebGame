@@ -16,11 +16,11 @@ public class Player extends Actor{
 		int speed = 4;
 		if(input.isKeyDown('w'))
 			y -= speed;
-		else if(input.isKeyDown('d'))
+		if(input.isKeyDown('d'))
 			x += speed;
-		else if(input.isKeyDown('a'))
+		if(input.isKeyDown('a'))
 			x -= speed;
-		else if(input.isKeyDown('s'))
+		if(input.isKeyDown('s'))
 			y += speed;
 		setPosition(getPosition().x + x, getPosition().y + y);
 		if(collides())

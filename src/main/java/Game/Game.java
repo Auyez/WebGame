@@ -33,7 +33,8 @@ public class Game implements Runnable {
                 long frameStartTime = System.currentTimeMillis(); // TODO check whether Java optimizes this or not
                 
                 processMessages();
-                
+                update();
+
                 if(frameCount % 1 == 0)
                 	sendWorldState();
                 long frameElapsedTime = System.currentTimeMillis() - frameStartTime;
@@ -61,13 +62,18 @@ public class Game implements Runnable {
 		        	byte key = gameMsg.input.key;
 		        	System.out.println((char)key);
 		        	player.getInput().press(key);
-		        	player.update();
 		        	//System.out.println(player.getPosition());
 		        }
 			}
 		}
 	}
-    
+
+	private void update() {
+        for (Actor actor : gw.getActors()) {
+            actor.update();
+        }
+    }
+
     private void sendWorldState() {
     	if (gw.getActors().size() > 0) {
     	    Protocol.Client.ClientMsg message = new Protocol.Client.ClientMsg();
