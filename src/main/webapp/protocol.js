@@ -1,27 +1,28 @@
 /*
 namespace Server
-	struct server_msg
-		Integer lobby_index
-		union lobby_cmd
-			Integer add_player_id
-			struct ready
-			union game_msg
-				struct input
-					Byte key
+    struct server_msg
+        Integer lobby_index
+        union lobby_cmd
+            Integer add_player_id
+            struct ready
+            union game_msg
+                struct input
+                    Byte key
 
 namespace Client
-	union client_msg
-		struct start_game
-		union game_msg
-			list player_setup
-				Integer id
-			list world_state
-				union entity
-					struct player
-						Integer x
-						Integer y
-						Integer a
-						Integer id
+    union client_msg
+        struct start_game
+        union game_msg
+            list player_setup
+                Integer id
+            Integer remove_player_id
+            list world_state
+                union entity
+                    struct player
+                        Integer x
+                        Integer y
+                        Integer a
+                        Integer id
 */
 
 
@@ -230,6 +231,7 @@ Protocol["__class"] = "Protocol";
         var GameMsg = (function () {
             function GameMsg() {
                 this.playerSetup = null;
+                this.removePlayerId = null;
                 this.worldState = null;
             }
             GameMsg.prototype.bytes = function () {
@@ -239,6 +241,10 @@ Protocol["__class"] = "Protocol";
                 else if (this.playerSetup != null) {
                     writer.writeByte(GameMsg.PLAYER_SETUP);
                     writer.writeBytes(this.playerSetup.bytes());
+                }
+                else if (this.removePlayerId != null) {
+                    writer.writeByte(GameMsg.REMOVE_PLAYER_ID);
+                    writer.writeBytes(ByteWriter.Integer2bytes(this.removePlayerId));
                 }
                 else if (this.worldState != null) {
                     writer.writeByte(GameMsg.WORLD_STATE);
@@ -252,6 +258,9 @@ Protocol["__class"] = "Protocol";
                 if (type === GameMsg.PLAYER_SETUP) {
                     obj.playerSetup = Client.PlayerSetup.parse(reader);
                 }
+                if (type === GameMsg.REMOVE_PLAYER_ID) {
+                    obj.removePlayerId = reader.readInteger();
+                }
                 if (type === GameMsg.WORLD_STATE) {
                     obj.worldState = Client.WorldState.parse(reader);
                 }
@@ -260,7 +269,8 @@ Protocol["__class"] = "Protocol";
             return GameMsg;
         }());
         GameMsg.PLAYER_SETUP = 0;
-        GameMsg.WORLD_STATE = 1;
+        GameMsg.REMOVE_PLAYER_ID = 1;
+        GameMsg.WORLD_STATE = 2;
         Client.GameMsg = GameMsg;
         GameMsg["__class"] = "Protocol.Client.GameMsg";
         var PlayerSetup = (function () {

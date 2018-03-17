@@ -107,7 +107,11 @@ function CreateGame(parent, socket, lobbyIndex) {
     game.onmessage = function(gameMsg) {
         if (gameMsg.playerSetup != null) {
             var ids = gameMsg.playerSetup.items;
+            console.log('playersetup', gameMsg.playerSetup.items);
             addPlayers(ids);
+        } else if (gameMsg.removePlayerId != null) {
+        	console.log('remove', gameMsg.removePlayerId);
+        	removePlayer(gameMsg.removePlayerId);
         } else if (gameMsg.worldState != null) {
             var entities = gameMsg.worldState.items;
             updateEntities(entities);
@@ -124,12 +128,19 @@ function CreateGame(parent, socket, lobbyIndex) {
         }
     }
 
+    function removePlayer(id) {
+        if (id in players) {
+            var player = players[id];
+            player.destroy();
+            delete players[id];
+        }
+    }
+
     function updateEntities(entities) {
         for (var i in entities) {
             var entity = entities[i];
             if (entity.player != null) {
                 if (entity.player.id in players) {
-                    console.log(entity.player);
                     var player = players[entity.player.id];
                     player.x = entity.player.x;
                     player.y = entity.player.y;

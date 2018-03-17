@@ -11,11 +11,15 @@ import java.util.Queue;
 
 public class Game implements Runnable {
     private volatile Queue<Pair<Session, Protocol.Server.GameMsg>> messages;
+    private volatile Queue<Integer> playerDisconnectMessages;
     private Map<Session, Integer> sessions;
     private GameWorld gw;
     
-    public Game(Queue<Pair<Session, Protocol.Server.GameMsg>> messages, Map<Session, Integer> sessions) {
+    public Game(Queue<Pair<Session, Protocol.Server.GameMsg>> messages,
+                Queue<Integer> playerDisconnectMessages,
+                Map<Session, Integer> sessions) {
         this.messages = messages;
+        this.playerDisconnectMessages = playerDisconnectMessages;
         this.sessions = sessions;
         gw = new GameWorld();
     }
@@ -42,6 +46,11 @@ public class Game implements Runnable {
                 if (frameRemainingTime > 0)
                     Thread.sleep(frameRemainingTime);
                 frameCount++;
+
+                if (gw.getPlayers().size() <= 0) {
+                    running = false;
+                    System.out.println("Game loop over");
+                }
             }
         } catch (InterruptedException ex) {
             ex.printStackTrace();
@@ -60,10 +69,14 @@ public class Game implements Runnable {
 
 		        if (gameMsg.input != null) {
 		        	byte key = gameMsg.input.key;
-		        	System.out.println((char)key);
 		        	player.getInput().press(key);
-		        	//System.out.println(player.getPosition());
 		        }
+			}
+		}
+		synchronized (playerDisconnectMessages) {
+			while (!playerDisconnectMessages.isEmpty()) {
+				Integer id = playerDisconnectMessages.remove();
+				gw.removePlayer(id);
 			}
 		}
 	}
@@ -92,9 +105,5 @@ public class Game implements Runnable {
 	    		}
 	    	}
     	}
-    }
-    
-    private void parseMessage(ByteBuffer msg) {
-    	
     }
 }

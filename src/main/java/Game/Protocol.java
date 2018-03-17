@@ -44,28 +44,29 @@ ServerMsg serverMsg = ServerMsg.parse(ByteBuffer.wrap(bytes));
 
 /*
 namespace Server
-	struct server_msg
-		Integer lobby_index
-		union lobby_cmd
-			Integer add_player_id
-			struct ready
-			union game_msg
-				struct input
-					Byte key
+    struct server_msg
+        Integer lobby_index
+        union lobby_cmd
+            Integer add_player_id
+            struct ready
+            union game_msg
+                struct input
+                    Byte key
 
 namespace Client
-	union client_msg
-		struct start_game
-		union game_msg
-			list player_setup
-				Integer id
-			list world_state
-				union entity
-					struct player
-						Integer x
-						Integer y
-						Integer a
-						Integer id
+    union client_msg
+        struct start_game
+        union game_msg
+            list player_setup
+                Integer id
+            Integer remove_player_id
+            list world_state
+                union entity
+                    struct player
+                        Integer x
+                        Integer y
+                        Integer a
+                        Integer id
 */
 public class Protocol {
     public static class Server {
@@ -212,15 +213,20 @@ public class Protocol {
         }
         public static class GameMsg { /*Union*/
             public PlayerSetup playerSetup;
+            public Integer removePlayerId;
             public WorldState worldState;
             static final byte PLAYER_SETUP = 0;
-            static final byte WORLD_STATE = 1;
+            static final byte REMOVE_PLAYER_ID = 1;
+            static final byte WORLD_STATE = 2;
             public byte[] bytes() {
                 ByteWriter writer = new ByteWriter();
                 if (false) {;
                 } else if (playerSetup != null) {
                     writer.writeByte(PLAYER_SETUP);
                     writer.writeBytes(playerSetup.bytes());
+                } else if (removePlayerId != null) {
+                    writer.writeByte(REMOVE_PLAYER_ID);
+                    writer.writeBytes(ByteWriter.Integer2bytes(removePlayerId));
                 } else if (worldState != null) {
                     writer.writeByte(WORLD_STATE);
                     writer.writeBytes(worldState.bytes());
@@ -232,6 +238,10 @@ public class Protocol {
                 byte type = reader.readByte();
                 if (type == PLAYER_SETUP) {
                     obj.playerSetup = PlayerSetup.parse(reader);
+                }
+
+                if (type == REMOVE_PLAYER_ID) {
+                    obj.removePlayerId = reader.readInteger();
                 }
 
                 if (type == WORLD_STATE) {

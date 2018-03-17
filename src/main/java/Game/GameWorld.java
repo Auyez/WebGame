@@ -37,7 +37,13 @@ public class GameWorld {
 		actors.add(p);
 		players.add(p);
 	}
-	
+
+	public void removePlayer(int id) {
+	    Player player = getPlayer(id);
+	    actors.remove(player);
+	    players.remove(player);
+    }
+
 	public GameArena getArena() {return ga;}
 	public List<Actor> getActors(){return actors;}
 	public List<Player> getPlayers(){return players;}

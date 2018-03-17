@@ -16,6 +16,7 @@ class Lobby {
     private Map<Session, Integer> sessions = new HashMap<Session, Integer>(); // Session -> PlayerID map
     private Thread gameThread;
     private volatile Queue<Pair<Session, Protocol.Server.GameMsg>> gameMessages = new LinkedList<>();
+    private volatile Queue<Integer> gamePlayerDisconnectMessages = new LinkedList<>();
     private int readyCount;
 
     Lobby(String name) {
@@ -58,13 +59,28 @@ class Lobby {
 
     public void onClose(Session session) {
         if (sessions.containsKey(session)) {
+            if(isGameRunning()) {
+                int id = sessions.get(session);
+                synchronized (gamePlayerDisconnectMessages) {
+                    gamePlayerDisconnectMessages.add(id);
+                }
+                
+                // tell game.js of other players to remove this player
+                Protocol.Client.ClientMsg clientMsg = new Protocol.Client.ClientMsg();
+                clientMsg.gameMsg = new Protocol.Client.GameMsg();
+                clientMsg.gameMsg.removePlayerId = id;
+                try {
+                    for (Session other : sessions.keySet()) {
+                        if (other != session)
+                            other.getBasicRemote().sendBinary(ByteBuffer.wrap(clientMsg.bytes()));
+                    }
+                } catch (IOException ex) {
+                    ex.printStackTrace();
+                }
+            }
+
             System.out.println(name + ": #" + sessions.get(session) + " removed");
             sessions.remove(session);
-            // if game is running tell it that the player has exited
-
-            if (sessions.isEmpty() && gameThread != null) {
-                gameThread.interrupt(); // TODO: stop game properly
-            }
         }
     }
 
@@ -93,8 +109,9 @@ class Lobby {
             }
             
             gameMessages.clear();
+            gamePlayerDisconnectMessages.clear();
             
-            Game game = new Game(gameMessages, sessions);
+            Game game = new Game(gameMessages, gamePlayerDisconnectMessages, sessions);
             // Perhaps we should move this loop to Game
             GameWorld gw = game.getWorld();
             for (int id : sessions.values()) {
