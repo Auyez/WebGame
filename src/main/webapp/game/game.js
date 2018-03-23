@@ -32,7 +32,7 @@ function CreateGame(parent, socket, lobbyIndex) {
         inputMessage.lobbyCmd = new Protocol.Server.LobbyCmd();
         inputMessage.lobbyCmd.gameMsg = new Protocol.Server.GameMsg();
         inputMessage.lobbyCmd.gameMsg.input = new Protocol.Server.Input();
-
+        
 
         cursors = game.input.keyboard.createCursorKeys();
 		q = game.input.keyboard.addKey(Phaser.Keyboard.Q); //.onDown .onPress
@@ -109,7 +109,9 @@ function CreateGame(parent, socket, lobbyIndex) {
     function move() {
     	console.log(game.input.x);
     	console.log(game.input.y);
-    	
+    	inputMessage.lobbyCmd.gameMsg.input.xTarget = game.input.x;
+    	inputMessage.lobbyCmd.gameMsg.input.yTarget = game.input.y;
+    	socket.send(inputMessage.bytes());
     }
     
     game.onmessage = function(gameMsg) {

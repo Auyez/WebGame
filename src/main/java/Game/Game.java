@@ -91,8 +91,8 @@ public class Game implements Runnable {
 		        Player player = getPlayer(id);
 
 		        if (gameMsg.input != null) {
-		        	byte key = gameMsg.input.key;
-		        	player.getInput().press(key);
+		        	//byte key = gameMsg.input.key;
+		        	//player.getInput().press(key);
 		        }
 			}
 		}
