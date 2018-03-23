@@ -10,7 +10,7 @@ import java.nio.ByteBuffer;
 import java.util.*;
 
 class Lobby {
-	private static final int MAX_PLAYERS = 3;
+	private static final int MAX_PLAYERS = 1;
 	
     private String name;
     private Map<Session, Integer> sessions = new HashMap<Session, Integer>(); // Session -> PlayerID map
@@ -112,12 +112,6 @@ class Lobby {
             gamePlayerDisconnectMessages.clear();
             
             Game game = new Game(gameMessages, gamePlayerDisconnectMessages, sessions);
-            // Perhaps we should move this loop to Game
-            GameWorld gw = game.getWorld();
-            for (int id : sessions.values()) {
-            	gw.addPlayer(id);
-            }
-            
             gameThread = new Thread(game);
             gameThread.start();
         } catch (Exception ex) {

@@ -4,35 +4,39 @@ import java.nio.ByteBuffer;
 
 public class Player extends Actor{
 	private Input input;
-	
-	public Player(int x, int y, int w, int h, int lh, int ID, GameWorld gw) {
+	private int speed;
+	public Player(float x, float y, int w, int h, int lh, int ID, Game gw) {
 		super(x, y, w, h, lh, ID, gw);
 		input = new Input();
+		speed = 80;
 	}
 	
-	public void update() {
-		int x = 0;
-		int y = 0;
-		int speed = 4;
+	public void update(long delta) {
+		//System.out.println(position);
+		Vec2 movement = new Vec2(0, 0);
+		float val = speed*(delta/1000.0f);
 		if(input.isKeyDown('w'))
-			y -= speed;
+			movement.setY( -1 );
+		else if(input.isKeyDown('s'))
+			movement.setY(1);
 		if(input.isKeyDown('d'))
-			x += speed;
-		if(input.isKeyDown('a'))
-			x -= speed;
-		if(input.isKeyDown('s'))
-			y += speed;
-		setPosition(getPosition().x + x, getPosition().y + y);
-		if(collides())
-			setPosition(getPosition().x - x, getPosition().y - y);
+			movement.setX( 1 );
+		else if(input.isKeyDown('a'))
+			movement.setX( -1 );
+		movement.scalar(speed * (delta/1000.0f));
+		addPosition(movement);
+		if(collides()) {
+			movement.scalar(-1);
+			addPosition(movement);
+		}
 		input.releaseAll();
 	}
 	
 	public Protocol.Client.Entity getState() {
 		Protocol.Client.Entity state = new Protocol.Client.Entity();
 		state.player = new Protocol.Client.Player();
-		state.player.x = position.x;
-		state.player.y = position.y;
+		state.player.x = (int) position.getX();
+		state.player.y = (int) position.getY();
 		state.player.a = 0;
 		state.player.id = getId();
 
