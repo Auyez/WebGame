@@ -41,32 +41,32 @@ Reading Example:
 ServerMsg serverMsg = ServerMsg.parse(ByteBuffer.wrap(bytes));
 */
 
-
 /*
 namespace Server
-    struct server_msg
-        Integer lobby_index
-        union lobby_cmd
-            Integer add_player_id
-            struct ready
-            union game_msg
-                struct input
-                    Byte key
+	struct server_msg
+		Integer lobby_index
+		union lobby_cmd
+			Integer add_player_id
+			struct ready
+			union game_msg
+				struct input
+					Integer x_target
+					Integer y_target
 
 namespace Client
-    union client_msg
-        struct start_game
-        union game_msg
-            list player_setup
-                Integer id
-            Integer remove_player_id
-            list world_state
-                union entity
-                    struct player
-                        Integer x
-                        Integer y
-                        Integer a
-                        Integer id
+	union client_msg
+		struct start_game
+		union game_msg
+			list player_setup
+				Integer id
+			Integer remove_player_id
+			list world_state
+				union entity
+					struct player
+						Integer x
+						Integer y
+						Integer a
+						Integer id
 */
 public class Protocol {
     public static class Server {
@@ -157,15 +157,18 @@ public class Protocol {
             }
         }
         public static class Input { /*Struct*/
-            public Byte key;
+            public Integer xTarget;
+            public Integer yTarget;
             public byte[] bytes() {
                 ByteWriter writer = new ByteWriter();
-                writer.writeBytes(ByteWriter.Byte2bytes(key));
+                writer.writeBytes(ByteWriter.Integer2bytes(xTarget));
+                writer.writeBytes(ByteWriter.Integer2bytes(yTarget));
                 return writer.bytes();
             }
             public static Input parse(ByteReader reader) {
                 Input obj = new Input();
-                obj.key = reader.readByte();
+                obj.xTarget = reader.readInteger();
+                obj.yTarget = reader.readInteger();
                 return obj;
             }
         }

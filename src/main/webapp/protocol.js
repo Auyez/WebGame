@@ -152,16 +152,19 @@ Protocol["__class"] = "Protocol";
         GameMsg["__class"] = "Protocol.Server.GameMsg";
         var Input = (function () {
             function Input() {
-                this.key = null;
+                this.xTarget = null;
+                this.yTarget = null;
             }
             Input.prototype.bytes = function () {
                 var writer = new ByteWriter();
-                writer.writeBytes(ByteWriter.Byte2bytes(this.key));
+                writer.writeBytes(ByteWriter.Integer2bytes(this.xTarget));
+                writer.writeBytes(ByteWriter.Integer2bytes(this.yTarget));
                 return writer.bytes();
             };
             Input.parse = function (reader) {
                 var obj = new Server.Input();
-                obj.key = reader.readByte();
+                obj.xTarget = reader.readInteger();
+                obj.yTarget = reader.readInteger();
                 return obj;
             };
             return Input;
