@@ -84,7 +84,9 @@ function CreateGame(parent, socket, lobbyIndex) {
     }
 
     function update() {
-
+    	
+    	game.input.onDown.add(move, this);
+    	
     	if (cursors.up.isDown){
             inputMessage.lobbyCmd.gameMsg.input.key = 'w'.charCodeAt(0);
         	socket.send(inputMessage.bytes());
@@ -104,6 +106,12 @@ function CreateGame(parent, socket, lobbyIndex) {
     	
     }
 
+    function move() {
+    	console.log(game.input.x);
+    	console.log(game.input.y);
+    	
+    }
+    
     game.onmessage = function(gameMsg) {
         if (gameMsg.playerSetup != null) {
             var ids = gameMsg.playerSetup.items;
