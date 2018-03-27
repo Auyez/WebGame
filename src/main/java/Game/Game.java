@@ -90,9 +90,8 @@ public class Game implements Runnable {
 		        Player player = getPlayer(id);
 
 		        if (gameMsg.input != null) {
-		        	int x = gameMsg.input.xTarget;
-		        	int y = gameMsg.input.yTarget;
-		        	player.setPosition(x, y);
+		        	//byte key = gameMsg.input.key;
+		        	//player.getInput().press(key);
 		        }
 			}
 		}

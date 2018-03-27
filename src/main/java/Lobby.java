@@ -1,5 +1,4 @@
 import Game.Game;
-import Game.GameWorld;
 import Game.Protocol;
 import org.apache.commons.lang3.tuple.Pair;
 
