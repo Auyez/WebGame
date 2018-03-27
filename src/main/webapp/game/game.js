@@ -100,8 +100,7 @@ function CreateGame(parent, socket, lobbyIndex) {
     	if(cursors.right.isDown){
         	inputMessage.lobbyCmd.gameMsg.input.key = 'd'.charCodeAt(0);
             socket.send(inputMessage.bytes());
-        } 
-    	
+        }   	
     }
 
     game.onmessage = function(gameMsg) {

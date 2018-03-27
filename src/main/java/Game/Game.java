@@ -53,7 +53,6 @@ public class Game implements Runnable {
                 delta = frameStartTime - delta;
                 processMessages();
                 update(delta);
-                //System.out.println(delta);
                 if(frameCount % 1 == 0)
                 	sendWorldState();
                 long frameElapsedTime = System.currentTimeMillis() - frameStartTime;
@@ -91,8 +90,9 @@ public class Game implements Runnable {
 		        Player player = getPlayer(id);
 
 		        if (gameMsg.input != null) {
-		        	byte key = gameMsg.input.key;
-		        	player.getInput().press(key);
+		        	int x = gameMsg.input.xTarget;
+		        	int y = gameMsg.input.yTarget;
+		        	player.setPosition(x, y);
 		        }
 			}
 		}
@@ -142,7 +142,7 @@ public class Game implements Runnable {
 				p.setPosition(x, y);
 			else
 				p = new Player(x, y, w, h, lh, id, this);		
-		}while(!(	( (x + w) < ga.getWidth()  ) && ( (y + h) < ga.getHeight() ) && !p.collides() 	));
+		}while(!(	( (x + w) < ga.getWidth()  ) && ( (y + h) < ga.getHeight() ) && (p.collides() < -1)	));
 		actors.add(p);
 		players.add(p);
 	}
@@ -154,13 +154,20 @@ public class Game implements Runnable {
 	    players.remove(player);
     }
 	
+	//need to sort player list after each addition of player
+	//then need to reimplement this method and use faster search
 	private Player getPlayer(int id) {
 		for (Player p : players)
 			if (p.getId() == id)
 				return p;
 		return null;
 	}
-	
+	private Actor getActor(int id) {
+		for (Actor a : actors)
+			if (a.getId() == id)
+				return a;
+		return null;
+	}
 	public GameArena getArena() {return ga;}
 	public List<Actor> getActors(){return actors;}
 	public List<Player> getPlayers(){return players;}

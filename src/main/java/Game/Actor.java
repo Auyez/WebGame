@@ -8,6 +8,10 @@ import java.util.List;
 import javafx.util.Pair;
 
 public abstract class Actor{
+	public static enum Types{
+		PLAYER;					// add types here
+	};
+	
 	public Vec2 position;
 	public Rectangle hitbox;
 	public Rectangle lowerBox;
@@ -29,8 +33,10 @@ public abstract class Actor{
 		hitbox = new Rectangle((int)x,(int)y,w,h);
 		lowerBox = null;
 	}
+	
 
-	public boolean collides() {
+	//returns -2 if no collision happens, or -1 if actor collides with arena, otherwise returns id
+	public int collides() {
 		GameArena arena = game.getArena();
 		
 		//collision with tile map part
@@ -38,23 +44,20 @@ public abstract class Actor{
 		int right = (lowerBox.x + lowerBox.width)/arena.getTileSize();
 		int up = lowerBox.y/arena.getTileSize();
 		int bottom = (lowerBox.y + lowerBox.height)/arena.getTileSize();
-		///System.out.println("box: " + lowerBox.x);
-		//System.out.println("box: " + lowerBox.y);
+
 		for(int i = up; i <= bottom; i++) {
 			for(int j = left; j <= right; j++) {
 				if(arena.getEntry(i, j) == 1)
-					return true;
+					return -1;
 			}
 		}
-		System.out.println("Object collision");
 		//collision with objects
 		for(Actor b : game.getActors()) {
 			if (this != b && hitbox.intersects(b.hitbox)) {
-				System.out.println("Object" + this.id + "collided with " + b.id);
-				return true;
+				return b.id;
 			}
 		}
-		return false;
+		return -2;
 	}
 	
 	public void setPosition(int x, int y) {
@@ -76,4 +79,5 @@ public abstract class Actor{
 	public int getId() {return id;}
 	public abstract void update(long delta);
 	public abstract Protocol.Client.Entity getState();
+	public abstract Types getType();
 }

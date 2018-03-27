@@ -21,7 +21,9 @@ public class Vec2 {
 	public void add(Vec2 v) { x += v.getX(); y += v.getY();}
 	public float dot(Vec2 v) {return dot(this, v);}
 	public void scalar(float c) { x *= c; y *= c;}
-	
+	public static Vec2 subs(Vec2 v1, Vec2 v2) {
+		return new Vec2(v1.getX() - v2.getX(), v1.getY() - v2.getY());
+	}
 	public static Vec2 add(Vec2 v1, Vec2 v2) {
 		return new Vec2(v1.getX() + v2.getX(), v1.getY() + v2.getY());
 	}
@@ -30,5 +32,8 @@ public class Vec2 {
 	}
 	public String toString() {
 		return "X:" + x + " Y:" + y;
+	}
+	public boolean equals(Vec2 v) {
+		return v.x == x && v.y == y;
 	}
 }
