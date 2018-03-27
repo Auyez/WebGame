@@ -83,26 +83,8 @@ function CreateGame(parent, socket, lobbyIndex) {
     	//////////////////////////////////////////////////
     }
 
-    function update() {
-    	
+    function update() {  	
     	game.input.onDown.add(move, this);
-    	
-    	if (cursors.up.isDown){
-            inputMessage.lobbyCmd.gameMsg.input.key = 'w'.charCodeAt(0);
-        	socket.send(inputMessage.bytes());
-        }
-    	if (cursors.down.isDown){
-        	inputMessage.lobbyCmd.gameMsg.input.key = 's'.charCodeAt(0);
-            socket.send(inputMessage.bytes());
-        }
-    	if(cursors.left.isDown){
-        	inputMessage.lobbyCmd.gameMsg.input.key = 'a'.charCodeAt(0);
-            socket.send(inputMessage.bytes());
-        }
-    	if(cursors.right.isDown){
-        	inputMessage.lobbyCmd.gameMsg.input.key = 'd'.charCodeAt(0);
-            socket.send(inputMessage.bytes());
-        }   	
     }
 
     function move() {

@@ -17,7 +17,7 @@ public class Vec2 {
 	public void setY(float y) {this.y = y;}
 	public float getX() {return x;}
 	public float getY() {return y;}
-	public double getMagnitude() {return Math.sqrt(x*x+y*y);}
+	public float getMagnitude() {return (float)Math.sqrt(x*x+y*y);}
 	public void add(Vec2 v) { x += v.getX(); y += v.getY();}
 	public float dot(Vec2 v) {return dot(this, v);}
 	public void scalar(float c) { x *= c; y *= c;}
@@ -35,5 +35,10 @@ public class Vec2 {
 	}
 	public boolean equals(Vec2 v) {
 		return v.x == x && v.y == y;
+	}
+	public boolean isClose(Vec2 v, float range) {
+		return ( (	(x - range) <= v.x && v.x <= (x + range) )
+			&& (	(y - range) <= v.y && v.y <= (y + range) )	);
+			
 	}
 }

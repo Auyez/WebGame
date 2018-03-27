@@ -92,6 +92,7 @@ public class Game implements Runnable {
 		        if (gameMsg.input != null) {
 		        	//byte key = gameMsg.input.key;
 		        	//player.getInput().press(key);
+		        	player.getInput().setMouse(gameMsg.input.xTarget, gameMsg.input.yTarget);
 		        }
 			}
 		}
