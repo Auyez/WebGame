@@ -24,7 +24,7 @@ public class Player extends Actor{
 			if (position.isClose(input.getMouse(), 3.0f))
 				input.clrMouse();
 		}
-		input.releaseAll();
+		input.releaseAll(); // looks like obsolete
 	}
 	
 	public Protocol.Client.Entity getState() {

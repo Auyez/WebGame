@@ -92,6 +92,9 @@ public class Game implements Runnable {
 		        if (gameMsg.input != null) {
 		        	//byte key = gameMsg.input.key;
 		        	//player.getInput().press(key);
+		        	
+		        	// Call A* search here, setMouse should take a sequence of destination coordinates 
+		        	
 		        	player.getInput().setMouse(gameMsg.input.xTarget, gameMsg.input.yTarget);
 		        }
 			}
