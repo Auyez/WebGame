@@ -41,10 +41,14 @@ public class Input {
 		}
 	}
 	public void setMouse(ArrayList<TileNode> sequence) {
-		mouse = new ArrayList<Vec2>();
 		for (TileNode i : sequence) {
-			mouse.add(new Vec2(i.getX() * 20, i.getY() * 20));
+			mouse.add(new Vec2((i.getX() * 20) + 2, (i.getY() * 20) - 15));
 		}
+	}
+	
+	public void setDestination(int x, int y) {
+		mouse = new ArrayList<Vec2>();
+		mouse.add(new Vec2(x, y));
 	}
 	
 	public void clrMouse() {mouse = null;}

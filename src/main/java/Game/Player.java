@@ -22,8 +22,9 @@ public class Player extends Actor{
 				movement.scalar(-1);
 				addPosition(movement);
 			}
-			if (position.isClose(target, 3.0f))
+			if (position.isClose(target, 2.0f)) {
 				target = input.getNextTarget();
+			}
 		}
 		input.releaseAll(); // looks like obsolete
 	}
