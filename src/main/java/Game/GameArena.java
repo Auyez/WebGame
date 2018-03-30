@@ -41,19 +41,76 @@ public class GameArena {
 	public int getTileSize() {return tileSize;}
 	
 	// Return sequence of target coordinates
-	@SuppressWarnings("restriction")
-	public Pair<Integer, Integer>[] aStar(int x_init, int y_init, int x_target, int y_target) {
+	public ArrayList<TileNode> aStar(int x_init, int y_init, int x_target, int y_target) {
 		ArrayList<TileNode> open = new ArrayList<TileNode>();
 		ArrayList<TileNode> closed = new ArrayList<TileNode>();
+		boolean toSkip = false;
 		
-		TileNode initTile = new TileNode(x_init, y_init, 0, 0);
+		TileNode initTile = new TileNode(x_init, y_init, null);
+		initTile.setG(0);
+		initTile.setH(0);
+		initTile.setF();
 		open.add(initTile);
 		
 		while(!open.isEmpty()) {
 			Collections.sort(open);
 			TileNode q = open.remove(0);
+			ArrayList<TileNode> successors = q.generateSuccessors(collision_map);
+			
+			for(TileNode i : successors) {
+				
+				if(i.getX() == x_target && i.getY() == y_target) {
+					closed.add(i);
+					return generateTargets(closed);
+				}
+				i.setG(q.getG() + 1);
+				i.setH(Math.pow(Math.abs(i.getX() - x_target), 2) + Math.pow(Math.abs(i.getY() - y_target), 2));
+				i.setF();
+				
+				toSkip = false;
+				
+				for (TileNode j : open) {
+					if (j.isSame(i)) {
+						if (j.getF() <= i.getF()) {
+							toSkip = true;
+							break;
+						}
+					}
+				}
+				for (TileNode j : closed) {
+					if (j.isSame(i)) {
+						if (j.getF() <= i.getF()) {
+							
+							toSkip = true;
+							break;
+						}
+					}
+				}
+				if (!toSkip) {
+					open.add(i);
+				}
+			}
+			closed.add(q);
 		}
 		
-		return null;
+		return closed;
+	}
+
+	private static ArrayList<TileNode> generateTargets(ArrayList<TileNode> tiles) {
+		ArrayList<TileNode> turns = new ArrayList<TileNode>();
+		TileNode target = tiles.get(tiles.size() - 1);
+		turns.add(target);
+		
+		TileNode check = target.getParent().getParent();
+		while (check != null) {
+			// Detect turn
+			if (check.getX() != target.getX() && check.getY() != target.getY()) {
+				turns.add(target.getParent());
+			}
+			target = target.getParent();
+			check = check.getParent();
+		}
+		
+		return turns;
 	}
 }

@@ -12,8 +12,9 @@ public class Player extends Actor{
 	}
 	
 	public void update(long delta) {
-		if (input.getMouse() != null) {
-			Vec2 movement = Vec2.subs(position, input.getMouse());
+		Vec2 target = input.getMouse();
+		if (target != null) {
+			Vec2 movement = Vec2.subs(position, target);
 			movement.scalar( (speed * (delta/1000.0f))/movement.getMagnitude() );
 			movement.scalar(-1);
 			addPosition(movement);
@@ -21,8 +22,8 @@ public class Player extends Actor{
 				movement.scalar(-1);
 				addPosition(movement);
 			}
-			if (position.isClose(input.getMouse(), 3.0f))
-				input.clrMouse();
+			if (position.isClose(target, 3.0f))
+				target = input.getNextTarget();
 		}
 		input.releaseAll(); // looks like obsolete
 	}

@@ -1,8 +1,10 @@
 package Game;
 
+import java.util.ArrayList;
+
 public class Input {
 	private boolean[] 	keys;
-	private Vec2		mouse;
+	private ArrayList<Vec2>		mouse;
 	public Input() {
 		keys = new boolean[255];
 		mouse = null;
@@ -21,7 +23,29 @@ public class Input {
 		return keys[(int) c];
 	}
 	
-	public Vec2 getMouse() {return mouse;}
-	public void setMouse(int x, int y) {mouse = new Vec2(x, y);}
+	public Vec2 getMouse() {
+		if (mouse == null) {
+			return null;
+		}
+		if (mouse.size() > 0) {
+			return mouse.get(mouse.size() - 1);
+		} else {
+			return null;
+		}
+	}
+	public Vec2 getNextTarget() {
+		if (mouse.size() > 0) {
+			return mouse.remove(mouse.size() - 1);
+		} else {
+			return null;
+		}
+	}
+	public void setMouse(ArrayList<TileNode> sequence) {
+		mouse = new ArrayList<Vec2>();
+		for (TileNode i : sequence) {
+			mouse.add(new Vec2(i.getX() * 20, i.getY() * 20));
+		}
+	}
+	
 	public void clrMouse() {mouse = null;}
 }

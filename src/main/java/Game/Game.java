@@ -92,10 +92,22 @@ public class Game implements Runnable {
 		        if (gameMsg.input != null) {
 		        	//byte key = gameMsg.input.key;
 		        	//player.getInput().press(key);
-		        	
+		        	// REFACTOR THIS
+		        	int size = ga.getTileSize();
+		        	int x_init = (int) player.getPosition().getX() / size;
+		        	int y_init = (int) (player.getPosition().getY()) / size;
+		        	int x_target = gameMsg.input.xTarget / size;
+		        	int y_target = (gameMsg.input.yTarget) / size;
+		        	System.out.println("x_init: " + x_init);
+		        	System.out.println("y_init: " + y_init);
+		        	System.out.println("x_target: " + x_target);
+		        	System.out.println("y_target: " + y_target);
 		        	// Call A* search here, setMouse should take a sequence of destination coordinates 
-		        	
-		        	player.getInput().setMouse(gameMsg.input.xTarget, gameMsg.input.yTarget);
+		        	ArrayList<TileNode> sequence =  ga.aStar(x_init, y_init, x_target, y_target);
+		        	for (TileNode i : sequence) {
+		        		System.out.println(i.getCoordinates());
+		        	}
+		        	player.getInput().setMouse(sequence);
 		        }
 			}
 		}
@@ -158,7 +170,7 @@ public class Game implements Runnable {
     }
 	
 	//need to sort player list after each addition of player
-	//then need to reimplement this method and use faster search
+	//then need to re-implement this method and use faster search
 	private Player getPlayer(int id) {
 		for (Player p : players)
 			if (p.getId() == id)
