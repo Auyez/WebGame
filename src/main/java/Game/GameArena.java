@@ -103,7 +103,6 @@ public class GameArena {
 		ArrayList<TileNode> turns = new ArrayList<TileNode>();
 		TileNode target = tiles.get(tiles.size() - 1);
 		turns.add(target.convert());
-		
 		TileNode check = target.getParent().getParent();
 		while (check != null) {
 			// Detect turn
@@ -114,10 +113,53 @@ public class GameArena {
 			check = check.getParent();
 		}
 		
+		for (int i = 0; i < turns.size() - 1; i++) {
+			turns.get(i).setParent(turns.get(i + 1));
+		}
+		turns.get(turns.size() - 1).setParent(null);
+		
 		// Detect free diagonal paths
+		TileNode init = turns.get(turns.size() - 1);
+		TileNode dest = turns.get(0);
+		ArrayList<TileNode> path = new ArrayList<TileNode>();
 		
+		while (dest != null) {
+			path.add(dest);
+			dest = dest.getParent();
+		}
 		
-		return turns;
+		for (TileNode i : path) {
+			System.out.println(i.getCoordinates());
+		}
+		
+		/*
+		while (init != dest) {		
+			float x0 = (float)init.getX() / 20;
+			float y0 = (float)init.getY() / 20;
+			float x1 = (float)dest.getX() / 20;
+			float y1 = (float)dest.getY() / 20;
+			boolean collides = false;
+			//System.out.println("Iteration, dest: " + dest.getCoordinates());
+			ArrayList<TileNode> lineTiles = raytrace(x0, y0, x1, y1);
+	
+			for (TileNode i : lineTiles) {
+				if (collision_map[i.getY()][i.getX()] == 1) {
+					collides = true;
+				}
+			}
+			if (collides) {
+				dest = dest.getParent();
+			} else {
+				init = dest;
+				dest = turns.get(0);
+				path.add(init);
+			}
+		}
+		
+		for (TileNode i : path) {
+			System.out.println(i.getCoordinates());
+		}*/
+		return path;
 	}
 	
 	public ArrayList<TileNode> raytrace(double x0, double y0, double x1, double y1)

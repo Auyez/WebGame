@@ -31,6 +31,7 @@ public class TileNode implements Comparable<TileNode>{
 	public void setG(int g) {this.g = g;}
 	public void setH(double h) {this.h = h;}
 	public void setF() {this.f = this.g + this.h;}
+	public void setParent(TileNode parent) {this.parent = parent;}
 	public boolean isSame(TileNode inst) {
 		if (this.x == inst.getX() && this.y == inst.getY()) {
 			return true;
@@ -64,8 +65,8 @@ public class TileNode implements Comparable<TileNode>{
 	}
 
 	public TileNode convert() {
-		this.x = (this.x * 20) + 2;
-		this.y = (this.y * 20) - 15;
-		return this;
+		TileNode converted = new TileNode((this.x * 20) + 2, (this.y * 20) - 15, this.parent);
+
+		return converted;
 	}
 }
