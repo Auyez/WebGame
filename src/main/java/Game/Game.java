@@ -106,9 +106,6 @@ public class Game implements Runnable {
 			        	System.out.println("y_target: " + y_target);
 			        	// Call A* search here, setMouse should take a sequence of destination coordinates 
 			        	ArrayList<TileNode> sequence =  ga.aStar(x_init, y_init, x_target, y_target);
-			        	for (TileNode i : sequence) {
-			        		System.out.println(i.getCoordinates());
-			        	}
 			        	player.getInput().setDestination(gameMsg.input.xTarget, gameMsg.input.yTarget - 20);
 			        	player.getInput().setMouse(sequence);
 		        	}

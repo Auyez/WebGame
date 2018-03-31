@@ -6,8 +6,11 @@ import java.util.Collections;
 import java.util.Random;
 import java.util.Scanner;
 import javafx.util.Pair;
+import Game.TileNode;
 
 public class GameArena {
+	private static final int INF = 999999999;
+	
 	private int[][] collision_map;
 	private int w, h, tileSize;
 	
@@ -64,7 +67,7 @@ public class GameArena {
 					return generateTargets(closed);
 				}
 				i.setG(q.getG() + 1);
-				i.setH(Math.pow(Math.abs(i.getX() - x_target), 2) + Math.pow(Math.abs(i.getY() - y_target), 2));
+				i.setH(Math.sqrt(Math.pow(Math.abs(i.getX() - x_target), 2) + Math.pow(Math.abs(i.getY() - y_target), 2)));
 				i.setF();
 				
 				toSkip = false;
@@ -96,21 +99,93 @@ public class GameArena {
 		return closed;
 	}
 
-	private static ArrayList<TileNode> generateTargets(ArrayList<TileNode> tiles) {
+	private ArrayList<TileNode> generateTargets(ArrayList<TileNode> tiles) {
 		ArrayList<TileNode> turns = new ArrayList<TileNode>();
 		TileNode target = tiles.get(tiles.size() - 1);
-		turns.add(target);
+		turns.add(target.convert());
 		
 		TileNode check = target.getParent().getParent();
 		while (check != null) {
 			// Detect turn
 			if (check.getX() != target.getX() && check.getY() != target.getY()) {
-				turns.add(target.getParent());
+				turns.add(target.getParent().convert());
 			}
 			target = target.getParent();
 			check = check.getParent();
 		}
 		
+		// Detect free diagonal paths
+		
+		
 		return turns;
+	}
+	
+	public ArrayList<TileNode> raytrace(double x0, double y0, double x1, double y1)
+	{
+		ArrayList<TileNode> result = new ArrayList<TileNode>();
+		
+	    double dx = Math.abs(x1 - x0);
+	    double dy = Math.abs(y1 - y0);
+
+	    int x = (int) (Math.floor(x0));
+	    int y = (int) (Math.floor(y0));
+
+	    int n = 1;
+	    int x_inc, y_inc;
+	    double error;
+
+	    if (dx == 0)
+	    {
+	        x_inc = 0;
+	        error = INF;
+	    }
+	    else if (x1 > x0)
+	    {
+	        x_inc = 1;
+	        n += (int)(Math.floor(x1)) - x;
+	        error = (Math.floor(x0) + 1 - x0) * dy;
+	    }
+	    else
+	    {
+	        x_inc = -1;
+	        n += x - (int)(Math.floor(x1));
+	        error = (x0 - Math.floor(x0)) * dy;
+	    }
+
+	    if (dy == 0)
+	    {
+	        y_inc = 0;
+	        error -= INF;
+	    }
+	    else if (y1 > y0)
+	    {
+	        y_inc = 1;
+	        n += (int)(Math.floor(y1)) - y;
+	        error -= (Math.floor(y0) + 1 - y0) * dx;
+	    }
+	    else
+	    {
+	        y_inc = -1;
+	        n += y - (int)(Math.floor(y1));
+	        error -= (y0 - Math.floor(y0)) * dx;
+	    }
+
+	    for (; n > 0; --n)
+	    {
+	    	result.add(new TileNode(x, y, null));
+
+	        if (error > 0)
+	        {
+	            y += y_inc;
+	            error -= dx;
+	        }
+	        else
+	        {
+	            x += x_inc;
+	            error += dy;
+	        }
+	    }
+	    
+	    return result;
 	}
 }

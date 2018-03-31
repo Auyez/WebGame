@@ -62,4 +62,10 @@ public class TileNode implements Comparable<TileNode>{
 		
 		return result;
 	}
+
+	public TileNode convert() {
+		this.x = (this.x * 20) + 2;
+		this.y = (this.y * 20) - 15;
+		return this;
+	}
 }

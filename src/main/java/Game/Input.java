@@ -42,7 +42,7 @@ public class Input {
 	}
 	public void setMouse(ArrayList<TileNode> sequence) {
 		for (TileNode i : sequence) {
-			mouse.add(new Vec2((i.getX() * 20) + 2, (i.getY() * 20) - 15));
+			mouse.add(new Vec2(i.getX(), i.getY()));
 		}
 	}
 	
