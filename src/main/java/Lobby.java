@@ -9,7 +9,7 @@ import java.nio.ByteBuffer;
 import java.util.*;
 
 class Lobby {
-	private static final int MAX_PLAYERS = 1;
+	private static final int MAX_PLAYERS = 2;
 	
     private String name;
     private Map<Session, Integer> sessions = new HashMap<Session, Integer>(); // Session -> PlayerID map
