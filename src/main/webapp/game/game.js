@@ -1,6 +1,6 @@
 function CreateGame(parent, socket, lobbyIndex) {
 	var game = new Phaser.Game(
-			            800, 600, Phaser.AUTO, parent,
+			            1200, 900, Phaser.AUTO, parent,
 			            {
 			            	preload: preload, 
 			            	create: create, 
@@ -76,7 +76,7 @@ function CreateGame(parent, socket, lobbyIndex) {
     	for (var i = 0; i < 30; i++){
     		for(var j = 0; j < 40; j++){
     			if(map[i][j] == 1){
-    				var test = game.add.sprite( (j % 40) * 20, (i % 30) * 20, 'tile' );
+    				var test = game.add.sprite( (j % 40) * 30, (i % 30) * 30, 'tile' );
     			}
     		}
     	}
@@ -112,7 +112,7 @@ function CreateGame(parent, socket, lobbyIndex) {
     function addPlayers(ids) {
         for (var i in ids) {
             var id = ids[i];
-            var player = game.add.sprite(32, game.world.height - 150, 'dude');
+            var player = game.add.sprite(40, game.world.height - 150, 'dude');
             //player.animations.add('left', [0, 1, 2, 3], 10, true);
             //player.animations.add('right', [5, 6, 7, 8], 10, true);
             players[id] = player;
