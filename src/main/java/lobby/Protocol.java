@@ -1,4 +1,4 @@
-package Game;//Constants for the protocol
+package lobby;//Constants for the protocol
 
 import java.util.ArrayList;
 

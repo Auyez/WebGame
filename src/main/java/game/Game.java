@@ -1,12 +1,14 @@
-package Game;
+package game;
 
 import org.apache.commons.lang3.tuple.Pair;
 
+import game.actors.Actor;
+import game.actors.Player;
+import lobby.Protocol;
+
 import javax.websocket.Session;
-import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Queue;
@@ -85,7 +87,6 @@ public class Game implements Runnable {
 				Pair<Session, Protocol.Server.GameMsg> message = messages.remove();
 				Protocol.Server.GameMsg gameMsg = message.getRight();
 		        Session session = message.getLeft();
-
 		        int id = sessions.get(session);
 		        Player player = getPlayer(id);
 

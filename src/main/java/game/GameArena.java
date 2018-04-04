@@ -1,11 +1,8 @@
-package Game;
+package game;
 
-import java.io.File;
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.Random;
 import java.util.Scanner;
-import javafx.util.Pair;
 
 public class GameArena {
 	private int[][] collision_map;

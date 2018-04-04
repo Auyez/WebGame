@@ -1,4 +1,4 @@
-package Game;
+package lobby;
 
 import java.nio.ByteBuffer;
 import java.util.Arrays;

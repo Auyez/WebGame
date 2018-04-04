@@ -1,6 +1,9 @@
-package Game;
+package game.actors;
 
-import java.nio.ByteBuffer;
+import game.Game;
+import game.Input;
+import game.Vec2;
+import lobby.Protocol;
 
 public class Player extends Actor{
 	private Input input;

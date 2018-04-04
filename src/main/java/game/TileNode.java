@@ -1,7 +1,6 @@
-package Game;
+package game;
 
 import java.util.ArrayList;
-import javafx.util.Pair;
 
 public class TileNode implements Comparable<TileNode>{
 	private int x;
@@ -27,7 +26,7 @@ public class TileNode implements Comparable<TileNode>{
 	public int getG() {return g;}
 	public int getX() {return x;}
 	public int getY() {return y;}
-	public Pair<Integer, Integer> getCoordinates() {return new Pair<Integer, Integer>(x, y);}
+	public Vec2 getCoordinates() {return new Vec2(x, y);}
 	public void setG(int g) {this.g = g;}
 	public void setH(double h) {this.h = h;}
 	public void setF() {this.f = this.g + this.h;}

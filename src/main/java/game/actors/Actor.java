@@ -1,11 +1,11 @@
-package Game;
+package game.actors;
 
-import java.awt.Point;
 import java.awt.Rectangle;
-import java.nio.ByteBuffer;
-import java.util.ArrayList;
-import java.util.List;
-import javafx.util.Pair;
+
+import game.Game;
+import game.GameArena;
+import game.Vec2;
+import lobby.Protocol;
 
 public abstract class Actor{
 	public static enum Types{

@@ -1,12 +1,13 @@
-import Game.Game;
-import Game.Protocol;
+package lobby;
 import org.apache.commons.lang3.tuple.Pair;
-
+import game.Game;
 import javax.websocket.Session;
-
 import java.io.IOException;
 import java.nio.ByteBuffer;
-import java.util.*;
+import java.util.HashMap;
+import java.util.LinkedList;
+import java.util.Map;
+import java.util.Queue;
 
 class Lobby {
 	private static final int MAX_PLAYERS = 1;

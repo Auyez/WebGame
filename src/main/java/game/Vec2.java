@@ -1,4 +1,4 @@
-package Game;
+package game;
 public class Vec2 {
 	private float 		x,y;
 	
