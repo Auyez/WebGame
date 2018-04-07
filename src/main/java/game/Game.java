@@ -101,14 +101,14 @@ public class Game implements Runnable {
 			        	int y_init = (int) (player.getPosition().getY() + 20) / size;
 			        	int x_target = gameMsg.input.xTarget / size;
 			        	int y_target = (gameMsg.input.yTarget + 20) / size;
-			        	System.out.println("x_init: " + x_init);
-			        	System.out.println("y_init: " + y_init);
-			        	System.out.println("x_target: " + x_target);
-			        	System.out.println("y_target: " + y_target);
+			        	//System.out.println("x_init: " + x_init);
+			        	//System.out.println("y_init: " + y_init);
+			        	//System.out.println("x_target: " + x_target);
+			        	//System.out.println("y_target: " + y_target);
 			        	// Call A* search here, setMouse should take a sequence of destination coordinates 
 			        	ArrayList<TileNode> sequence =  ga.aStar(x_init, y_init, x_target, y_target);
 			        	for (TileNode i : sequence) {
-			        		System.out.println(i.getCoordinates());
+			        		//System.out.println(i.getCoordinates());
 			        	}
 			        	player.getInput().setDestination(gameMsg.input.xTarget, gameMsg.input.yTarget - 20);
 			        	player.getInput().setMouse(sequence);

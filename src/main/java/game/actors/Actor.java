@@ -22,8 +22,8 @@ public abstract class Actor{
 		position = new Vec2(x,y);
 		hitbox = new Rectangle((int)x,(int)y,w,h);
 		lowerBox = new Rectangle((int)x, (int)y + (h - lh) , w, lh); // collision box dlya nog
-		System.out.println("box: " + lowerBox.x);
-		System.out.println("box: " + lowerBox.y);
+		//System.out.println("box: " + lowerBox.x);
+		//System.out.println("box: " + lowerBox.y);
 		game = g;
 		this.id = id;
 	}
