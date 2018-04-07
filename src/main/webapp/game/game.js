@@ -88,8 +88,8 @@ function CreateGame(parent, socket, lobbyIndex) {
     }
 
     function move() {
-    	console.log(game.input.x);
-    	console.log(game.input.y);
+    	//console.log(game.input.x);
+    	//console.log(game.input.y);
     	inputMessage.lobbyCmd.gameMsg.input.xTarget = game.input.x;
     	inputMessage.lobbyCmd.gameMsg.input.yTarget = game.input.y;
     	socket.send(inputMessage.bytes());
