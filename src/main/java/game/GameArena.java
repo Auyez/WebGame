@@ -26,7 +26,8 @@ public class GameArena {
 				}
 			}
 		}catch(Exception e) {
-			System.out.println(e.getMessage());
+			System.out.println("GameArena::GameArena exception");
+			//System.out.println(e.getMessage());
 		}
 	}
 	

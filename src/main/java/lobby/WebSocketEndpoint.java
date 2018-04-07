@@ -15,7 +15,7 @@ public class WebSocketEndpoint {
 
 
     @OnMessage
-    public void onMessage(byte[] message, Session session) throws IOException {
+    public void onMessage(byte[] message, Session session) {
         if(message.length <= 0)
             return;
         Protocol.Server.ServerMsg msg = Protocol.Server.ServerMsg.parse(new ByteReader(message));
@@ -27,7 +27,8 @@ public class WebSocketEndpoint {
     }
 
     @OnClose
-    public void onClose(Session session) throws IOException {
+    public void onClose(Session session) {
+        //System.out.println("WebSocket closed");
         // Tell all lobbies that a session has closed in case any of them are using it.
         for (Lobby lobby : LobbyList.getLobbies()) {
             lobby.onClose(session);
@@ -36,6 +37,18 @@ public class WebSocketEndpoint {
 
     @OnError
     public void onError(Session session, Throwable throwable) {
+        System.out.println("WebSocketEndpoint::onError error");
         // Do error handling here
+    }
+
+    public static void sendBinary(Session session, byte[] bytes) {
+        if (session.isOpen()) {
+            try {
+                session.getBasicRemote().sendBinary(ByteBuffer.wrap(bytes));
+            } catch (IOException ex) {
+                // if something is wrong with a socket,
+                // there not much to do other than disconnecting :/
+            }
+        }
     }
 }

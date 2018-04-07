@@ -1,5 +1,6 @@
 package game;
 
+import lobby.WebSocketEndpoint;
 import org.apache.commons.lang3.tuple.Pair;
 
 import game.actors.Actor;
@@ -15,15 +16,15 @@ import java.util.Queue;
 import java.util.Random;
 
 public class Game implements Runnable {
-    private volatile Queue<Pair<Session, Protocol.Server.GameMsg>> 		messages;
-    private volatile Queue<Integer> 									playerDisconnectMessages;
-    private Map<Session, Integer> 										sessions;
-    
+    private final Queue<Pair<Session, Protocol.Server.GameMsg>> 		messages;
+    private final Queue<Integer> 								        playerDisconnectMessages;
+    private final Map<Session, Integer> 								sessions;
+
 	private List<Actor> 												actors;
 	private List<Player> 												players;
 	private GameArena 													ga;
-    
-	
+
+
     public Game(Queue<Pair<Session, Protocol.Server.GameMsg>> messages,
                 Queue<Integer> playerDisconnectMessages,
                 Map<Session, Integer> sessions) {
@@ -34,21 +35,23 @@ public class Game implements Runnable {
 		players = new ArrayList<Player>();
 		ga = new GameArena("map.txt");
     }
-    
-    
+
+
     @Override
     public void run() {
         try {
             final int 	FPS = 60;
             int 		frameCount = 0;
             boolean 	running = true;
-            long 		frameStartTime = 0; 
+            long 		frameStartTime = 0;
             long		delta;
-            
-            for (int id : sessions.values()) {
-            	addPlayer(id);
-            }
-            
+
+            synchronized (sessions) {
+				for (int id : sessions.values()) {
+					addPlayer(id);
+				}
+			}
+
             while (running) {
             	delta = frameStartTime;
                 frameStartTime = System.currentTimeMillis(); // TODO check whether Java optimizes this or not
@@ -69,25 +72,29 @@ public class Game implements Runnable {
                 }
             }
         } catch (InterruptedException ex) {
-            ex.printStackTrace();
+            System.out.println("Game::run exception");
+            //ex.printStackTrace();
         }
     }
 
-    
+
 	private void update(long delta) {
         for (Actor actor : actors) {
             actor.update(delta);
         }
     }
-	
-	
+
+
 	private void processMessages() {
-		synchronized (messages) {	
+		synchronized (messages) {
 			while (!messages.isEmpty()) {
 				Pair<Session, Protocol.Server.GameMsg> message = messages.remove();
 				Protocol.Server.GameMsg gameMsg = message.getRight();
 		        Session session = message.getLeft();
-		        int id = sessions.get(session);
+		        int id;
+		        synchronized (sessions) {
+					id = sessions.get(session);
+				}
 		        Player player = getPlayer(id);
 
 		        if (gameMsg.input != null) {
@@ -96,7 +103,7 @@ public class Game implements Runnable {
 		        	// REFACTOR THIS
 		        	int size = ga.getTileSize();
 		        	if (ga.getEntry((gameMsg.input.yTarget + 20) / size, gameMsg.input.xTarget / size) == 0) {
-		        		
+
 			        	int x_init = (int) player.getPosition().getX() / size;
 			        	int y_init = (int) (player.getPosition().getY() + 20) / size;
 			        	int x_target = gameMsg.input.xTarget / size;
@@ -105,7 +112,7 @@ public class Game implements Runnable {
 			        	//System.out.println("y_init: " + y_init);
 			        	//System.out.println("x_target: " + x_target);
 			        	//System.out.println("y_target: " + y_target);
-			        	// Call A* search here, setMouse should take a sequence of destination coordinates 
+			        	// Call A* search here, setMouse should take a sequence of destination coordinates
 			        	ArrayList<TileNode> sequence =  ga.aStar(x_init, y_init, x_target, y_target);
 			        	for (TileNode i : sequence) {
 			        		//System.out.println(i.getCoordinates());
@@ -124,7 +131,7 @@ public class Game implements Runnable {
 		}
 	}
 
-		
+
     private void sendWorldState() {
     	if (actors.size() > 0) {
     	    Protocol.Client.ClientMsg message = new Protocol.Client.ClientMsg();
@@ -135,45 +142,43 @@ public class Game implements Runnable {
                 message.gameMsg.worldState.items.add(a.getState());
             }
 
-	    	for(Session s : sessions.keySet()) {
-	    		try{
-	    			s.getBasicRemote().sendBinary(ByteBuffer.wrap(message.bytes()));
-	    		}catch(Exception e) {
-	    			e.printStackTrace();
-	    		}
-	    	}
+            synchronized (sessions) {
+				for (Session s : sessions.keySet()) {
+					WebSocketEndpoint.sendBinary(s, message.bytes());
+				}
+			}
     	}
     }
-    
-    
+
+
 	private void addPlayer(int id) {
 		int w = 15;
 		int h = 30;
 		int lh = 10;
-		
+
 		Player p = null;
 		Random r = new Random();
 		int x,y;
 		do {
 			x = r.nextInt(ga.getWidth());
 			y = r.nextInt(ga.getHeight());
-			
+
 			if(p != null)
 				p.setPosition(x, y);
 			else
-				p = new Player(x, y, w, h, lh, id, this);		
+				p = new Player(x, y, w, h, lh, id, this);
 		}while(!(	( (x + w) < ga.getWidth()  ) && ( (y + h) < ga.getHeight() ) && (p.collides() < -1)	));
 		actors.add(p);
 		players.add(p);
 	}
-	
-	
+
+
 	private void removePlayer(int id) {
 	    Player player = getPlayer(id);
 	    actors.remove(player);
 	    players.remove(player);
     }
-	
+
 	//need to sort player list after each addition of player
 	//then need to re-implement this method and use faster search
 	private Player getPlayer(int id) {

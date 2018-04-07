@@ -100,9 +100,6 @@ function CreateGame(parent, socket, lobbyIndex) {
             var ids = gameMsg.playerSetup.items;
             console.log('playersetup', gameMsg.playerSetup.items);
             addPlayers(ids);
-        } else if (gameMsg.removePlayerId != null) {
-        	console.log('remove', gameMsg.removePlayerId);
-        	removePlayer(gameMsg.removePlayerId);
         } else if (gameMsg.worldState != null) {
             var entities = gameMsg.worldState.items;
             updateEntities(entities);
@@ -128,15 +125,24 @@ function CreateGame(parent, socket, lobbyIndex) {
     }
 
     function updateEntities(entities) {
+        var playersToRemove = new Set(Object.keys(players));
+
         for (var i in entities) {
             var entity = entities[i];
             if (entity.player != null) {
                 if (entity.player.id in players) {
+                    // the player is in the list -> do not remove it
+                    playersToRemove.delete(String(entity.player.id));
+
                     var player = players[entity.player.id];
                     player.x = entity.player.x;
                     player.y = entity.player.y;
                 }
             }
+        }
+
+        for (var id of playersToRemove) {
+            removePlayer(id);
         }
     }	
 	

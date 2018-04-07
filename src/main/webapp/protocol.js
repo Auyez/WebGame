@@ -126,6 +126,7 @@ Protocol["__class"] = "Protocol";
         var GameMsg = (function () {
             function GameMsg() {
                 this.input = null;
+                this.skillInput = null;
             }
             GameMsg.prototype.bytes = function () {
                 var writer = new ByteWriter();
@@ -135,6 +136,10 @@ Protocol["__class"] = "Protocol";
                     writer.writeByte(GameMsg.INPUT);
                     writer.writeBytes(this.input.bytes());
                 }
+                else if (this.skillInput != null) {
+                    writer.writeByte(GameMsg.SKILL_INPUT);
+                    writer.writeBytes(ByteWriter.Byte2bytes(this.skillInput));
+                }
                 return writer.bytes();
             };
             GameMsg.parse = function (reader) {
@@ -143,11 +148,15 @@ Protocol["__class"] = "Protocol";
                 if (type === GameMsg.INPUT) {
                     obj.input = Server.Input.parse(reader);
                 }
+                if (type === GameMsg.SKILL_INPUT) {
+                    obj.skillInput = reader.readByte();
+                }
                 return obj;
             };
             return GameMsg;
         }());
         GameMsg.INPUT = 0;
+        GameMsg.SKILL_INPUT = 1;
         Server.GameMsg = GameMsg;
         GameMsg["__class"] = "Protocol.Server.GameMsg";
         var Input = (function () {
@@ -234,7 +243,6 @@ Protocol["__class"] = "Protocol";
         var GameMsg = (function () {
             function GameMsg() {
                 this.playerSetup = null;
-                this.removePlayerId = null;
                 this.worldState = null;
             }
             GameMsg.prototype.bytes = function () {
@@ -244,10 +252,6 @@ Protocol["__class"] = "Protocol";
                 else if (this.playerSetup != null) {
                     writer.writeByte(GameMsg.PLAYER_SETUP);
                     writer.writeBytes(this.playerSetup.bytes());
-                }
-                else if (this.removePlayerId != null) {
-                    writer.writeByte(GameMsg.REMOVE_PLAYER_ID);
-                    writer.writeBytes(ByteWriter.Integer2bytes(this.removePlayerId));
                 }
                 else if (this.worldState != null) {
                     writer.writeByte(GameMsg.WORLD_STATE);
@@ -261,9 +265,6 @@ Protocol["__class"] = "Protocol";
                 if (type === GameMsg.PLAYER_SETUP) {
                     obj.playerSetup = Client.PlayerSetup.parse(reader);
                 }
-                if (type === GameMsg.REMOVE_PLAYER_ID) {
-                    obj.removePlayerId = reader.readInteger();
-                }
                 if (type === GameMsg.WORLD_STATE) {
                     obj.worldState = Client.WorldState.parse(reader);
                 }
@@ -272,8 +273,7 @@ Protocol["__class"] = "Protocol";
             return GameMsg;
         }());
         GameMsg.PLAYER_SETUP = 0;
-        GameMsg.REMOVE_PLAYER_ID = 1;
-        GameMsg.WORLD_STATE = 2;
+        GameMsg.WORLD_STATE = 1;
         Client.GameMsg = GameMsg;
         GameMsg["__class"] = "Protocol.Client.GameMsg";
         var PlayerSetup = (function () {

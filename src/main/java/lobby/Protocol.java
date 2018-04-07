@@ -52,6 +52,7 @@ namespace Server
 				struct input
 					Integer x_target
 					Integer y_target
+				Byte skill_input
 
 namespace Client
 	union client_msg
@@ -59,7 +60,6 @@ namespace Client
 		union game_msg
 			list player_setup
 				Integer id
-			Integer remove_player_id
 			list world_state
 				union entity
 					struct player
@@ -137,13 +137,18 @@ public class Protocol {
         }
         public static class GameMsg { /*Union*/
             public Input input;
+            public Byte skillInput;
             static final byte INPUT = 0;
+            static final byte SKILL_INPUT = 1;
             public byte[] bytes() {
                 ByteWriter writer = new ByteWriter();
                 if (false) {;
                 } else if (input != null) {
                     writer.writeByte(INPUT);
                     writer.writeBytes(input.bytes());
+                } else if (skillInput != null) {
+                    writer.writeByte(SKILL_INPUT);
+                    writer.writeBytes(ByteWriter.Byte2bytes(skillInput));
                 }
                 return writer.bytes();
             }
@@ -152,6 +157,10 @@ public class Protocol {
                 byte type = reader.readByte();
                 if (type == INPUT) {
                     obj.input = Input.parse(reader);
+                }
+
+                if (type == SKILL_INPUT) {
+                    obj.skillInput = reader.readByte();
                 }
                 return obj;
             }
@@ -216,20 +225,15 @@ public class Protocol {
         }
         public static class GameMsg { /*Union*/
             public PlayerSetup playerSetup;
-            public Integer removePlayerId;
             public WorldState worldState;
             static final byte PLAYER_SETUP = 0;
-            static final byte REMOVE_PLAYER_ID = 1;
-            static final byte WORLD_STATE = 2;
+            static final byte WORLD_STATE = 1;
             public byte[] bytes() {
                 ByteWriter writer = new ByteWriter();
                 if (false) {;
                 } else if (playerSetup != null) {
                     writer.writeByte(PLAYER_SETUP);
                     writer.writeBytes(playerSetup.bytes());
-                } else if (removePlayerId != null) {
-                    writer.writeByte(REMOVE_PLAYER_ID);
-                    writer.writeBytes(ByteWriter.Integer2bytes(removePlayerId));
                 } else if (worldState != null) {
                     writer.writeByte(WORLD_STATE);
                     writer.writeBytes(worldState.bytes());
@@ -241,10 +245,6 @@ public class Protocol {
                 byte type = reader.readByte();
                 if (type == PLAYER_SETUP) {
                     obj.playerSetup = PlayerSetup.parse(reader);
-                }
-
-                if (type == REMOVE_PLAYER_ID) {
-                    obj.removePlayerId = reader.readInteger();
                 }
 
                 if (type == WORLD_STATE) {

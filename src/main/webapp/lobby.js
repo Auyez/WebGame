@@ -1,64 +1,74 @@
-
 var lobbyIndex = parseInt(sessionStorage.getItem('lobbyIndex'));
 document.title = 'Lobby' + lobbyIndex;
+var lobby1 = new Lobby(lobbyIndex, 'game1');
+var lobby2 = new Lobby(lobbyIndex, 'game2')
 
-var socket = new WebSocket("ws://" + location.host + "/WebGame/websocketendpoint");
-var game = null;
+function Lobby(lobbyIndex, parent) {
+    //var lobbyIndex = parseInt(sessionStorage.getItem('lobbyIndex'));
+    //document.title = 'Lobby' + lobbyIndex;
 
-socket.onopen = function(event) {
-    console.log('onopen::' + JSON.stringify(event, null, 4));
-    //var lobbyIndex = 0;
-    var playerId = getRandomInt(1, 2147483637); // almost upper limit of int32 signed
+    var self = this;
+    self.socket = new WebSocket("ws://" + location.host + "/WebGame/websocketendpoint");
+    self.game = null;
 
-    var servermsg = new Protocol.Server.ServerMsg();
-    servermsg.lobbyIndex = lobbyIndex;
-    servermsg.lobbyCmd = new Protocol.Server.LobbyCmd();
-    servermsg.lobbyCmd.addPlayerId = playerId;
+    self.socket.onopen = function(event) {
+        console.log('onopen::' + JSON.stringify(event, null, 4));
+        //var lobbyIndex = 0;
+        var playerId = self.getRandomInt(1, 2147483637); // almost upper limit of int32 signed
 
-    socket.send(servermsg.bytes());
-}
+        var servermsg = new Protocol.Server.ServerMsg();
+        servermsg.lobbyIndex = lobbyIndex;
+        servermsg.lobbyCmd = new Protocol.Server.LobbyCmd();
+        servermsg.lobbyCmd.addPlayerId = playerId;
 
-socket.onmessage = function(event) {
-    var blob = event.data;
-    var reader = new FileReader();
-    reader.onload = function() {
-        var arrayBuffer = reader.result;
-        var clientMsg = Protocol.Client.ClientMsg.parse(new ByteReader(arrayBuffer));
-        lobbyOnMessage(clientMsg);
-    }
-    reader.readAsArrayBuffer(blob);
-}
+        self.socket.send(servermsg.bytes());
+    };
 
-function lobbyOnMessage(clientMsg) {
-    if (clientMsg.startGame != null) {
-        document.getElementById('game').innerHTML = '';
-        game = CreateGame("game", socket, lobbyIndex);
-    } else if (clientMsg.gameMsg != null) {
-        game.onmessage(clientMsg.gameMsg);
-    }
-}
+    self.socket.onmessage = function(event) {
+        var blob = event.data;
+        var reader = new FileReader();
+        reader.onload = function() {
+            var arrayBuffer = reader.result;
+            var clientMsg = Protocol.Client.ClientMsg.parse(new ByteReader(arrayBuffer));
+            self.lobbyOnMessage(clientMsg);
+        }
+        reader.readAsArrayBuffer(blob);
+    };
 
-socket.onclose = function(event) {
-    console.log('onclose::' + JSON.stringify(event, null, 4));
-    // go back to main page
-}
+    self.lobbyOnMessage = function(clientMsg) {
+        if (clientMsg.startGame != null) {
+            document.getElementById(parent).innerHTML = '';
+            self.game = CreateGame(parent, self.socket, lobbyIndex);
+        } else if (clientMsg.gameMsg != null) {
+            // wait until self.game is created in case gameMsg arrives before CreateGame is finished
+            while (self.game == null) {}
 
-socket.onerror = function(event) {
-    console.log('onerror::' + JSON.stringify(event, null, 4));
-}
+            self.game.onmessage(clientMsg.gameMsg);
+        }
+    };
+
+    self.socket.onclose = function(event) {
+        console.log('onclose::' + JSON.stringify(event, null, 4));
+        // go back to main page
+    };
+
+    self.socket.onerror = function(event) {
+        console.log('onerror::' + JSON.stringify(event, null, 4));
+    };
 
 
-function toArrayBuf(int8arr) {
-    var buf = new ArrayBuffer(int8arr.length);
-    var dataView = new DataView(buf);
-    for(var i in int8arr) {
-        dataView.setInt8(i, int8arr[i]);
-    }
-    return buf;
-}
+    self.toArrayBuf = function(int8arr) {
+        var buf = new ArrayBuffer(int8arr.length);
+        var dataView = new DataView(buf);
+        for(var i in int8arr) {
+            dataView.setInt8(i, int8arr[i]);
+        }
+        return buf;
+    };
 
-function getRandomInt(min, max) {
-  min = Math.ceil(min);
-  max = Math.floor(max);
-  return Math.floor(Math.random() * (max - min)) + min; //The maximum is exclusive and the minimum is inclusive
+    self.getRandomInt = function(min, max) {
+      min = Math.ceil(min);
+      max = Math.floor(max);
+      return Math.floor(Math.random() * (max - min)) + min; //The maximum is exclusive and the minimum is inclusive
+    };
 }

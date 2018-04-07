@@ -13,10 +13,10 @@ class Lobby {
 	private static final int MAX_PLAYERS = 2;
 	
     private String name;
-    private Map<Session, Integer> sessions = new HashMap<Session, Integer>(); // Session -> PlayerID map
+    private final Map<Session, Integer> sessions = new HashMap<Session, Integer>(); // Session -> PlayerID map
     private Thread gameThread;
-    private volatile Queue<Pair<Session, Protocol.Server.GameMsg>> gameMessages = new LinkedList<>();
-    private volatile Queue<Integer> gamePlayerDisconnectMessages = new LinkedList<>();
+    private final Queue<Pair<Session, Protocol.Server.GameMsg>> gameMessages = new LinkedList<>();
+    private final Queue<Integer> gamePlayerDisconnectMessages = new LinkedList<>();
     private int readyCount;
 
     Lobby(String name) {
@@ -24,104 +24,94 @@ class Lobby {
     }
 
 
-    public void onMessage(Protocol.Server.LobbyCmd message, Session session) {
-        if (message.addPlayerId != null) {
+    public synchronized void onMessage(Protocol.Server.LobbyCmd message, Session session) {
+        if (message.addPlayerId != null && !isGameRunning()) {
             addPlayer(session, message.addPlayerId);
-        } else if (message.ready != null) {
+        } else if (message.ready != null && isGameRunning()) {
             readyCount++;
             if (readyCount >= MAX_PLAYERS) {
-                try {
-                    sendPlayerSetup();
-                } catch (IOException ex) {
-                    ex.printStackTrace(); // how should be deal with this?
-                }
+                sendPlayerSetup();
                 readyCount = 0;
             }
-        } else if (message.gameMsg != null) {
-            if (isGameRunning()) {
-                synchronized (gameMessages) {
-                    gameMessages.add(Pair.of(session, message.gameMsg));
-                }
+        } else if (message.gameMsg != null && isGameRunning()) {
+            synchronized (gameMessages) {
+                gameMessages.add(Pair.of(session, message.gameMsg));
             }
         }
     }
 
-	private void sendPlayerSetup() throws IOException {
-		for (Session s : sessions.keySet()) {
-            Protocol.Client.ClientMsg message = new Protocol.Client.ClientMsg();
-            message.gameMsg = new Protocol.Client.GameMsg();
-            message.gameMsg.playerSetup = new Protocol.Client.PlayerSetup();
-            message.gameMsg.playerSetup.items.addAll(sessions.values()); // add all ids
+	private void sendPlayerSetup() {
+        synchronized (sessions) {
+            for (Session s : sessions.keySet()) {
+                Protocol.Client.ClientMsg message = new Protocol.Client.ClientMsg();
+                message.gameMsg = new Protocol.Client.GameMsg();
+                message.gameMsg.playerSetup = new Protocol.Client.PlayerSetup();
+                message.gameMsg.playerSetup.items.addAll(sessions.values()); // add all ids
 
-		    s.getBasicRemote().sendBinary(ByteBuffer.wrap(message.bytes()));
-		}
+                WebSocketEndpoint.sendBinary(s, message.bytes());
+            }
+        }
 	}
 
-    public void onClose(Session session) {
-        if (sessions.containsKey(session)) {
-            if(isGameRunning()) {
+    public synchronized void onClose(Session session) {
+        synchronized (sessions) {
+            if (sessions.containsKey(session)) {
                 int id = sessions.get(session);
-                synchronized (gamePlayerDisconnectMessages) {
-                    gamePlayerDisconnectMessages.add(id);
-                }
-                
-                // tell game.js of other players to remove this player
-                Protocol.Client.ClientMsg clientMsg = new Protocol.Client.ClientMsg();
-                clientMsg.gameMsg = new Protocol.Client.GameMsg();
-                clientMsg.gameMsg.removePlayerId = id;
-                try {
-                    for (Session other : sessions.keySet()) {
-                        if (other != session)
-                            other.getBasicRemote().sendBinary(ByteBuffer.wrap(clientMsg.bytes()));
-                    }
-                } catch (IOException ex) {
-                    ex.printStackTrace();
-                }
-            }
+                sessions.remove(session);
+                System.out.println(name + ": #" + id + " removed");
 
-            System.out.println(name + ": #" + sessions.get(session) + " removed");
-            sessions.remove(session);
+                //System.out.println(id + " onClose1");
+                if (isGameRunning()) {
+                    //System.out.println(id + " onClose2");
+                    synchronized (gamePlayerDisconnectMessages) {
+                        gamePlayerDisconnectMessages.add(id);
+                    }
+                    //System.out.println(id + " onClose3");
+
+                    // clients will remove the player by noticing that it is not present in worldstate
+                }
+                //System.out.println(id + " onClose5");
+            }
         }
     }
 
     private void addPlayer(Session session, int playerId) {
-        if (sessions.containsKey(session) || sessions.containsValue(playerId) || isGameRunning())
-            return;
+        synchronized (sessions) {
+            if (sessions.containsKey(session) || sessions.containsValue(playerId) || isGameRunning())
+                return;
 
-        sessions.put(session, playerId);
-        System.out.println(name + ": #" + playerId + " added");
+            sessions.put(session, playerId);
+            System.out.println(name + ": #" + playerId + " added");
 
 
-        if (sessions.size() >= MAX_PLAYERS) {
-            startGame(); // change start game only if all players checked "ready"
+            if (sessions.size() >= MAX_PLAYERS) {
+                startGame(); // change start game only if all players checked "ready"
+            }
         }
     }
     
     
     private void startGame() {
-        try {
-        	// Starts game on Clients' side
+        synchronized (sessions) {
             for (Session session : sessions.keySet()) {
                 Protocol.Client.ClientMsg message = new Protocol.Client.ClientMsg();
                 message.startGame = new Protocol.Client.StartGame();
 
-                session.getBasicRemote().sendBinary(ByteBuffer.wrap(message.bytes()));
+                WebSocketEndpoint.sendBinary(session, message.bytes());
             }
-            
+
             gameMessages.clear();
             gamePlayerDisconnectMessages.clear();
-            
+
             Game game = new Game(gameMessages, gamePlayerDisconnectMessages, sessions);
             gameThread = new Thread(game);
             gameThread.start();
-        } catch (Exception ex) {
-            ex.printStackTrace();
         }
     }
 
     public boolean isGameRunning() {
         if (gameThread == null)
             return false;
-        return gameThread.isAlive(); // Maybe we should find a way to notify Lobby when Game thread ends
+        return gameThread.isAlive();
     }
 }
