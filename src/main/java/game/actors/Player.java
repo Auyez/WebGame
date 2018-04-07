@@ -11,7 +11,7 @@ public class Player extends Actor{
 	public Player(float x, float y, int w, int h, int lh, int ID, Game gw) {
 		super(x, y, w, h, lh, ID, gw);
 		input = new Input();
-		speed = 150;
+		speed = 200;
 	}
 	
 	public void update(long delta) {

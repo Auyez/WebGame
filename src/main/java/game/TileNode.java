@@ -24,12 +24,14 @@ public class TileNode implements Comparable<TileNode>{
 	public TileNode getParent() {return parent;}
 	public double getF() {return f;}
 	public int getG() {return g;}
+	public double getH() {return h;}
 	public int getX() {return x;}
 	public int getY() {return y;}
 	public Vec2 getCoordinates() {return new Vec2(x, y);}
 	public void setG(int g) {this.g = g;}
 	public void setH(double h) {this.h = h;}
 	public void setF() {this.f = this.g + this.h;}
+	public void setParent(TileNode parent) {this.parent = parent;}
 	public boolean isSame(TileNode inst) {
 		if (this.x == inst.getX() && this.y == inst.getY()) {
 			return true;
@@ -61,4 +63,11 @@ public class TileNode implements Comparable<TileNode>{
 		
 		return result;
 	}
+
+	public TileNode convert() {
+		TileNode converted = new TileNode((this.x * 30) + 5, (this.y * 30) - 15, this.parent);
+
+		return converted;
+	}
+
 }
