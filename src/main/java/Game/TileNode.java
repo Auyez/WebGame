@@ -25,6 +25,7 @@ public class TileNode implements Comparable<TileNode>{
 	public TileNode getParent() {return parent;}
 	public double getF() {return f;}
 	public int getG() {return g;}
+	public double getH() {return h;}
 	public int getX() {return x;}
 	public int getY() {return y;}
 	public Pair<Integer, Integer> getCoordinates() {return new Pair<Integer, Integer>(x, y);}
@@ -69,4 +70,5 @@ public class TileNode implements Comparable<TileNode>{
 
 		return converted;
 	}
+
 }

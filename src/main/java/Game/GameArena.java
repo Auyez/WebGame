@@ -45,6 +45,7 @@ public class GameArena {
 	
 	// Return sequence of target coordinates
 	public ArrayList<TileNode> aStar(int x_init, int y_init, int x_target, int y_target) {
+		
 		ArrayList<TileNode> open = new ArrayList<TileNode>();
 		ArrayList<TileNode> closed = new ArrayList<TileNode>();
 		boolean toSkip = false;
@@ -112,54 +113,15 @@ public class GameArena {
 			target = target.getParent();
 			check = check.getParent();
 		}
-		
+		turns.add(target.getParent().convert());
+		/*
 		for (int i = 0; i < turns.size() - 1; i++) {
 			turns.get(i).setParent(turns.get(i + 1));
 		}
 		turns.get(turns.size() - 1).setParent(null);
+		*/
 		
-		// Detect free diagonal paths
-		TileNode init = turns.get(turns.size() - 1);
-		TileNode dest = turns.get(0);
-		ArrayList<TileNode> path = new ArrayList<TileNode>();
-		
-		while (dest != null) {
-			path.add(dest);
-			dest = dest.getParent();
-		}
-		
-		for (TileNode i : path) {
-			System.out.println(i.getCoordinates());
-		}
-		
-		/*
-		while (init != dest) {		
-			float x0 = (float)init.getX() / 20;
-			float y0 = (float)init.getY() / 20;
-			float x1 = (float)dest.getX() / 20;
-			float y1 = (float)dest.getY() / 20;
-			boolean collides = false;
-			//System.out.println("Iteration, dest: " + dest.getCoordinates());
-			ArrayList<TileNode> lineTiles = raytrace(x0, y0, x1, y1);
-	
-			for (TileNode i : lineTiles) {
-				if (collision_map[i.getY()][i.getX()] == 1) {
-					collides = true;
-				}
-			}
-			if (collides) {
-				dest = dest.getParent();
-			} else {
-				init = dest;
-				dest = turns.get(0);
-				path.add(init);
-			}
-		}
-		
-		for (TileNode i : path) {
-			System.out.println(i.getCoordinates());
-		}*/
-		return path;
+		return turns;
 	}
 	
 	public ArrayList<TileNode> raytrace(double x0, double y0, double x1, double y1)
@@ -229,5 +191,31 @@ public class GameArena {
 	    }
 	    
 	    return result;
+	}
+
+	public boolean checkCollision(float x0, float y0, int x_target, int y_target) {
+		boolean collides = false;
+		
+		float x1 = (float)x_target;
+		float y1 = (float)y_target;
+		// TODO make player width, height and lower height constants in Player.java ?
+		float dy1 = 20;
+		float dy2 = 40;
+		float dx = 20;
+		
+		ArrayList<TileNode> lineTiles = new ArrayList<TileNode>();
+		// Checks all four lines from each corner of hit-box
+		lineTiles.addAll(raytrace((x0)/tileSize, (y0 + dy1)/tileSize, (x1)/tileSize, (y1)/tileSize));
+		lineTiles.addAll(raytrace((x0)/tileSize, (y0 + dy2)/tileSize, (x1)/tileSize, (y1 + dy1)/tileSize));
+		lineTiles.addAll(raytrace((x0 + dx)/tileSize, (y0 + dy1)/tileSize, (x1 + dx)/tileSize, (y1)/tileSize));
+		lineTiles.addAll(raytrace((x0 + dx)/tileSize, (y0 + dy2)/tileSize, (x1 + dx)/tileSize, (y1 + dy1)/tileSize));
+		
+		for (TileNode i : lineTiles) {
+			if (collision_map[i.getY()][i.getX()] == 1) {
+				collides = true;
+			}
+		}
+		
+		return collides;
 	}
 }
