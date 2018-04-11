@@ -65,6 +65,7 @@ namespace Client
 					struct player
 						Integer x
 						Integer y
+						Byte ismoving
 						Integer a
 						Integer id
 */
@@ -317,12 +318,14 @@ public class Protocol {
         public static class Player { /*Struct*/
             public Integer x;
             public Integer y;
+            public Byte ismoving;
             public Integer a;
             public Integer id;
             public byte[] bytes() {
                 ByteWriter writer = new ByteWriter();
                 writer.writeBytes(ByteWriter.Integer2bytes(x));
                 writer.writeBytes(ByteWriter.Integer2bytes(y));
+                writer.writeBytes(ByteWriter.Byte2bytes(ismoving));
                 writer.writeBytes(ByteWriter.Integer2bytes(a));
                 writer.writeBytes(ByteWriter.Integer2bytes(id));
                 return writer.bytes();
@@ -331,6 +334,7 @@ public class Protocol {
                 Player obj = new Player();
                 obj.x = reader.readInteger();
                 obj.y = reader.readInteger();
+                obj.ismoving = reader.readByte();
                 obj.a = reader.readInteger();
                 obj.id = reader.readInteger();
                 return obj;

@@ -14,7 +14,7 @@ function CreateGame(parent, socket, lobbyIndex) {
 	var inputMessage = null;
     
     function preload() {
-        game.load.image('dude', 'game/assets/bitman.png');
+        Player.preload(game);
         game.load.image('tile', 'game/assets/map.png');
     }
     
@@ -25,7 +25,6 @@ function CreateGame(parent, socket, lobbyIndex) {
 		servermsg.lobbyCmd.ready = new Protocol.Server.Ready();
 		// Sends to server that game is loaded and ready to receive playerSetup
 		socket.send(servermsg.bytes());
-
 
         inputMessage = new Protocol.Server.ServerMsg();
         inputMessage.lobbyIndex = lobbyIndex;
@@ -109,9 +108,7 @@ function CreateGame(parent, socket, lobbyIndex) {
     function addPlayers(ids) {
         for (var i in ids) {
             var id = ids[i];
-            var player = game.add.sprite(40, game.world.height - 150, 'dude');
-            //player.animations.add('left', [0, 1, 2, 3], 10, true);
-            //player.animations.add('right', [5, 6, 7, 8], 10, true);
+            player = new Player(game);
             players[id] = player;
         }
     }
@@ -130,13 +127,13 @@ function CreateGame(parent, socket, lobbyIndex) {
         for (var i in entities) {
             var entity = entities[i];
             if (entity.player != null) {
-                if (entity.player.id in players) {
+                var playerMsg = entity.player;
+                if (playerMsg.id in players) {
                     // the player is in the list -> do not remove it
-                    playersToRemove.delete(String(entity.player.id));
+                    playersToRemove.delete(String(playerMsg.id));
 
-                    var player = players[entity.player.id];
-                    player.x = entity.player.x;
-                    player.y = entity.player.y;
+                    var player = players[playerMsg.id];
+                    player.update(playerMsg);
                 }
             }
         }
@@ -147,4 +144,36 @@ function CreateGame(parent, socket, lobbyIndex) {
     }	
 	
 	return game;
+}
+
+
+function Player(game) {
+    this.sprite = game.add.sprite(60, game.world.height - 150, 'cultist');
+    this.sprite.animations.add('idle', [7], 10, true);
+    this.sprite.animations.add('up', [0, 1, 2], 10, true);
+    this.sprite.animations.add('right', [3, 4, 5], 10, true);
+    this.sprite.animations.add('down', [6, 7, 8], 10, true);
+    this.sprite.animations.add('left', [9, 10, 11], 10, true);
+
+
+    this.update = function(playerMsg) {
+        this.sprite.x = playerMsg.x;
+        this.sprite.y = playerMsg.y;
+
+        if (playerMsg.ismoving == 0) {
+            this.sprite.animations.play('idle');
+        } else {
+            var dir = Math.floor(playerMsg.a / 45);
+            var animations = ['right', 'down', 'down', 'left', 'left', 'up', 'up', 'right'];
+            this.sprite.animations.play(animations[dir]);
+        }
+    }
+
+    this.destroy = function() {
+        this.sprite.destroy();
+    }
+}
+
+Player.preload = function(game) {
+    game.load.spritesheet('cultist', 'game/assets/cultist.png', 32, 36);
 }

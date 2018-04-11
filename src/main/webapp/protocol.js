@@ -1,30 +1,31 @@
 /*
 namespace Server
-    struct server_msg
-        Integer lobby_index
-        union lobby_cmd
-            Integer add_player_id
-            struct ready
-            union game_msg
-                struct input
-                    Byte key
+	struct server_msg
+		Integer lobby_index
+		union lobby_cmd
+			Integer add_player_id
+			struct ready
+			union game_msg
+				struct input
+					Integer x_target
+					Integer y_target
+				Byte skill_input
 
 namespace Client
-    union client_msg
-        struct start_game
-        union game_msg
-            list player_setup
-                Integer id
-            Integer remove_player_id
-            list world_state
-                union entity
-                    struct player
-                        Integer x
-                        Integer y
-                        Integer a
-                        Integer id
+	union client_msg
+		struct start_game
+		union game_msg
+			list player_setup
+				Integer id
+			list world_state
+				union entity
+					struct player
+						Integer x
+						Integer y
+						Byte ismoving
+						Integer a
+						Integer id
 */
-
 
 /* Generated from Java with JSweet 2.0.0 - http://www.jsweet.org */
 var Protocol = (function () {
@@ -361,6 +362,7 @@ Protocol["__class"] = "Protocol";
             function Player() {
                 this.x = null;
                 this.y = null;
+                this.ismoving = null;
                 this.a = null;
                 this.id = null;
             }
@@ -368,6 +370,7 @@ Protocol["__class"] = "Protocol";
                 var writer = new ByteWriter();
                 writer.writeBytes(ByteWriter.Integer2bytes(this.x));
                 writer.writeBytes(ByteWriter.Integer2bytes(this.y));
+                writer.writeBytes(ByteWriter.Byte2bytes(this.ismoving));
                 writer.writeBytes(ByteWriter.Integer2bytes(this.a));
                 writer.writeBytes(ByteWriter.Integer2bytes(this.id));
                 return writer.bytes();
@@ -376,6 +379,7 @@ Protocol["__class"] = "Protocol";
                 var obj = new Client.Player();
                 obj.x = reader.readInteger();
                 obj.y = reader.readInteger();
+                obj.ismoving = reader.readByte();
                 obj.a = reader.readInteger();
                 obj.id = reader.readInteger();
                 return obj;

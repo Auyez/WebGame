@@ -8,19 +8,26 @@ import lobby.Protocol;
 public class Player extends Actor{
 	private Input input;
 	private int speed;
+	private Vec2 movementDirection;
+
 	public Player(float x, float y, int w, int h, int lh, int ID, Game gw) {
 		super(x, y, w, h, lh, ID, gw);
 		input = new Input();
 		speed = 200;
+		movementDirection = new Vec2(0, 0);
 	}
 	
 	public void update(long delta) {
 		Vec2 target = input.getMouse();
+		movementDirection.set(0, 0);
+
 		if (target != null) {
 			Vec2 movement = Vec2.subs(position, target);
 			movement.scalar( (speed * (delta/1000.0f))/movement.getMagnitude() );
 			movement.scalar(-1);
 			addPosition(movement);
+			movementDirection.set(movement);
+
 			if(collides() > -2) {
 				movement.scalar(-1);
 				addPosition(movement);
@@ -37,7 +44,9 @@ public class Player extends Actor{
 		state.player = new Protocol.Client.Player();
 		state.player.x = (int) position.getX();
 		state.player.y = (int) position.getY();
-		state.player.a = 0;
+		state.player.ismoving = (byte) (movementDirection.getMagnitude() > 0 ? 1 : 0);
+		state.player.a = (int)Math.round(Math.toDegrees(movementDirection.getAngleRad()));
+
 		state.player.id = getId();
 
 		return state;
