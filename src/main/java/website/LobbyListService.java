@@ -1,4 +1,4 @@
-package lobby;
+package website;
 import com.google.gson.Gson;
 
 import javax.ws.rs.*;
