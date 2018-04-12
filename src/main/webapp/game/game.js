@@ -26,7 +26,7 @@ function CreateGame(parent, socket, lobbyIndex) {
 		servermsg.lobbyIndex = lobbyIndex;
 		servermsg.lobbyCmd = new Protocol.Server.LobbyCmd();
 		servermsg.lobbyCmd.ready = new Protocol.Server.Ready();
-		// Sends to server that game is loaded and ready to receive playerSetup
+		// Sends to server that game is loaded. Not really used anymore
 		socket.send(servermsg.bytes());
 
         inputMessage = new Protocol.Server.ServerMsg();
@@ -192,6 +192,7 @@ function Actor(game, type) {
     this.onmessage = function(msg) {
         this.sprite.x = msg.x;
         this.sprite.y = msg.y;
+        this.sprite.angle = msg.angle;
         this.sprite.animations.play(msg.animation);
     }
 

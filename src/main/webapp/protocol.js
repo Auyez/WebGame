@@ -1,4 +1,3 @@
-
 /* Generated from Java with JSweet 2.0.0 - http://www.jsweet.org */
 var Protocol = (function () {
     function Protocol() {
@@ -274,6 +273,7 @@ Protocol["__class"] = "Protocol";
                 this.x = null;
                 this.y = null;
                 this.animation = null;
+                this.angle = null;
             }
             Actor.prototype.bytes = function () {
                 var writer = new ByteWriter();
@@ -282,6 +282,7 @@ Protocol["__class"] = "Protocol";
                 writer.writeBytes(ByteWriter.Integer2bytes(this.x));
                 writer.writeBytes(ByteWriter.Integer2bytes(this.y));
                 writer.writeBytes(ByteWriter.Byte2bytes(this.animation));
+                writer.writeBytes(ByteWriter.Integer2bytes(this.angle));
                 return writer.bytes();
             };
             Actor.parse = function (reader) {
@@ -291,6 +292,7 @@ Protocol["__class"] = "Protocol";
                 obj.x = reader.readInteger();
                 obj.y = reader.readInteger();
                 obj.animation = reader.readByte();
+                obj.angle = reader.readInteger();
                 return obj;
             };
             return Actor;

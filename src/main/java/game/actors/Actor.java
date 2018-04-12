@@ -15,7 +15,8 @@ public abstract class Actor{
 	public Rectangle lowerBox;
 	private Game game;
 	private int id;
-	private byte animation;
+	private byte animation; // animation row
+	private int angle; // sprite rotation
 	
 	public Actor(float x, float y, int w, int h, int lh, int id, Game g) {
 		position = new Vec2(x,y);
@@ -84,6 +85,7 @@ public abstract class Actor{
 		state.x = Math.round(getPosition().getX());
 		state.y = Math.round(getPosition().getY());
 		state.animation = getAnimation();
+		state.angle = getAngle();
 
 		return state;
 	}
@@ -91,4 +93,6 @@ public abstract class Actor{
 
 	protected void setAnimation(byte animation) {this.animation = animation;}
 	protected byte getAnimation() {return animation;}
+	protected void setAngle(int angle) {this.angle = angle;}
+	protected int getAngle() {return angle;}
 }

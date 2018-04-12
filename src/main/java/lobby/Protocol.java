@@ -66,6 +66,7 @@ namespace Client
 					Integer x
 					Integer y
 					Byte animation
+					Integer angle
 */
 public class Protocol {
     public static class Server {
@@ -269,6 +270,7 @@ public class Protocol {
             public Integer x;
             public Integer y;
             public Byte animation;
+            public Integer angle;
             public byte[] bytes() {
                 ByteWriter writer = new ByteWriter();
                 writer.writeBytes(ByteWriter.Integer2bytes(id));
@@ -276,6 +278,7 @@ public class Protocol {
                 writer.writeBytes(ByteWriter.Integer2bytes(x));
                 writer.writeBytes(ByteWriter.Integer2bytes(y));
                 writer.writeBytes(ByteWriter.Byte2bytes(animation));
+                writer.writeBytes(ByteWriter.Integer2bytes(angle));
                 return writer.bytes();
             }
             public static Actor parse(ByteReader reader) {
@@ -285,6 +288,7 @@ public class Protocol {
                 obj.x = reader.readInteger();
                 obj.y = reader.readInteger();
                 obj.animation = reader.readByte();
+                obj.angle = reader.readInteger();
                 return obj;
             }
         }
