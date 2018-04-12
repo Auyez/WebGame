@@ -144,7 +144,8 @@ function ActorManager(game) {
         }
 
 
-        for(var id in idsToRemove) {
+        for(var i in idsToRemove) {
+            var id = idsToRemove[i];
             var actor = this.actors[id];
             actor.destroy();
             delete this.actors[id];
