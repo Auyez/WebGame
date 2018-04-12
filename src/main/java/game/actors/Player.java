@@ -62,14 +62,7 @@ public class Player extends Actor{
 			if (input.getPrev() != input.getMouse())
 				input.putBackTarget();
 			setAnimation(ANIM_IDLE);
-			try {
-				updated_movement.scalar(-1.0f);
-			}catch(Exception e) {
-				System.out.println(a.getType());
-				System.out.println(e.getMessage());
-				System.out.println(updated_movement);
-				System.exit(-1);
-			}
+			updated_movement.scalar(-1.0f);
 			addPosition(updated_movement);
 		}
 		input.releaseAll();
