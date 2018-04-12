@@ -1,7 +1,7 @@
 var lobbyIndex = parseInt(sessionStorage.getItem('lobbyIndex'));
 document.title = 'Lobby' + lobbyIndex;
 var lobby1 = new Lobby(lobbyIndex, 'game1');
-var lobby2 = new Lobby(lobbyIndex, 'game2')
+//var lobby2 = new Lobby(lobbyIndex, 'game2')
 
 function Lobby(lobbyIndex, parent) {
     //var lobbyIndex = parseInt(sessionStorage.getItem('lobbyIndex'));

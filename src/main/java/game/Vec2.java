@@ -24,6 +24,8 @@ public class Vec2 {
 	        angle += 2 * Math.PI;
         return angle;
     }
+	
+	
 	public void add(Vec2 v) { x += v.getX(); y += v.getY();}
 	public float dot(Vec2 v) {return dot(this, v);}
 	public void scalar(float c) { x *= c; y *= c;}

@@ -3,22 +3,28 @@ package game.actors;
 import game.Game;
 import game.Input;
 import game.Vec2;
+import game.skill.Skill;
 import lobby.Protocol;
 
 public class Player extends Actor{
-	private Input input;
-	private int speed;
-
 	private static final byte ANIM_UP = 0;
 	private static final byte ANIM_RIGHT = 1;
 	private static final byte ANIM_DOWN = 2;
 	private static final byte ANIM_LEFT = 3;
 	private static final byte ANIM_IDLE = 4;
+	
+	
+	private Input input;
+	private int speed;
+	private Vec2 updated_movement;
+	//private Skill[] skills;
 
-	public Player(float x, float y, int w, int h, int lh, int ID, Game gw) {
-		super(x, y, w, h, lh, ID, gw);
+
+	public Player(float x, float y, int w, int h, int lh, int ID) {
+		super(x, y, w, h, lh, ID);
 		input = new Input();
 		speed = 200;
+		//skills = new Skill [4];
 	}
 	
 	public void update(long delta) {
@@ -42,21 +48,33 @@ public class Player extends Actor{
 				setAnimation(ANIM_LEFT);
 			// animation
 
-			movement.scalar( (speed * (delta/1000.0f))/movement.getMagnitude() );
-			movement.scalar(-1);
+			movement.scalar( -(speed * (delta/1000.0f))/movement.getMagnitude() );
 			addPosition(movement);
+			updated_movement = new Vec2(movement.getX(), movement.getY());
 
-			if(collides() > -2) {
-				movement.scalar(-1);
-				addPosition(movement);
-			}
-			if (position.isClose(target, 2.0f)) {
-				target = input.getNextTarget();
-			}
+			if (position.isClose(target, 2.0f))
+				input.getNextTarget();
 		}
-		input.releaseAll(); // looks like obsolete
 	}
 
+	public void resolve_collision(long delta, Actor a) {
+		if (a != null) {
+			if (input.getPrev() != input.getMouse())
+				input.putBackTarget();
+			setAnimation(ANIM_IDLE);
+			try {
+				updated_movement.scalar(-1.0f);
+			}catch(Exception e) {
+				System.out.println(a.getType());
+				System.out.println(e.getMessage());
+				System.out.println(updated_movement);
+				System.exit(-1);
+			}
+			addPosition(updated_movement);
+		}
+		input.releaseAll();
+	}
+	
 	public Input getInput() {
 		return input;
 	}
