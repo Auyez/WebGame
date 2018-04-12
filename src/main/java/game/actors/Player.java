@@ -8,25 +8,43 @@ import lobby.Protocol;
 public class Player extends Actor{
 	private Input input;
 	private int speed;
-	private Vec2 movementDirection;
+
+	private static final byte ANIM_UP = 0;
+	private static final byte ANIM_RIGHT = 1;
+	private static final byte ANIM_DOWN = 2;
+	private static final byte ANIM_LEFT = 3;
+	private static final byte ANIM_IDLE = 4;
 
 	public Player(float x, float y, int w, int h, int lh, int ID, Game gw) {
 		super(x, y, w, h, lh, ID, gw);
 		input = new Input();
 		speed = 200;
-		movementDirection = new Vec2(0, 0);
 	}
 	
 	public void update(long delta) {
 		Vec2 target = input.getMouse();
-		movementDirection.set(0, 0);
+		setAnimation(ANIM_IDLE);
 
 		if (target != null) {
 			Vec2 movement = Vec2.subs(position, target);
+
+			// animation
+			int angle = (int)Math.round(Math.toDegrees(movement.getAngleRad()));
+			if (angle < 45)
+				setAnimation(ANIM_LEFT);
+			else if (angle < 45*3)
+				setAnimation(ANIM_UP);
+			else if (angle < 45*5)
+				setAnimation(ANIM_RIGHT);
+			else if (angle < 45*7)
+				setAnimation(ANIM_DOWN);
+			else
+				setAnimation(ANIM_LEFT);
+			// animation
+
 			movement.scalar( (speed * (delta/1000.0f))/movement.getMagnitude() );
 			movement.scalar(-1);
 			addPosition(movement);
-			movementDirection.set(movement);
 
 			if(collides() > -2) {
 				movement.scalar(-1);
@@ -38,21 +56,9 @@ public class Player extends Actor{
 		}
 		input.releaseAll(); // looks like obsolete
 	}
-	
-	public Protocol.Client.Entity getState() {
-		Protocol.Client.Entity state = new Protocol.Client.Entity();
-		state.player = new Protocol.Client.Player();
-		state.player.x = (int) position.getX();
-		state.player.y = (int) position.getY();
-		state.player.ismoving = (byte) (movementDirection.getMagnitude() > 0 ? 1 : 0);
-		state.player.a = (int)Math.round(Math.toDegrees(movementDirection.getAngleRad()));
 
-		state.player.id = getId();
-
-		return state;
-	}	
 	public Input getInput() {
 		return input;
 	}
-	public Types getType() {return Types.PLAYER;}
+	public int getType() {return Actor.PLAYER;}
 }

@@ -1,3 +1,6 @@
+var FRAME_WIDTH = 32;
+var FRAME_HEIGHT = 36;
+
 function CreateGame(parent, socket, lobbyIndex) {
 	var game = new Phaser.Game(
 			            1200, 900, Phaser.AUTO, parent,
@@ -7,15 +10,15 @@ function CreateGame(parent, socket, lobbyIndex) {
 			            	update: update
 			            }
 		        	);
-	
-	var players = {}; // id -> player
+	var actorManager = new ActorManager(game);
     var cursors = null;
 	var q = null;
 	var inputMessage = null;
-    
+	var ready = false;
+
     function preload() {
-        Player.preload(game);
         game.load.image('tile', 'game/assets/map.png');
+        ActorManager.preload(game);
     }
     
     function create() {
@@ -80,93 +83,120 @@ function CreateGame(parent, socket, lobbyIndex) {
     		}
     	}
     	//////////////////////////////////////////////////
+
+    	ready = true;
     }
 
     function update() {  	
     	game.input.onDown.add(move, this);
+    	actorManager.update();
     }
 
     function move() {
-    	//console.log(game.input.x);
-    	//console.log(game.input.y);
     	inputMessage.lobbyCmd.gameMsg.input.xTarget = game.input.x;
     	inputMessage.lobbyCmd.gameMsg.input.yTarget = game.input.y;
     	socket.send(inputMessage.bytes());
     }
     
     game.onmessage = function(gameMsg) {
-        if (gameMsg.playerSetup != null) {
-            var ids = gameMsg.playerSetup.items;
-            console.log('playersetup', gameMsg.playerSetup.items);
-            addPlayers(ids);
-        } else if (gameMsg.worldState != null) {
-            var entities = gameMsg.worldState.items;
-            updateEntities(entities);
+        if (!ready) {
+            console.log("not booted");
+        }
+        if (gameMsg.worldState != null && ready) {
+            var actorsMsg = gameMsg.worldState.items;
+            actorManager.onmessage(actorsMsg);
         }
     }
 
-    function addPlayers(ids) {
-        for (var i in ids) {
-            var id = ids[i];
-            player = new Player(game);
-            players[id] = player;
-        }
+    game.isready = function() {
+        return ready;
     }
 
-    function removePlayer(id) {
-        if (id in players) {
-            var player = players[id];
-            player.destroy();
-            delete players[id];
-        }
-    }
-
-    function updateEntities(entities) {
-        var playersToRemove = new Set(Object.keys(players));
-
-        for (var i in entities) {
-            var entity = entities[i];
-            if (entity.player != null) {
-                var playerMsg = entity.player;
-                if (playerMsg.id in players) {
-                    // the player is in the list -> do not remove it
-                    playersToRemove.delete(String(playerMsg.id));
-
-                    var player = players[playerMsg.id];
-                    player.update(playerMsg);
-                }
-            }
-        }
-
-        for (var id of playersToRemove) {
-            removePlayer(id);
-        }
-    }	
-	
 	return game;
 }
 
 
-function Player(game) {
-    this.sprite = game.add.sprite(60, game.world.height - 150, 'cultist');
-    this.sprite.animations.add('idle', [7], 10, true);
-    this.sprite.animations.add('up', [0, 1, 2], 10, true);
-    this.sprite.animations.add('right', [3, 4, 5], 10, true);
-    this.sprite.animations.add('down', [6, 7, 8], 10, true);
-    this.sprite.animations.add('left', [9, 10, 11], 10, true);
 
+function ActorManager(game) {
+    this.actors = {} // id -> actor
 
-    this.update = function(playerMsg) {
-        this.sprite.x = playerMsg.x;
-        this.sprite.y = playerMsg.y;
+    this.onmessage = function(actorsMsg) {
+        var idsEncountered = [];
 
-        if (playerMsg.ismoving == 0) {
-            this.sprite.animations.play('idle');
-        } else {
-            var dir = Math.floor(playerMsg.a / 45);
-            var animations = ['right', 'down', 'down', 'left', 'left', 'up', 'up', 'right'];
-            this.sprite.animations.play(animations[dir]);
+        for(var i in actorsMsg) {
+            var msg = actorsMsg[i];
+            idsEncountered.push(msg.id);
+
+            if (!(msg.id in this.actors)) {
+                var actor = new Actor(game, msg.type);
+                this.actors[msg.id] = actor;
+            }
+
+            var actor = this.actors[msg.id];
+            actor.onmessage(msg);
         }
+
+        var idsToRemove = [];
+        for(var id in this.actors) {
+            var id = parseInt(id);
+            if (!idsEncountered.includes(id))
+                idsToRemove.push(id);
+        }
+
+
+        for(var id in idsToRemove) {
+            var actor = this.actors[id];
+            actor.destroy();
+            delete this.actors[id];
+        }
+    }
+
+    this.update = function() {
+        for(var id in this.actors) {
+            this.actors[id].update();
+        }
+    }
+}
+
+ActorManager.preload = function(game) {
+    var types = [0];
+    for (var i in types) {
+        var type = types[i];
+        game.load.spritesheet(  Actor.getSpriteKey(type),
+                                'game/assets/' + Actor.getSpriteKey(type) + '.png',
+                                FRAME_WIDTH, FRAME_HEIGHT);
+    }
+}
+
+// Everything about the actor on frontend is determined by its spritesheet 'actor*.png'
+// 3 frames per row for each actor
+// arbitrary number of rows
+// rows correspond to animations
+// Add actor types to types array in ActorManager.preload()
+function Actor(game, type) {
+
+    this.sprite = game.add.sprite(0, 0, Actor.getSpriteKey(type));
+    this.type = type;
+
+    var framesPerAnimation = 3;
+    var numAnimations = this.sprite.animations.frameTotal / framesPerAnimation;
+    for (var i = 0; i < numAnimations; ++i) {
+        var frames = [];
+        for (var j = 0; j < framesPerAnimation; ++j) {
+            frames.push(i * framesPerAnimation + j);
+        }
+        this.sprite.animations.add(i, frames, 10, true);
+    }
+
+
+    this.onmessage = function(msg) {
+        this.sprite.x = msg.x;
+        this.sprite.y = msg.y;
+        this.sprite.animations.play(msg.animation);
+    }
+
+    this.update = function() {
+        this.sprite.animations.update();
     }
 
     this.destroy = function() {
@@ -174,6 +204,6 @@ function Player(game) {
     }
 }
 
-Player.preload = function(game) {
-    game.load.spritesheet('cultist', 'game/assets/cultist.png', 32, 36);
+Actor.getSpriteKey = function(type) {
+    return "actor" + type;
 }

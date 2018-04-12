@@ -41,6 +41,7 @@ Reading Example:
 ServerMsg serverMsg = ServerMsg.parse(ByteBuffer.wrap(bytes));
 */
 
+
 /*
 namespace Server
 	struct server_msg
@@ -58,16 +59,13 @@ namespace Client
 	union client_msg
 		struct start_game
 		union game_msg
-			list player_setup
-				Integer id
 			list world_state
-				union entity
-					struct player
-						Integer x
-						Integer y
-						Byte ismoving
-						Integer a
-						Integer id
+				struct actor
+					Integer id
+					Integer type
+					Integer x
+					Integer y
+					Byte animation
 */
 public class Protocol {
     public static class Server {
@@ -225,16 +223,11 @@ public class Protocol {
             }
         }
         public static class GameMsg { /*Union*/
-            public PlayerSetup playerSetup;
             public WorldState worldState;
-            static final byte PLAYER_SETUP = 0;
-            static final byte WORLD_STATE = 1;
+            static final byte WORLD_STATE = 0;
             public byte[] bytes() {
                 ByteWriter writer = new ByteWriter();
                 if (false) {;
-                } else if (playerSetup != null) {
-                    writer.writeByte(PLAYER_SETUP);
-                    writer.writeBytes(playerSetup.bytes());
                 } else if (worldState != null) {
                     writer.writeByte(WORLD_STATE);
                     writer.writeBytes(worldState.bytes());
@@ -244,38 +237,14 @@ public class Protocol {
             public static GameMsg parse(ByteReader reader) {
                 GameMsg obj = new GameMsg();
                 byte type = reader.readByte();
-                if (type == PLAYER_SETUP) {
-                    obj.playerSetup = PlayerSetup.parse(reader);
-                }
-
                 if (type == WORLD_STATE) {
                     obj.worldState = WorldState.parse(reader);
                 }
                 return obj;
             }
         }
-        public static class PlayerSetup { /*List*/
-            public ArrayList < Integer > items = new ArrayList < > ();
-            public byte[] bytes() {
-                ByteWriter writer = new ByteWriter();
-                writer.writeInt(items.size());
-                for (int i = 0; i < items.size(); ++i) {
-                    writer.writeBytes(ByteWriter.Integer2bytes(items.get(i)));
-                }
-                return writer.bytes();
-            }
-            public static PlayerSetup parse(ByteReader reader) {
-                PlayerSetup obj = new PlayerSetup();
-                int size = reader.readInteger();
-                for (int i = 0; i < size; ++i) {
-                    Integer item = reader.readInteger();
-                    obj.items.add(item);
-                }
-                return obj;
-            }
-        }
         public static class WorldState { /*List*/
-            public ArrayList < Entity > items = new ArrayList < > ();
+            public ArrayList < Actor > items = new ArrayList < > ();
             public byte[] bytes() {
                 ByteWriter writer = new ByteWriter();
                 writer.writeInt(items.size());
@@ -288,55 +257,34 @@ public class Protocol {
                 WorldState obj = new WorldState();
                 int size = reader.readInteger();
                 for (int i = 0; i < size; ++i) {
-                    Entity item = Entity.parse(reader);
+                    Actor item = Actor.parse(reader);
                     obj.items.add(item);
                 }
                 return obj;
             }
         }
-        public static class Entity { /*Union*/
-            public Player player;
-            static final byte PLAYER = 0;
-            public byte[] bytes() {
-                ByteWriter writer = new ByteWriter();
-                if (false) {;
-                } else if (player != null) {
-                    writer.writeByte(PLAYER);
-                    writer.writeBytes(player.bytes());
-                }
-                return writer.bytes();
-            }
-            public static Entity parse(ByteReader reader) {
-                Entity obj = new Entity();
-                byte type = reader.readByte();
-                if (type == PLAYER) {
-                    obj.player = Player.parse(reader);
-                }
-                return obj;
-            }
-        }
-        public static class Player { /*Struct*/
+        public static class Actor { /*Struct*/
+            public Integer id;
+            public Integer type;
             public Integer x;
             public Integer y;
-            public Byte ismoving;
-            public Integer a;
-            public Integer id;
+            public Byte animation;
             public byte[] bytes() {
                 ByteWriter writer = new ByteWriter();
+                writer.writeBytes(ByteWriter.Integer2bytes(id));
+                writer.writeBytes(ByteWriter.Integer2bytes(type));
                 writer.writeBytes(ByteWriter.Integer2bytes(x));
                 writer.writeBytes(ByteWriter.Integer2bytes(y));
-                writer.writeBytes(ByteWriter.Byte2bytes(ismoving));
-                writer.writeBytes(ByteWriter.Integer2bytes(a));
-                writer.writeBytes(ByteWriter.Integer2bytes(id));
+                writer.writeBytes(ByteWriter.Byte2bytes(animation));
                 return writer.bytes();
             }
-            public static Player parse(ByteReader reader) {
-                Player obj = new Player();
+            public static Actor parse(ByteReader reader) {
+                Actor obj = new Actor();
+                obj.id = reader.readInteger();
+                obj.type = reader.readInteger();
                 obj.x = reader.readInteger();
                 obj.y = reader.readInteger();
-                obj.ismoving = reader.readByte();
-                obj.a = reader.readInteger();
-                obj.id = reader.readInteger();
+                obj.animation = reader.readByte();
                 return obj;
             }
         }

@@ -8,15 +8,14 @@ import game.Vec2;
 import lobby.Protocol;
 
 public abstract class Actor{
-	public static enum Types{
-		PLAYER;					// add types here
-	};
+	public static final int PLAYER = 0;
 	
 	public Vec2 position;
 	public Rectangle hitbox;
 	public Rectangle lowerBox;
 	private Game game;
 	private int id;
+	private byte animation;
 	
 	public Actor(float x, float y, int w, int h, int lh, int id, Game g) {
 		position = new Vec2(x,y);
@@ -78,6 +77,18 @@ public abstract class Actor{
 	public Vec2 getPosition() {return position;}
 	public int getId() {return id;}
 	public abstract void update(long delta);
-	public abstract Protocol.Client.Entity getState();
-	public abstract Types getType();
+	public Protocol.Client.Actor getState() {
+		Protocol.Client.Actor state = new Protocol.Client.Actor();
+		state.id = getId();
+		state.type = getType();
+		state.x = Math.round(getPosition().getX());
+		state.y = Math.round(getPosition().getY());
+		state.animation = getAnimation();
+
+		return state;
+	}
+	public abstract int getType();
+
+	protected void setAnimation(byte animation) {this.animation = animation;}
+	protected byte getAnimation() {return animation;}
 }

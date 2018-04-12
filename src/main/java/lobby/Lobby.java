@@ -30,7 +30,7 @@ class Lobby {
         } else if (message.ready != null && isGameRunning()) {
             readyCount++;
             if (readyCount >= MAX_PLAYERS) {
-                sendPlayerSetup();
+                //sendPlayerSetup();
                 readyCount = 0;
             }
         } else if (message.gameMsg != null && isGameRunning()) {
@@ -39,7 +39,7 @@ class Lobby {
             }
         }
     }
-
+/*
 	private void sendPlayerSetup() {
         synchronized (sessions) {
             for (Session s : sessions.keySet()) {
@@ -52,7 +52,7 @@ class Lobby {
             }
         }
 	}
-
+*/
     public synchronized void onClose(Session session) {
         synchronized (sessions) {
             if (sessions.containsKey(session)) {

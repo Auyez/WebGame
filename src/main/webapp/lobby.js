@@ -40,10 +40,10 @@ function Lobby(lobbyIndex, parent) {
             document.getElementById(parent).innerHTML = '';
             self.game = CreateGame(parent, self.socket, lobbyIndex);
         } else if (clientMsg.gameMsg != null) {
-            // wait until self.game is created in case gameMsg arrives before CreateGame is finished
-            while (self.game == null) {}
-
-            self.game.onmessage(clientMsg.gameMsg);
+            // drop messages if game is not ready yet
+            if (self.game.isready()) {
+                self.game.onmessage(clientMsg.gameMsg);
+            }
         }
     };
 
