@@ -31,7 +31,7 @@ function CreateGame(parent, socket, lobbyIndex) {
         inputMessage.lobbyIndex = lobbyIndex;
         inputMessage.lobbyCmd = new Protocol.Server.LobbyCmd();
         inputMessage.lobbyCmd.gameMsg = new Protocol.Server.GameMsg();
-        inputMessage.lobbyCmd.gameMsg.input = new Protocol.Server.Input();
+        // inputMessage.lobbyCmd.gameMsg.input = new Protocol.Server.Input();
         
 
         cursors = game.input.keyboard.createCursorKeys();
@@ -85,11 +85,22 @@ function CreateGame(parent, socket, lobbyIndex) {
 
     function update() {  	
     	game.input.onDown.add(move, this);
+    	q.onDown.add(spellQ, this);
     }
-
+    
+    function spellQ() {
+    	inputMessage.lobbyCmd.gameMsg.skill_input = new Protocol.Server.SkillInput();
+    	inputMessage.lobbyCmd.gameMsg.skill_input = 1;
+    	socket.send(inputMessage.bytes());
+    	console.log("Q pressed");
+    	console.log(game.input.x);
+    	console.log(game.input.y);
+    }
+    
     function move() {
     	//console.log(game.input.x);
     	//console.log(game.input.y);
+    	inputMessage.lobbyCmd.gameMsg.input = new Protocol.Server.Input();
     	inputMessage.lobbyCmd.gameMsg.input.xTarget = game.input.x;
     	inputMessage.lobbyCmd.gameMsg.input.yTarget = game.input.y;
     	socket.send(inputMessage.bytes());
