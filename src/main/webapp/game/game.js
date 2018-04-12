@@ -159,7 +159,7 @@ function ActorManager(game) {
 }
 
 ActorManager.preload = function(game) {
-    var types = [0];
+    var types = [0, 1];
     for (var i in types) {
         var type = types[i];
         game.load.spritesheet(  Actor.getSpriteKey(type),

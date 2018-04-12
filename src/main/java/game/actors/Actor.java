@@ -9,6 +9,7 @@ import lobby.Protocol;
 
 public abstract class Actor{
 	public static final int PLAYER = 0;
+	public static final int FIREBALL = 1;
 	
 	public Vec2 position;
 	public Rectangle hitbox;
