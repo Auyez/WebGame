@@ -59,8 +59,9 @@ public class Player extends Actor{
 
 	public void resolve_collision(long delta, Actor a) {
 		if (a != null) {
-			if (input.getPrev() != input.getMouse())
-				input.putBackTarget();
+			//if (input.getPrev() != input.getMouse())
+			//	input.putBackTarget();
+			input.clrMouse();
 			setAnimation(ANIM_IDLE);
 			updated_movement.scalar(-1.0f);
 			addPosition(updated_movement);

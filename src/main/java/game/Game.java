@@ -60,7 +60,7 @@ public class Game implements Runnable {
                 delta = frameStartTime - delta;
                 processMessages();
                 update(delta);
-                if(frameCount % 1 == 0)
+                if(frameCount % 1 == 0) // kind of tick rate
                 	sendWorldState();
                 long frameElapsedTime = System.currentTimeMillis() - frameStartTime;
                 long frameRemainingTime = 1000/FPS - frameElapsedTime;
@@ -112,10 +112,6 @@ public class Game implements Runnable {
 			        	int y_init = (int) (player.getPosition().getY() + 20) / size;
 			        	int x_target = gameMsg.input.xTarget / size;
 			        	int y_target = (gameMsg.input.yTarget + 20) / size;
-			        	System.out.println("x_init: " + x_init);
-			        	System.out.println("y_init: " + y_init);
-			        	System.out.println("x_target: " + x_target);
-			        	System.out.println("y_target: " + y_target);
 			        	player.getInput().setDestination(gameMsg.input.xTarget, gameMsg.input.yTarget - 20);
 			        	
 			        	// Initial check if there are no obstacles between initial and target destinations
