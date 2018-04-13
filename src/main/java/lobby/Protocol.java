@@ -41,7 +41,6 @@ Reading Example:
 ServerMsg serverMsg = ServerMsg.parse(ByteBuffer.wrap(bytes));
 */
 
-
 /*
 namespace Server
 	struct server_msg
@@ -53,7 +52,10 @@ namespace Server
 				struct input
 					Integer x_target
 					Integer y_target
-				Byte skill_input
+				struct skill_input
+					Integer x
+					Integer y
+					Byte skill_type
 
 namespace Client
 	union client_msg
@@ -137,7 +139,7 @@ public class Protocol {
         }
         public static class GameMsg { /*Union*/
             public Input input;
-            public Byte skillInput;
+            public SkillInput skillInput;
             static final byte INPUT = 0;
             static final byte SKILL_INPUT = 1;
             public byte[] bytes() {
@@ -148,7 +150,7 @@ public class Protocol {
                     writer.writeBytes(input.bytes());
                 } else if (skillInput != null) {
                     writer.writeByte(SKILL_INPUT);
-                    writer.writeBytes(ByteWriter.Byte2bytes(skillInput));
+                    writer.writeBytes(skillInput.bytes());
                 }
                 return writer.bytes();
             }
@@ -160,7 +162,7 @@ public class Protocol {
                 }
 
                 if (type == SKILL_INPUT) {
-                    obj.skillInput = reader.readByte();
+                    obj.skillInput = SkillInput.parse(reader);
                 }
                 return obj;
             }
@@ -178,6 +180,25 @@ public class Protocol {
                 Input obj = new Input();
                 obj.xTarget = reader.readInteger();
                 obj.yTarget = reader.readInteger();
+                return obj;
+            }
+        }
+        public static class SkillInput { /*Struct*/
+            public Integer x;
+            public Integer y;
+            public Byte skillType;
+            public byte[] bytes() {
+                ByteWriter writer = new ByteWriter();
+                writer.writeBytes(ByteWriter.Integer2bytes(x));
+                writer.writeBytes(ByteWriter.Integer2bytes(y));
+                writer.writeBytes(ByteWriter.Byte2bytes(skillType));
+                return writer.bytes();
+            }
+            public static SkillInput parse(ByteReader reader) {
+                SkillInput obj = new SkillInput();
+                obj.x = reader.readInteger();
+                obj.y = reader.readInteger();
+                obj.skillType = reader.readByte();
                 return obj;
             }
         }

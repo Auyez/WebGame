@@ -110,7 +110,7 @@ Protocol["__class"] = "Protocol";
                 }
                 else if (this.skillInput != null) {
                     writer.writeByte(GameMsg.SKILL_INPUT);
-                    writer.writeBytes(ByteWriter.Byte2bytes(this.skillInput));
+                    writer.writeBytes(this.skillInput.bytes());
                 }
                 return writer.bytes();
             };
@@ -121,7 +121,7 @@ Protocol["__class"] = "Protocol";
                     obj.input = Server.Input.parse(reader);
                 }
                 if (type === GameMsg.SKILL_INPUT) {
-                    obj.skillInput = reader.readByte();
+                    obj.skillInput = Server.SkillInput.parse(reader);
                 }
                 return obj;
             };
@@ -152,6 +152,30 @@ Protocol["__class"] = "Protocol";
         }());
         Server.Input = Input;
         Input["__class"] = "Protocol.Server.Input";
+        var SkillInput = (function () {
+            function SkillInput() {
+                this.x = null;
+                this.y = null;
+                this.skillType = null;
+            }
+            SkillInput.prototype.bytes = function () {
+                var writer = new ByteWriter();
+                writer.writeBytes(ByteWriter.Integer2bytes(this.x));
+                writer.writeBytes(ByteWriter.Integer2bytes(this.y));
+                writer.writeBytes(ByteWriter.Byte2bytes(this.skillType));
+                return writer.bytes();
+            };
+            SkillInput.parse = function (reader) {
+                var obj = new Server.SkillInput();
+                obj.x = reader.readInteger();
+                obj.y = reader.readInteger();
+                obj.skillType = reader.readByte();
+                return obj;
+            };
+            return SkillInput;
+        }());
+        Server.SkillInput = SkillInput;
+        SkillInput["__class"] = "Protocol.Server.SkillInput";
     })(Server = Protocol.Server || (Protocol.Server = {}));
     var Client = (function () {
         function Client() {
