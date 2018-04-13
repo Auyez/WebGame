@@ -6,9 +6,11 @@ import org.apache.commons.lang3.tuple.Pair;
 
 import game.actors.Actor;
 import game.actors.Player;
+import game.actors.Projectile;
 import game.actors.TileActor;
 import lobby.Protocol;
 import lobby.Protocol.Server.Input;
+import lobby.Protocol.Server.SkillInput;
 
 import javax.websocket.Session;
 
@@ -111,8 +113,10 @@ public class Game implements Runnable {
 		        // Movement input
 		        if (gameMsg.input != null)
 		        	setInput(gameMsg.input, player);
-		        if (gameMsg.skillInput != null)
+		        if (gameMsg.skillInput != null) {
 		        	System.out.println("Skill input detected!");
+		        	spellQ(gameMsg.skillInput, player);
+		        }
 			}
 		}
 		synchronized (playerDisconnectMessages) {
@@ -150,7 +154,6 @@ public class Game implements Runnable {
 			
 		}
 	}
-	
 	
     private void sendWorldState() {
     	if (actors.size() > 0) {
@@ -228,4 +231,23 @@ public class Game implements Runnable {
 	public GameArena getArena() {return ga;}
 	public List<Actor> getActors(){return actors;}
 	public List<Player> getPlayers(){return players;}
+	
+	
+	
+	// ************************************************************
+	// ************************************************************
+	// ************************************************************
+	// ************************************************************
+	// Temporary function that implements skill mechanics
+	private void spellQ(SkillInput skillInput, Player player) {
+		float x_init = player.getPosition().getX();
+		float y_init = player.getPosition().getY();
+		int x_direction = skillInput.x;
+		int y_direction = skillInput.y;
+		int size = 5;
+		int speed = 300;
+		int id = player.getId();
+		Projectile s = new Projectile(x_init, y_init, x_direction, y_direction, size, id, speed);
+		
+	}
 }

@@ -28,10 +28,11 @@ public abstract class Actor{
 		this.id = id;
 	}
 	
-	public Actor(float x, float y, int w, int h) {
-		position = new Vec2(x,y);
-		hitbox = new Rectangle((int)x,(int)y,w,h);
+	public Actor(float x, float y, int size, int id) {
+		position = new Vec2(x, y);
+		hitbox = new Rectangle((int)x, (int)y, size, size);
 		lowerBox = null;
+		this.id = id;
 	}
 	public abstract void update(long delta);	
 	public abstract void resolve_collision(long delta, Actor a);
