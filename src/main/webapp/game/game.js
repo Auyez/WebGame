@@ -97,7 +97,10 @@ function CreateGame(parent, socket, lobbyIndex) {
     function spellQ() {
     	// set input null
     	inputMessage.lobbyCmd.gameMsg.input = null;
-    	inputMessage.lobbyCmd.gameMsg.skillInput = 1;
+    	inputMessage.lobbyCmd.gameMsg.skillInput = new Protocol.Server.SkillInput();
+    	inputMessage.lobbyCmd.gameMsg.skillInput.x = game.input.x;
+    	inputMessage.lobbyCmd.gameMsg.skillInput.y = game.input.y;
+    	inputMessage.lobbyCmd.gameMsg.skillInput.skill_type = 0;
     	socket.send(inputMessage.bytes());
     	console.log("Q pressed");
     	console.log(game.input.x);

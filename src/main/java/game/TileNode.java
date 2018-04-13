@@ -18,7 +18,7 @@ public class TileNode implements Comparable<TileNode>{
 
 	@Override
 	public int compareTo(TileNode instance) {
-		return (int) Math.ceil(this.f - instance.f);
+		return (int) Math.round(this.f - instance.f);
 	}
 	
 	public TileNode getParent() {return parent;}
