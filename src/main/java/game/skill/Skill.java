@@ -1,7 +1,6 @@
 package game.skill;
+import game.Vec2;
 
-public abstract class Skill {
-	private int id;
-	
-	public abstract void update(long delta);
+public interface Skill {
+	public void use(Vec2 dest, int target_id);
 }

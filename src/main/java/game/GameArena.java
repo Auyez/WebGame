@@ -33,7 +33,11 @@ public class GameArena {
 		}
 	}
 	
-	public int getEntry(int y, int x) {return collision_map[y][x];}
+	public int getEntry(int y, int x) {
+		if (0 <= x && x < w && 0 <= y && y < h)
+			return collision_map[y][x];
+		return 1;
+	}
 	public int getWidth() {return w * tileSize;}
 	public int getHeight() {return h * tileSize;}
 	public int getTilesWidth() {return w;}

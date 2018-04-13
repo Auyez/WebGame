@@ -3,8 +3,10 @@ package game;
 import java.util.ArrayList;
 
 public class Input {
-	private boolean[] 	keys;
+	private boolean[] 			keys;
 	private ArrayList<Vec2>		mouse;
+	private Vec2 				mouse_prev;
+	
 	public Input() {
 		keys = new boolean[255];
 		mouse = null;
@@ -33,13 +35,17 @@ public class Input {
 			return null;
 		}
 	}
-	public Vec2 getNextTarget() {
-		if (mouse.size() > 0) {
-			return mouse.remove(mouse.size() - 1);
-		} else {
-			return null;
-		}
+	public void getNextTarget() {
+		if (mouse.size() > 0)
+			mouse_prev = mouse.remove(mouse.size() - 1);
 	}
+	
+	public void putBackTarget() {
+		mouse.add(mouse_prev);
+		mouse_prev = null;
+	}
+	
+	public Vec2 getPrev() { return mouse_prev; }
 	public void setMouse(ArrayList<TileNode> sequence) {
 		for (TileNode i : sequence) {
 			mouse.add(new Vec2(i.getX(), i.getY()));

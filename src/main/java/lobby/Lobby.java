@@ -30,7 +30,7 @@ class Lobby {
         } else if (message.ready != null && isGameRunning()) {
             readyCount++;
             if (readyCount >= MAX_PLAYERS) {
-                sendPlayerSetup();
+                // not used anymore :D
                 readyCount = 0;
             }
         } else if (message.gameMsg != null && isGameRunning()) {
@@ -39,19 +39,6 @@ class Lobby {
             }
         }
     }
-
-	private void sendPlayerSetup() {
-        synchronized (sessions) {
-            for (Session s : sessions.keySet()) {
-                Protocol.Client.ClientMsg message = new Protocol.Client.ClientMsg();
-                message.gameMsg = new Protocol.Client.GameMsg();
-                message.gameMsg.playerSetup = new Protocol.Client.PlayerSetup();
-                message.gameMsg.playerSetup.items.addAll(sessions.values()); // add all ids
-
-                WebSocketEndpoint.sendBinary(s, message.bytes());
-            }
-        }
-	}
 
     public synchronized void onClose(Session session) {
         synchronized (sessions) {

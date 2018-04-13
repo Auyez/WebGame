@@ -5,9 +5,12 @@ import org.apache.commons.lang3.tuple.Pair;
 
 import game.actors.Actor;
 import game.actors.Player;
+import game.actors.TileActor;
 import lobby.Protocol;
 
 import javax.websocket.Session;
+
+import java.awt.Rectangle;
 import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import java.util.List;
@@ -19,7 +22,6 @@ public class Game implements Runnable {
     private final Queue<Pair<Session, Protocol.Server.GameMsg>> 		messages;
     private final Queue<Integer> 								        playerDisconnectMessages;
     private final Map<Session, Integer> 								sessions;
-
 	private List<Actor> 												actors;
 	private List<Player> 												players;
 	private GameArena 													ga;
@@ -58,7 +60,7 @@ public class Game implements Runnable {
                 delta = frameStartTime - delta;
                 processMessages();
                 update(delta);
-                if(frameCount % 1 == 0)
+                if(frameCount % 1 == 0) // kind of tick rate
                 	sendWorldState();
                 long frameElapsedTime = System.currentTimeMillis() - frameStartTime;
                 long frameRemainingTime = 1000/FPS - frameElapsedTime;
@@ -81,6 +83,8 @@ public class Game implements Runnable {
 	private void update(long delta) {
         for (Actor actor : actors) {
             actor.update(delta);
+            Actor collidedWith = collides(actor);
+            actor.resolve_collision(delta, collidedWith);
         }
     }
 
@@ -108,10 +112,6 @@ public class Game implements Runnable {
 			        	int y_init = (int) (player.getPosition().getY() + 20) / size;
 			        	int x_target = gameMsg.input.xTarget / size;
 			        	int y_target = (gameMsg.input.yTarget + 20) / size;
-			        	System.out.println("x_init: " + x_init);
-			        	System.out.println("y_init: " + y_init);
-			        	System.out.println("x_target: " + x_target);
-			        	System.out.println("y_target: " + y_target);
 			        	player.getInput().setDestination(gameMsg.input.xTarget, gameMsg.input.yTarget - 20);
 			        	
 			        	// Initial check if there are no obstacles between initial and target destinations
@@ -172,31 +172,46 @@ public class Game implements Runnable {
 			if(p != null)
 				p.setPosition(x, y);
 			else
-				p = new Player(x, y, w, h, lh, id, this);
-		}while(!(	( (x + w) < ga.getWidth()  ) && ( (y + h) < ga.getHeight() ) && (p.collides() < -1)	));
+				p = new Player(x, y, w, h, lh, id);
+		}while(!(	( (x + w) < ga.getWidth()  ) && ( (y + h) < ga.getHeight() ) && (collides(p) == null)	));
 		actors.add(p);
 		players.add(p);
 	}
 
 
+	//returns -2 if no collision happens, or -1 if actor collides with arena, otherwise returns id
+	public Actor collides(Actor a) {	
+		//collision with tile map part
+		Rectangle hitbox = a.getHitbox();
+		Rectangle lowerBox = a.getLowerBox();
+		int left = a.lowerBox.x/ga.getTileSize();
+		int right = (a.lowerBox.x + a.lowerBox.width)/ga.getTileSize();
+		int up = lowerBox.y/ga.getTileSize();
+		int bottom = (lowerBox.y + lowerBox.height)/ga.getTileSize();
+
+		for(int i = up; i <= bottom; i++)
+			for(int j = left; j <= right; j++)
+				if(ga.getEntry(i, j) == 1)
+					return new TileActor();
+		//collision with objects
+		for(Actor b : actors)
+			if (a != b && hitbox.intersects(b.hitbox))
+				return b;
+		return null;
+	}
+	
+	
 	private void removePlayer(int id) {
 	    Player player = getPlayer(id);
 	    actors.remove(player);
 	    players.remove(player);
     }
 
-	//need to sort player list after each addition of player
-	//then need to re-implement this method and use faster search
+	
 	private Player getPlayer(int id) {
 		for (Player p : players)
 			if (p.getId() == id)
 				return p;
-		return null;
-	}
-	private Actor getActor(int id) {
-		for (Actor a : actors)
-			if (a.getId() == id)
-				return a;
 		return null;
 	}
 	public GameArena getArena() {return ga;}

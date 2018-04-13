@@ -1,31 +1,3 @@
-/*
-namespace Server
-    struct server_msg
-        Integer lobby_index
-        union lobby_cmd
-            Integer add_player_id
-            struct ready
-            union game_msg
-                struct input
-                    Byte key
-
-namespace Client
-    union client_msg
-        struct start_game
-        union game_msg
-            list player_setup
-                Integer id
-            Integer remove_player_id
-            list world_state
-                union entity
-                    struct player
-                        Integer x
-                        Integer y
-                        Integer a
-                        Integer id
-*/
-
-
 /* Generated from Java with JSweet 2.0.0 - http://www.jsweet.org */
 var Protocol = (function () {
     function Protocol() {
@@ -138,7 +110,7 @@ Protocol["__class"] = "Protocol";
                 }
                 else if (this.skillInput != null) {
                     writer.writeByte(GameMsg.SKILL_INPUT);
-                    writer.writeBytes(ByteWriter.Byte2bytes(this.skillInput));
+                    writer.writeBytes(this.skillInput.bytes());
                 }
                 return writer.bytes();
             };
@@ -149,7 +121,7 @@ Protocol["__class"] = "Protocol";
                     obj.input = Server.Input.parse(reader);
                 }
                 if (type === GameMsg.SKILL_INPUT) {
-                    obj.skillInput = reader.readByte();
+                    obj.skillInput = Server.SkillInput.parse(reader);
                 }
                 return obj;
             };
@@ -180,6 +152,30 @@ Protocol["__class"] = "Protocol";
         }());
         Server.Input = Input;
         Input["__class"] = "Protocol.Server.Input";
+        var SkillInput = (function () {
+            function SkillInput() {
+                this.x = null;
+                this.y = null;
+                this.skillType = null;
+            }
+            SkillInput.prototype.bytes = function () {
+                var writer = new ByteWriter();
+                writer.writeBytes(ByteWriter.Integer2bytes(this.x));
+                writer.writeBytes(ByteWriter.Integer2bytes(this.y));
+                writer.writeBytes(ByteWriter.Byte2bytes(this.skillType));
+                return writer.bytes();
+            };
+            SkillInput.parse = function (reader) {
+                var obj = new Server.SkillInput();
+                obj.x = reader.readInteger();
+                obj.y = reader.readInteger();
+                obj.skillType = reader.readByte();
+                return obj;
+            };
+            return SkillInput;
+        }());
+        Server.SkillInput = SkillInput;
+        SkillInput["__class"] = "Protocol.Server.SkillInput";
     })(Server = Protocol.Server || (Protocol.Server = {}));
     var Client = (function () {
         function Client() {
@@ -242,16 +238,11 @@ Protocol["__class"] = "Protocol";
         StartGame["__class"] = "Protocol.Client.StartGame";
         var GameMsg = (function () {
             function GameMsg() {
-                this.playerSetup = null;
                 this.worldState = null;
             }
             GameMsg.prototype.bytes = function () {
                 var writer = new ByteWriter();
                 if (false) {
-                }
-                else if (this.playerSetup != null) {
-                    writer.writeByte(GameMsg.PLAYER_SETUP);
-                    writer.writeBytes(this.playerSetup.bytes());
                 }
                 else if (this.worldState != null) {
                     writer.writeByte(GameMsg.WORLD_STATE);
@@ -262,9 +253,6 @@ Protocol["__class"] = "Protocol";
             GameMsg.parse = function (reader) {
                 var obj = new Client.GameMsg();
                 var type = reader.readByte();
-                if (type === GameMsg.PLAYER_SETUP) {
-                    obj.playerSetup = Client.PlayerSetup.parse(reader);
-                }
                 if (type === GameMsg.WORLD_STATE) {
                     obj.worldState = Client.WorldState.parse(reader);
                 }
@@ -272,37 +260,9 @@ Protocol["__class"] = "Protocol";
             };
             return GameMsg;
         }());
-        GameMsg.PLAYER_SETUP = 0;
-        GameMsg.WORLD_STATE = 1;
+        GameMsg.WORLD_STATE = 0;
         Client.GameMsg = GameMsg;
         GameMsg["__class"] = "Protocol.Client.GameMsg";
-        var PlayerSetup = (function () {
-            function PlayerSetup() {
-                this.items = ([]);
-            }
-            PlayerSetup.prototype.bytes = function () {
-                var writer = new ByteWriter();
-                writer.writeInt(/* size */ this.items.length);
-                for (var i = 0; i < this.items.length; ++i) {
-                    writer.writeBytes(ByteWriter.Integer2bytes(/* get */ this.items[i]));
-                }
-                ;
-                return writer.bytes();
-            };
-            PlayerSetup.parse = function (reader) {
-                var obj = new Client.PlayerSetup();
-                var size = reader.readInteger();
-                for (var i = 0; i < size; ++i) {
-                    var item = reader.readInteger();
-                    /* add */ (obj.items.push(item) > 0);
-                }
-                ;
-                return obj;
-            };
-            return PlayerSetup;
-        }());
-        Client.PlayerSetup = PlayerSetup;
-        PlayerSetup["__class"] = "Protocol.Client.PlayerSetup";
         var WorldState = (function () {
             function WorldState() {
                 this.items = ([]);
@@ -320,7 +280,7 @@ Protocol["__class"] = "Protocol";
                 var obj = new Client.WorldState();
                 var size = reader.readInteger();
                 for (var i = 0; i < size; ++i) {
-                    var item = Client.Entity.parse(reader);
+                    var item = Client.Actor.parse(reader);
                     /* add */ (obj.items.push(item) > 0);
                 }
                 ;
@@ -330,60 +290,39 @@ Protocol["__class"] = "Protocol";
         }());
         Client.WorldState = WorldState;
         WorldState["__class"] = "Protocol.Client.WorldState";
-        var Entity = (function () {
-            function Entity() {
-                this.player = null;
-            }
-            Entity.prototype.bytes = function () {
-                var writer = new ByteWriter();
-                if (false) {
-                }
-                else if (this.player != null) {
-                    writer.writeByte(Entity.PLAYER);
-                    writer.writeBytes(this.player.bytes());
-                }
-                return writer.bytes();
-            };
-            Entity.parse = function (reader) {
-                var obj = new Client.Entity();
-                var type = reader.readByte();
-                if (type === Entity.PLAYER) {
-                    obj.player = Client.Player.parse(reader);
-                }
-                return obj;
-            };
-            return Entity;
-        }());
-        Entity.PLAYER = 0;
-        Client.Entity = Entity;
-        Entity["__class"] = "Protocol.Client.Entity";
-        var Player = (function () {
-            function Player() {
+        var Actor = (function () {
+            function Actor() {
+                this.id = null;
+                this.type = null;
                 this.x = null;
                 this.y = null;
-                this.a = null;
-                this.id = null;
+                this.animation = null;
+                this.angle = null;
             }
-            Player.prototype.bytes = function () {
+            Actor.prototype.bytes = function () {
                 var writer = new ByteWriter();
+                writer.writeBytes(ByteWriter.Integer2bytes(this.id));
+                writer.writeBytes(ByteWriter.Integer2bytes(this.type));
                 writer.writeBytes(ByteWriter.Integer2bytes(this.x));
                 writer.writeBytes(ByteWriter.Integer2bytes(this.y));
-                writer.writeBytes(ByteWriter.Integer2bytes(this.a));
-                writer.writeBytes(ByteWriter.Integer2bytes(this.id));
+                writer.writeBytes(ByteWriter.Byte2bytes(this.animation));
+                writer.writeBytes(ByteWriter.Integer2bytes(this.angle));
                 return writer.bytes();
             };
-            Player.parse = function (reader) {
-                var obj = new Client.Player();
+            Actor.parse = function (reader) {
+                var obj = new Client.Actor();
+                obj.id = reader.readInteger();
+                obj.type = reader.readInteger();
                 obj.x = reader.readInteger();
                 obj.y = reader.readInteger();
-                obj.a = reader.readInteger();
-                obj.id = reader.readInteger();
+                obj.animation = reader.readByte();
+                obj.angle = reader.readInteger();
                 return obj;
             };
-            return Player;
+            return Actor;
         }());
-        Client.Player = Player;
-        Player["__class"] = "Protocol.Client.Player";
+        Client.Actor = Actor;
+        Actor["__class"] = "Protocol.Client.Actor";
     })(Client = Protocol.Client || (Protocol.Client = {}));
 })(Protocol || (Protocol = {}));
 
