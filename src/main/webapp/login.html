@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Login</title>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+</head>
+<body>
+
+
+
+    <input type="text" id="username" name="Enter Username"> <br/>
+    <input type="password" id="password" name="Enter Password"> <br/>
+    <button type="button" onclick="login()">Login</button>
+    <button type="button" onclick="register()">Register</button>
+
+    <p id="messagebox"></p>
+
+    <script>
+        var username = null;
+        var password = null;
+        var messagebox = null;
+
+
+        $(document).ready(function() {
+            username = $('#username');
+            password = $('#password');
+            messagebox = $('#messagebox');
+        });
+
+
+        function login() {
+            function success(data, status, jqhxr) {
+                var authToken = data;
+                document.cookie = 'authToken=' + authToken;
+                location.href = 'index.html';
+            };
+
+            function error(jqXHR, textStatus, errorThrown) {
+                console.log('login failed');
+            };
+
+            $.ajax({
+                type: 'POST',
+                url: 'services/auth/login',
+                data: 'username=' + username.val() + '&password=' + password.val(),
+                success: success,
+                error: error,
+                dataType: 'text'
+            });
+        }
+
+        function register() {
+            function success(data, status, jqhxr) {
+                console.log('registered');
+            };
+
+            function error(jqXHR, textStatus, errorThrown) {
+                console.log('register failed');
+            };
+
+            $.ajax({
+                type: 'POST',
+                url: 'services/auth/register',
+                data: 'username=' + username.val() + '&password=' + password.val(),
+                success: success,
+                error: error,
+                dataType: 'text'
+            });
+        }
+    </script>
+
+</body>
+</html>
