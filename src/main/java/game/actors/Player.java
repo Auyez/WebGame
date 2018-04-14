@@ -14,7 +14,7 @@ public class Player extends Actor{
 	private static final byte ANIM_LEFT = 3;
 	private static final byte ANIM_IDLE = 4;
 	
-	
+	private int hp = Constants.PLAYER_HP;
 	private Input input;
 	private int speed;
 	private Vec2 updated_movement;
@@ -78,6 +78,8 @@ public class Player extends Actor{
 		skills[skillIndex] = s;
 	}
 	
+	public void setHp(int hp) { this.hp = hp;}
+	public int getHp() {return hp;}
 	public Input getInput() {return input;}
 	public int getType() {return Actor.PLAYER;}
 }

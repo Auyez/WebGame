@@ -36,4 +36,9 @@ public class ThrowFireball implements Skill{
 			}
 		}
 	}
+
+	@Override
+	public float cooldown() {
+		return cooldown;
+	}
 }
