@@ -32,6 +32,9 @@ public class Player extends Actor{
 		Vec2 target = input.getMouse();
 		setAnimation(ANIM_IDLE);
 
+		for (int i = 0; i < 2; i++)//Constants.SKILL_NUMBER; i++)
+			skills[i].update(delta);
+		
 		if (input.getActiveSkill() >= 0) {
 			input.clrMouse();
 			skills[input.getActiveSkill()].use(input.getSkillTarget());
