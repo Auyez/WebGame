@@ -98,10 +98,15 @@ public class Database {
     private static Connection getConnection() {
         if (connection == null) {
             try {
+            	try {
+            		Class.forName("com.mysql.jdbc.Driver").newInstance();
+            	} catch (Exception ex) {
+            		System.out.println("Database error: couldn't load jdbc driver");
+            	}
                 connection = DriverManager.getConnection(
                         "jdbc:mysql://localhost:3306/WebGame",
                         "root",
-                        ""
+                        "root"
                 );
 
                 try {
@@ -113,6 +118,7 @@ public class Database {
                 }
             } catch (SQLException ex) {
                 System.out.println("Couldn't connect to database");
+                System.out.println(ex);
             }
         }
 
