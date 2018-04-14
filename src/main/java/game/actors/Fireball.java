@@ -35,6 +35,10 @@ public class Fireball extends Actor{
 			if (a.getId() != parentId) {
 				if(a.getType() == Actor.FIREBALL)
 					a.destroy();
+				if(a.getType() == Actor.PLAYER) {
+					Player p = (Player) a;
+					p.setHp(p.getHp() - Constants.FIREBALL_DMG);
+				}
 				destroy();
 			}
 		}

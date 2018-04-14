@@ -15,7 +15,8 @@ public class Player extends Actor{
 	private static final byte ANIM_IDLE = 4;
 	
 	private int 		hp;
-	private boolean 	isDead;
+	private boolean		isDead;
+	private float		deathTimer;
 	private Input 		input;
 	private int 		speed;
 	private Vec2 		updated_movement;
@@ -28,9 +29,19 @@ public class Player extends Actor{
 		speed = 200;
 		skills = new Skill[Constants.SKILL_NUMBER];
 		hp = Constants.PLAYER_HP;
+		deathTimer = Constants.PLAYER_DEATH_TIME;
+		isDead = false;
 	}
 	
 	public void update(long delta) {
+		if (hp <= 0) {
+			if(!isDead) {
+				isDead = true; // kill yourself
+				destroy();// remove yourself from actors
+			}
+			return; //don't do anything
+		}
+		
 		Vec2 target = input.getMouse();
 		setAnimation(ANIM_IDLE);
 
@@ -67,6 +78,23 @@ public class Player extends Actor{
 		}
 	}
 
+	public boolean update_dead(long delta) {
+		if(isDead) {
+			deathTimer -= delta/1000.0f;
+			if (deathTimer <= 0) {
+				hp = Constants.PLAYER_HP;
+				deathTimer = Constants.PLAYER_DEATH_TIME;
+				Vec2 spawn = new Vec2(Constants.SPAWN_POINTS[0]);	// get new spawn point
+				spawn.scalar(Constants.GAME_TILE_SIZE);				// convert to pixels
+				setPosition(spawn);									// move
+				isDead = false;
+				back();												//return player back to actors
+				return true;	//signal that player was revived
+			}
+		}
+		return false;
+	}
+	
 	public void resolve_collision(long delta, Actor a) {
 		if ( a != null && (a.getType() == Actor.PLAYER || a.getType() == Actor.TILE) ) {
 			input.clrMouse();
@@ -81,6 +109,7 @@ public class Player extends Actor{
 		skills[skillIndex] = s;
 	}
 	
+	public boolean isDead() { return isDead;}
 	public void setHp(int hp) { this.hp = hp;}
 	public int getHp() {return hp;}
 	public Input getInput() {return input;}

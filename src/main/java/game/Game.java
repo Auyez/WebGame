@@ -87,6 +87,11 @@ public class Game implements Runnable {
 
 
 	private void update(long delta) {
+		for (Player p : players) {
+			if( p.update_dead(delta) ) {
+				actors.add(p);
+			}
+		}
         for (int i = 0; i < actors.size(); i++) {
         	Actor actor = actors.get(i);
             actor.update(delta);
@@ -114,12 +119,11 @@ public class Game implements Runnable {
 		        
 		        // Movement input
 		        
-		        if (gameMsg.skillInput != null) {
-		        	System.out.println("Detected Skill input " + gameMsg.skillInput.skillType);
+		        if (gameMsg.skillInput != null) {							// Detect if 'QWER' was pressed
 		        	player.getInput().activateSkill(gameMsg.skillInput.skillType);
 		        	player.getInput().setSkillTarget(new Vec2(gameMsg.skillInput.x, gameMsg.skillInput.y));
 		        } else if (gameMsg.input != null) {
-		        	setInput(gameMsg.input, player);
+		        	setInput(gameMsg.input, player);						//Movement using path find
 				}
 			}
 		}
@@ -131,6 +135,7 @@ public class Game implements Runnable {
 		}
 	}
 
+	
 	private void setInput(Input input, Player player) {
 		int size = ga.getTileSize();
 		// This bias is needed for path-finding algorithm, because
@@ -178,31 +183,22 @@ public class Game implements Runnable {
     }
 
 
-	private void addPlayer(int id) {
-		
-		Player p = null;
-		Random r = new Random();
-		int x,y;
-		do {
-			x = r.nextInt(ga.getWidth());
-			y = r.nextInt(ga.getHeight());
-
-			if(p != null) {
-				p.setPosition(x, y);
-			}else {
-				p = new Player(x, y, Constants.PLAYER_WIDTH, Constants.PLAYER_HEIGHT, Constants.PLAYER_LOWER_HEIGHT, id);
-				Skill Q =  new ThrowFireball(p, this) ;
-				Skill W =  new Blink(p, this);
-				p.setSkill(Q, (byte) 0);
-				p.setSkill(W, (byte) 1);
-			}
-		}while(!(	( (x + Constants.PLAYER_WIDTH) < ga.getWidth()  ) && ( (y + Constants.PLAYER_HEIGHT) < ga.getHeight() ) && (collides(p) == null)	));
+	private void addPlayer(int id) {	
+		Player p = new Player(ga.getTileSize()*Constants.SPAWN_POINTS[actors.size()].getX(),
+					   ga.getTileSize()*Constants.SPAWN_POINTS[actors.size()].getY(),
+					   Constants.PLAYER_WIDTH, 
+					   Constants.PLAYER_HEIGHT, 
+					   Constants.PLAYER_LOWER_HEIGHT, 
+					   id);
+		Skill Q =  new ThrowFireball(p, this) ;
+		Skill W =  new Blink(p, this);
+		p.setSkill(Q, (byte) 0);
+		p.setSkill(W, (byte) 1);
 		actors.add(p);
 		players.add(p);
 	}
 	
 
-	//returns -2 if no collision happens, or -1 if actor collides with arena, otherwise returns id
 	public Actor collides(Actor a) {	
 		//collision with tile map part
 		Rectangle hitbox = (a.getLowerBox() != null ) ? a.getLowerBox() : a.getHitbox();
@@ -247,7 +243,4 @@ public class Game implements Runnable {
 				return p;
 		return null;
 	}
-	
-	
-	public GameArena getArena() {return ga;}
 }

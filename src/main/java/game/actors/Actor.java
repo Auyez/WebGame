@@ -43,11 +43,11 @@ public abstract class Actor{
 		return new Vec2(position.getX() + hitbox.width/2.0f, position.getY() + hitbox.height/2.0f );
 	}
 	
-	public void setPosition(int x, int y) {
-		position.set(x, y);
-		hitbox.setLocation(x, y);
+	public void setPosition(Vec2 p) {
+		position.set(p);
+		hitbox.setLocation((int)p.getX(), (int)p.getY());
 		if(lowerBox != null)
-			lowerBox.setLocation(x, y + (hitbox.height - lowerBox.height) );
+			lowerBox.setLocation((int)p.getX(), (int)p.getY() + (hitbox.height - lowerBox.height) );
 	}
 	
 	
@@ -59,6 +59,7 @@ public abstract class Actor{
 	}
 	
 	public void destroy() { destroyed = true; }
+	public void back() {destroyed = false;}
 	public boolean isDestroyed() {return destroyed;}
 	public Rectangle getHitbox() {return hitbox;}
 	public Rectangle getLowerBox() {return lowerBox;}

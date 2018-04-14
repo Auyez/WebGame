@@ -38,15 +38,14 @@ public class Vec2 {
 	public static float dot(Vec2 v1, Vec2 v2) {
 		return v1.getX()*v2.getX() + v1.getY()*v2.getY();
 	}
-	public String toString() {
-		return "X:" + x + " Y:" + y;
-	}
 	public boolean equals(Vec2 v) {
 		return v.x == x && v.y == y;
 	}
 	public boolean isClose(Vec2 v, float range) {
 		return ( (	(x - range) <= v.x && v.x <= (x + range) )
 			&& (	(y - range) <= v.y && v.y <= (y + range) )	);
-			
+	}
+	public String toString() {
+		return "<" + x + ", " + y + ">";
 	}
 }
