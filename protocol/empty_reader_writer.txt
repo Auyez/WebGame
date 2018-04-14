@@ -1,0 +1,59 @@
+This is need to convert java protocol code to js
+1. Add it to java code
+2. Paste the code to http://www.jsweet.org/jsweet-live-sandbox/
+3. Convert to js
+4. Replace generated empty ByteReader and ByteWriter with implementations from js_reader_writer.txt
+
+
+public class ByteReader {
+    public ByteReader(byte[] bytes) {
+    }
+
+    public int readInteger() {
+        return 0;
+    }
+
+    public byte readByte() {
+        return 0;
+    }
+
+    public String readString() {
+    	return null;
+    }
+}
+
+
+
+public class ByteWriter {
+    public ByteWriter() {
+    }
+
+    public byte[] bytes() {
+        return null;
+    }
+
+    public void writeInt(int x) {
+    }
+
+    public void writeByte(byte x) {
+    }
+
+    public void writeBytes(byte[] x) {
+    }
+
+    private void grow(int capacity) {
+    }
+
+    public static byte[] Integer2bytes(Integer x) {
+        return null;
+    }
+
+    public static byte[] Byte2bytes(Byte x) {
+        return null;
+    }
+
+    public static byte[] String2bytes(String x) {
+        return null;
+    }
+}
+
