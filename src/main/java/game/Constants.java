@@ -17,8 +17,9 @@ public class Constants {
 	//Fireball
 	public static final int	FIREBALL_SPEED = 400;
 	public static final int FIREBALL_RANGE = 500;
-	public static final int FIREBALL_CALLDOWN = 1;
+	public static final int FIREBALL_COOLDOWN = 1;
 	
 	//Blink
-	public static final int BLINK_CALLDOWN = 3;
+	public static final int BLINK_COOLDOWN = 3;
+	public static final int BLINK_RANGE = 600;
 }

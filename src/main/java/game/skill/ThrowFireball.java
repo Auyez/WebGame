@@ -9,13 +9,13 @@ import game.actors.Player;
 public class ThrowFireball implements Skill{
 	private Player 		caster;
 	private Game 		game;
-	private float 		calldown;
+	private float 		cooldown;
 	private boolean		isActivated;
 	public ThrowFireball(Player caster, Game game) {
 		this.caster = caster;
 		this.game = game;
 		isActivated = false;
-		calldown = Constants.FIREBALL_CALLDOWN;
+		cooldown = Constants.FIREBALL_COOLDOWN;
 	}
 	
 	@Override
@@ -29,9 +29,9 @@ public class ThrowFireball implements Skill{
 	
 	public void update(long delta) {
 		if (isActivated) {
-			calldown -= delta/1000.0f;
-			if (calldown < 0) {
-				calldown = Constants.FIREBALL_CALLDOWN;
+			cooldown -= delta/1000.0f;
+			if (cooldown < 0) {
+				cooldown = Constants.FIREBALL_COOLDOWN;
 				isActivated = false;
 			}
 		}
