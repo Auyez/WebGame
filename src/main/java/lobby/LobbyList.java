@@ -16,4 +16,8 @@ class LobbyList {
 
         return lobbies;
     }
+
+    private LobbyList() {
+
+    }
 }

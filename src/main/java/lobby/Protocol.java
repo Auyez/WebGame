@@ -46,7 +46,9 @@ namespace Server
 	struct server_msg
 		Integer lobby_index
 		union lobby_cmd
-			Integer add_player_id
+			struct add_player
+				Integer player_id
+				String authToken
 			struct ready
 			union game_msg
 				struct input
@@ -89,18 +91,18 @@ public class Protocol {
             }
         }
         public static class LobbyCmd { /*Union*/
-            public Integer addPlayerId;
+            public AddPlayer addPlayer;
             public Ready ready;
             public GameMsg gameMsg;
-            static final byte ADD_PLAYER_ID = 0;
+            static final byte ADD_PLAYER = 0;
             static final byte READY = 1;
             static final byte GAME_MSG = 2;
             public byte[] bytes() {
                 ByteWriter writer = new ByteWriter();
                 if (false) {;
-                } else if (addPlayerId != null) {
-                    writer.writeByte(ADD_PLAYER_ID);
-                    writer.writeBytes(ByteWriter.Integer2bytes(addPlayerId));
+                } else if (addPlayer != null) {
+                    writer.writeByte(ADD_PLAYER);
+                    writer.writeBytes(addPlayer.bytes());
                 } else if (ready != null) {
                     writer.writeByte(READY);
                     writer.writeBytes(ready.bytes());
@@ -113,8 +115,8 @@ public class Protocol {
             public static LobbyCmd parse(ByteReader reader) {
                 LobbyCmd obj = new LobbyCmd();
                 byte type = reader.readByte();
-                if (type == ADD_PLAYER_ID) {
-                    obj.addPlayerId = reader.readInteger();
+                if (type == ADD_PLAYER) {
+                    obj.addPlayer = AddPlayer.parse(reader);
                 }
 
                 if (type == READY) {
@@ -124,6 +126,22 @@ public class Protocol {
                 if (type == GAME_MSG) {
                     obj.gameMsg = GameMsg.parse(reader);
                 }
+                return obj;
+            }
+        }
+        public static class AddPlayer { /*Struct*/
+            public Integer playerId;
+            public String authToken;
+            public byte[] bytes() {
+                ByteWriter writer = new ByteWriter();
+                writer.writeBytes(ByteWriter.Integer2bytes(playerId));
+                writer.writeBytes(ByteWriter.String2bytes(authToken));
+                return writer.bytes();
+            }
+            public static AddPlayer parse(ByteReader reader) {
+                AddPlayer obj = new AddPlayer();
+                obj.playerId = reader.readInteger();
+                obj.authToken = reader.readString();
                 return obj;
             }
         }
