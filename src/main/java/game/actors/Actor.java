@@ -1,9 +1,6 @@
 package game.actors;
 
 import java.awt.Rectangle;
-
-import game.Game;
-import game.GameArena;
 import game.Vec2;
 import lobby.Protocol;
 
