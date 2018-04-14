@@ -39,7 +39,7 @@
             };
 
             function error(jqXHR, textStatus, errorThrown) {
-                console.log('login failed');
+                messagebox.html('login failed');
             };
 
             $.ajax({
@@ -54,11 +54,11 @@
 
         function register() {
             function success(data, status, jqhxr) {
-                console.log('registered');
+                messagebox.html('registered');
             };
 
             function error(jqXHR, textStatus, errorThrown) {
-                console.log('register failed');
+                messagebox.html('register failed');
             };
 
             $.ajax({

@@ -228,7 +228,11 @@ public class Game implements Runnable {
 	public void addActor(Actor a) { actors.add(a);}
 	
 	public int getFreeId() {
-		return actors.size();
+    	int maxId = 0;
+    	for (Actor actor : actors) {
+    		maxId = Math.max(maxId, actor.getId());
+		}
+		return maxId + 1;
 	}
 	
 	private void removePlayer(int id) {
