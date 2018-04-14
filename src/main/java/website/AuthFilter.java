@@ -8,7 +8,7 @@ import java.io.IOException;
 
 
 public class AuthFilter implements Filter {
-    public static boolean disabled = true;
+    public static boolean disabled = false;
 
     @Override
     public void doFilter(ServletRequest servletRequest, ServletResponse servletResponse, FilterChain filterChain)

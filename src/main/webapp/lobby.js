@@ -13,15 +13,13 @@ function Lobby(lobbyIndex, parent) {
 
     self.socket.onopen = function(event) {
         console.log('onopen::' + JSON.stringify(event, null, 4));
-        //var lobbyIndex = 0;
-        var playerId = self.getRandomInt(1, 2147483637); // almost upper limit of int32 signed
 
         var servermsg = new Protocol.Server.ServerMsg();
         servermsg.lobbyIndex = lobbyIndex;
         servermsg.lobbyCmd = new Protocol.Server.LobbyCmd();
         servermsg.lobbyCmd.addPlayer = new Protocol.Server.AddPlayer();
-        servermsg.lobbyCmd.addPlayer.playerId = playerId;
-        servermsg.lobbyCmd.addPlayer.authToken = "placeholderAuthToken123123";
+        servermsg.lobbyCmd.addPlayer.playerId = parseInt(sessionStorage.getItem('user_id'));
+        servermsg.lobbyCmd.addPlayer.authToken = sessionStorage.getItem('authToken');
 
         self.socket.send(servermsg.bytes());
     };

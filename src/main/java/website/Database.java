@@ -40,19 +40,30 @@ public class Database {
         return null;
     }
 
-    public static String getUsername(int userid) {
-        try {
-            String query = "select username from user where user_id = ?";
-            PreparedStatement statement = getConnection().prepareStatement(query);
-            statement.setInt(1, userid);
-            ResultSet result = statement.executeQuery();
-            if (result.next()) {
-                return result.getString(1);
-            }
-        } catch (SQLException ex) {
-            //System.out.println("SQL getUsername() by id error");
+    public static String getUsername(int userid)
+        throws SQLException
+    {
+        String query = "select username from user where user_id = ?";
+        PreparedStatement statement = getConnection().prepareStatement(query);
+        statement.setInt(1, userid);
+        ResultSet result = statement.executeQuery();
+        if (result.next()) {
+            return result.getString(1);
         }
-        return null;
+        throw new SQLException();
+    }
+
+    public static int getUserId(String username)
+        throws SQLException
+    {
+        String query = "select user_id from user where username = ?";
+        PreparedStatement statement = getConnection().prepareStatement(query);
+        statement.setString(1, username);
+        ResultSet result = statement.executeQuery();
+        if (result.next()) {
+            return result.getInt(1);
+        }
+        throw new SQLException();
     }
 
     public static void insertUser(String username, String passwordHash) throws SQLException {
@@ -66,13 +77,15 @@ public class Database {
         int newId = maxId + 1;
 
         // insert into db
-        int rating = 0;
-        String command = "insert into user values (?, ?, ?, ?)";
+        int damage = 0;
+        int spellsCasted = 0;
+        String command = "insert into user values (?, ?, ?, ?, ?)";
         PreparedStatement statement1 = getConnection().prepareStatement(command);
         statement1.setInt(1, newId);
         statement1.setString(2, username);
         statement1.setString(3, passwordHash);
-        statement1.setInt(4, rating);
+        statement1.setInt(4, damage);
+        statement1.setInt(5, spellsCasted);
         statement1.executeUpdate();
 
         // default skill for the user
@@ -90,6 +103,14 @@ public class Database {
                         "root",
                         ""
                 );
+
+                try {
+                    String command = "insert into skill values (0, \"fireball\")";
+                    Statement statement = connection.createStatement();
+                    statement.executeUpdate(command);
+                } catch (SQLException ex) {
+
+                }
             } catch (SQLException ex) {
                 System.out.println("Couldn't connect to database");
             }

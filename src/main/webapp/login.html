@@ -33,6 +33,8 @@
             function success(data, status, jqhxr) {
                 var authToken = data;
                 document.cookie = 'authToken=' + authToken;
+                sessionStorage.setItem('authToken', authToken);
+                sessionStorage.setItem('username', username.val());
                 location.href = 'index.html';
             };
 

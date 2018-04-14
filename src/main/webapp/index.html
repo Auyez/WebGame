@@ -3,11 +3,26 @@
 <head>
     <meta charset="UTF-8">
     <title>Lobbies</title>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
 </head>
 <body>
     <ul id="lobbyList"></ul>
 
+    <br/>
+
+    <button type="button" onclick="logout()">Logout</button>
+
     <script>
+        // retrieve user id
+        var username = sessionStorage.getItem('username');
+        $.get('services/user/user_id?username=' + username,
+            function (data) {
+                sessionStorage.setItem('user_id', data);
+            }
+        );
+
+
+        // fill the page
         var lobbyList = document.getElementById('lobbyList');
         var numLobbies = 4;
 
@@ -25,6 +40,27 @@
         function joinLobby(lobbyIndex) {
             sessionStorage.setItem('lobbyIndex', lobbyIndex);
             location.href = 'lobby.html';
+        }
+
+        function logout() {
+            var username = sessionStorage.getItem('username');
+
+            function success(data, status, jqhxr) {
+                location.href = 'login.html';
+            };
+
+            function error(jqXHR, textStatus, errorThrown) {
+                console.log('logout failed');
+            };
+
+            $.ajax({
+                type: 'POST',
+                url: 'services/user/logout',
+                data: 'username=' + username,
+                success: success,
+                error: error,
+                dataType: 'text'
+            });
         }
     </script>
 </body>

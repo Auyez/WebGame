@@ -31,21 +31,18 @@ public class AuthTokens {
         return usernameTokens.containsValue(token);
     }
 
+    public boolean isValid(String username, String token) {
+        return usernameTokens.containsKey(username) && usernameTokens.get(username).equals(token);
+    }
+
     public boolean isValid(int userId, String token) {
-        String username = Database.getUsername(userId);
-        return usernameTokens.containsValue(token) && usernameTokens.get(username).equals(token);
+        try {
+            String username = Database.getUsername(userId);
+            return isValid(username, token);
+        } catch (SQLException ex) {
+            return false;
+        }
     }
-
-    public boolean isValid(String username, String password) {
-        String password_hash = Database.getUserPasswordHash(username);
-        return hash(password).equals(password_hash);
-    }
-
-    public String hash(String password) {
-        return password;
-    }
-
-
 
     private static AuthTokens instance;
     public static AuthTokens getInstance() {

@@ -15,7 +15,7 @@ public class AuthEndpoint {
     public Response authenticateUser(@FormParam("username") String username,
                                      @FormParam("password") String password) {
         System.out.println(username + " " + password);
-        if (!AuthTokens.getInstance().isValid(username, password)) {
+        if (!isValid(username, password)) {
             System.out.println(username + " " + password + " is not valid");
             return Response.status(Response.Status.UNAUTHORIZED).build();
         }
@@ -40,11 +40,20 @@ public class AuthEndpoint {
         }
 
         try {
-            Database.insertUser(username, AuthTokens.getInstance().hash(password));
+            Database.insertUser(username, hash(password));
         } catch (SQLException ex) {
             return Response.serverError().build();
         }
 
         return Response.ok("").build();
+    }
+
+    public boolean isValid(String username, String password) {
+        String password_hash = Database.getUserPasswordHash(username);
+        return hash(password).equals(password_hash);
+    }
+
+    public String hash(String password) {
+        return password;
     }
 }
