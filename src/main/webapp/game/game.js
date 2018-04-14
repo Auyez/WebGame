@@ -89,8 +89,8 @@ function CreateGame(parent, socket, lobbyIndex) {
 
     function update() {
     	//
-    	game.input.onDown.add(move, this);
     	q.onDown.add(spellQ, this);
+    	game.input.onDown.add(move, this);    	
     	actorManager.update();
     }
     
@@ -102,9 +102,6 @@ function CreateGame(parent, socket, lobbyIndex) {
     	inputMessage.lobbyCmd.gameMsg.skillInput.y = game.input.y;
     	inputMessage.lobbyCmd.gameMsg.skillInput.skill_type = 0;
     	socket.send(inputMessage.bytes());
-    	console.log("Q pressed");
-    	console.log(game.input.x);
-    	console.log(game.input.y);
     }
     
     function move() {

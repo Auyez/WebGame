@@ -12,30 +12,32 @@ public abstract class Actor{
 	public static final int PLAYER = 0;
 	public static final int FIREBALL = 1;
 	
-	public Vec2 			position;
-	public Rectangle 		hitbox;
-	public Rectangle 		lowerBox;
+	protected Vec2 			position;
+	private Rectangle 		hitbox;
+	private Rectangle 		lowerBox;
 	private int 			id;
 	private byte 			animation; // animation row
 	private int 			angle; // sprite rotation
+	private boolean			destroyed;
+
+	public abstract void update(long delta);	
+	public abstract void resolve_collision(long delta, Actor a);
 	
 	public Actor(float x, float y, int w, int h, int lh, int id) {
 		position = new Vec2(x,y);
 		hitbox = new Rectangle((int)x,(int)y,w,h);
 		lowerBox = new Rectangle((int)x, (int)y + (h - lh) , w, lh); // collision box dlya nog
-		//System.out.println("box: " + lowerBox.x);
-		//System.out.println("box: " + lowerBox.y);
 		this.id = id;
+		this.destroyed = false;
 	}
 	
-	public Actor(float x, float y, int size, int id) {
+	public Actor(float x, float y, int w, int h, int id) {
 		position = new Vec2(x, y);
-		hitbox = new Rectangle((int)x, (int)y, size, size);
+		hitbox = new Rectangle((int)x, (int)y, w, h);
 		lowerBox = null;
 		this.id = id;
+		this.destroyed = false;
 	}
-	public abstract void update(long delta);	
-	public abstract void resolve_collision(long delta, Actor a);
 	
 	public void setPosition(int x, int y) {
 		position.set(x, y);
@@ -52,7 +54,8 @@ public abstract class Actor{
 			lowerBox.setLocation((int)position.getX(), (int)position.getY() + (hitbox.height - lowerBox.height) );
 	}
 	
-	
+	public void destroy() { destroyed = true; }
+	public boolean isDestroyed() {return destroyed;}
 	public Rectangle getHitbox() {return hitbox;}
 	public Rectangle getLowerBox() {return lowerBox;}
 	public Vec2 getPosition() {return position;}

@@ -6,8 +6,9 @@ import org.apache.commons.lang3.tuple.Pair;
 
 import game.actors.Actor;
 import game.actors.Player;
-import game.actors.Projectile;
 import game.actors.TileActor;
+import game.skill.Skill;
+import game.skill.ThrowFireball;
 import lobby.Protocol;
 import lobby.Protocol.Server.Input;
 import lobby.Protocol.Server.SkillInput;
@@ -90,10 +91,15 @@ public class Game implements Runnable {
 
 
 	private void update(long delta) {
-        for (Actor actor : actors) {
+        for (int i = 0; i < actors.size(); i++) {
+        	Actor actor = actors.get(i);
             actor.update(delta);
             Actor collidedWith = collides(actor);
             actor.resolve_collision(delta, collidedWith);
+            if (actor.isDestroyed()) {
+            	actors.remove(actor);
+            	i--;
+            }
         }
     }
 
@@ -111,12 +117,13 @@ public class Game implements Runnable {
 		        Player player = getPlayer(id);
 		        
 		        // Movement input
-		        if (gameMsg.input != null)
-		        	setInput(gameMsg.input, player);
+		        
 		        if (gameMsg.skillInput != null) {
-		        	System.out.println("Skill input detected!");
-		        	spellQ(gameMsg.skillInput, player);
-		        }
+		        	player.getInput().activateSkill(gameMsg.skillInput.skillType);
+		        	player.getInput().setSkillTarget(new Vec2(gameMsg.skillInput.x, gameMsg.skillInput.y));
+		        } else if (gameMsg.input != null) {
+		        	setInput(gameMsg.input, player);
+				}
 			}
 		}
 		synchronized (playerDisconnectMessages) {
@@ -129,8 +136,8 @@ public class Game implements Runnable {
 
 	private void setInput(Input input, Player player) {
 		int size = ga.getTileSize();
-			// This bias is needed for path-finding algorithm, because
-			// collision occurs with lower part of player, but the movement is calculated using upper part of player.
+		// This bias is needed for path-finding algorithm, because
+		// collision occurs with lower part of player, but the movement is calculated using upper part of player.
 		int dy = PLAYER_HEIGHT - PLAYER_LOWER_HEIGHT; 
 		if (ga.getEntry((input.yTarget + dy) / size, input.xTarget / size) == 0) {
 
@@ -183,10 +190,13 @@ public class Game implements Runnable {
 			x = r.nextInt(ga.getWidth());
 			y = r.nextInt(ga.getHeight());
 
-			if(p != null)
+			if(p != null) {
 				p.setPosition(x, y);
-			else
+			}else {
 				p = new Player(x, y, PLAYER_WIDTH, PLAYER_HEIGHT, PLAYER_LOWER_HEIGHT, id);
+				Skill Q =  new ThrowFireball(p, this) ;
+				p.setSkill(Q, (byte) 0);
+			}
 		}while(!(	( (x + PLAYER_WIDTH) < ga.getWidth()  ) && ( (y + PLAYER_HEIGHT) < ga.getHeight() ) && (collides(p) == null)	));
 		actors.add(p);
 		players.add(p);
@@ -196,24 +206,30 @@ public class Game implements Runnable {
 	//returns -2 if no collision happens, or -1 if actor collides with arena, otherwise returns id
 	public Actor collides(Actor a) {	
 		//collision with tile map part
-		Rectangle hitbox = a.getHitbox();
-		Rectangle lowerBox = a.getLowerBox();
-		int left = a.lowerBox.x/ga.getTileSize();
-		int right = (a.lowerBox.x + a.lowerBox.width)/ga.getTileSize();
-		int up = lowerBox.y/ga.getTileSize();
-		int bottom = (lowerBox.y + lowerBox.height)/ga.getTileSize();
+		Rectangle hitbox = (a.getLowerBox() != null ) ? a.getLowerBox() : a.getHitbox();
+		int left = hitbox.x/ga.getTileSize();
+		int right = (hitbox.x + hitbox.width)/ga.getTileSize();
+		int up = hitbox.y/ga.getTileSize();
+		int bottom = (hitbox.y + hitbox.height)/ga.getTileSize();
 
 		for(int i = up; i <= bottom; i++)
 			for(int j = left; j <= right; j++)
 				if(ga.getEntry(i, j) == 1)
 					return new TileActor();
 		//collision with objects
+
+		hitbox = a.getHitbox();
 		for(Actor b : actors)
-			if (a != b && hitbox.intersects(b.hitbox))
+			if (a != b && hitbox.intersects(b.getHitbox()))
 				return b;
 		return null;
 	}
 	
+	public void addActor(Actor a) { actors.add(a);}
+	
+	public int getFreeId() {
+		return actors.size();
+	}
 	
 	private void removePlayer(int id) {
 	    Player player = getPlayer(id);
@@ -229,25 +245,4 @@ public class Game implements Runnable {
 		return null;
 	}
 	public GameArena getArena() {return ga;}
-	public List<Actor> getActors(){return actors;}
-	public List<Player> getPlayers(){return players;}
-	
-	
-	
-	// ************************************************************
-	// ************************************************************
-	// ************************************************************
-	// ************************************************************
-	// Temporary function that implements skill mechanics
-	private void spellQ(SkillInput skillInput, Player player) {
-		float x_init = player.getPosition().getX();
-		float y_init = player.getPosition().getY();
-		int x_direction = skillInput.x;
-		int y_direction = skillInput.y;
-		int size = 5;
-		int speed = 300;
-		int id = player.getId();
-		Projectile s = new Projectile(x_init, y_init, x_direction, y_direction, size, id, speed);
-		
-	}
 }

@@ -3,27 +3,42 @@ package game;
 import java.util.ArrayList;
 
 public class Input {
-	private boolean[] 			keys;
+	private boolean[] 			skills;
+	private Vec2				skillTarget;
 	private ArrayList<Vec2>		mouse;
 	private Vec2 				mouse_prev;
 	
 	public Input() {
-		keys = new boolean[255];
+		skills = new boolean[Constants.SKILL_NUMBER];
 		mouse = null;
 	}
 	
-	public void press(int c) {
-		keys[c] = true;
+	public void activateSkill(byte skillIndex) {
+		skills[skillIndex] = true;
+	}
+	
+	public void setSkillTarget(Vec2 target) {
+		skillTarget = target;
+	}
+	
+	public byte getActiveSkill() {
+		for(byte i = 0; i < Constants.SKILL_NUMBER; i++) {
+			if (skills[i])
+				return i;
+		}
+		return -1;
 	}
 	
 	public void releaseAll() {
-		for (int i = 0; i < 255; i++)
-			keys[i] = false;
+		for (int i = 0; i < Constants.SKILL_NUMBER; i++)
+			skills[i] = false;
 	}
 	
-	public boolean isKeyDown(char c) {
-		return keys[(int) c];
+	public boolean isSkillActivated(byte skillIndex) {
+		return skills[skillIndex];
 	}
+	
+	public Vec2 getSkillTarget() {return skillTarget;}
 	
 	public Vec2 getMouse() {
 		if (mouse == null) {
@@ -57,5 +72,5 @@ public class Input {
 		mouse.add(new Vec2(x, y));
 	}
 	
-	public void clrMouse() {mouse = null;}
+	public void clrMouse() {mouse = null; mouse_prev = null;}
 }

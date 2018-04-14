@@ -1,17 +1,15 @@
 package lobby;
 import org.apache.commons.lang3.tuple.Pair;
+
+import game.Constants;
 import game.Game;
 import javax.websocket.Session;
-import java.io.IOException;
-import java.nio.ByteBuffer;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.Map;
 import java.util.Queue;
 
 class Lobby {
-	private static final int MAX_PLAYERS = 2;
-	
     private String name;
     private final Map<Session, Integer> sessions = new HashMap<Session, Integer>(); // Session -> PlayerID map
     private Thread gameThread;
@@ -29,7 +27,7 @@ class Lobby {
             addPlayer(session, message.addPlayerId);
         } else if (message.ready != null && isGameRunning()) {
             readyCount++;
-            if (readyCount >= MAX_PLAYERS) {
+            if (readyCount >= Constants.MAX_PLAYERS) {
                 // not used anymore :D
                 readyCount = 0;
             }
@@ -71,7 +69,7 @@ class Lobby {
             System.out.println(name + ": #" + playerId + " added");
 
 
-            if (sessions.size() >= MAX_PLAYERS) {
+            if (sessions.size() >= Constants.MAX_PLAYERS) {
                 startGame(); // change start game only if all players checked "ready"
             }
         }
