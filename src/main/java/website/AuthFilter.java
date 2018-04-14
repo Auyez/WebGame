@@ -8,18 +8,11 @@ import java.io.IOException;
 
 
 public class AuthFilter implements Filter {
-    public static boolean disabled = false;
 
     @Override
     public void doFilter(ServletRequest servletRequest, ServletResponse servletResponse, FilterChain filterChain)
         throws IOException, ServletException
     {
-        if (disabled) {
-            filterChain.doFilter(servletRequest, servletResponse);
-            return;
-        }
-
-
         HttpServletRequest request = (HttpServletRequest) servletRequest;
         HttpServletResponse response = (HttpServletResponse) servletResponse;
 
@@ -52,11 +45,7 @@ public class AuthFilter implements Filter {
 
     @Override
     public void init(FilterConfig filterConfig) {
-        if (!Database.connected())
-            disabled = true;
 
-        if (disabled)
-            System.out.println("AuthFilter is disabled");
     }
 
     @Override
