@@ -33,7 +33,7 @@ function CreateGame(parent, socket, lobbyIndex) {
         inputMessage.lobbyIndex = lobbyIndex;
         inputMessage.lobbyCmd = new Protocol.Server.LobbyCmd();
         inputMessage.lobbyCmd.gameMsg = new Protocol.Server.GameMsg();
-        inputMessage.lobbyCmd.gameMsg.input = new Protocol.Server.Input();
+        // inputMessage.lobbyCmd.gameMsg.input = new Protocol.Server.Input();
         
 
         cursors = game.input.keyboard.createCursorKeys();
@@ -87,12 +87,28 @@ function CreateGame(parent, socket, lobbyIndex) {
     	ready = true;
     }
 
-    function update() {  	
-    	game.input.onDown.add(move, this);
+    function update() {
+    	//
+    	q.onDown.add(spellQ, this);
+    	game.input.onDown.add(move, this);    	
     	actorManager.update();
     }
-
+    
+    function spellQ() {
+    	// set input null
+    	inputMessage.lobbyCmd.gameMsg.input = null;
+    	inputMessage.lobbyCmd.gameMsg.skillInput = new Protocol.Server.SkillInput();
+    	inputMessage.lobbyCmd.gameMsg.skillInput.x = game.input.x;
+    	inputMessage.lobbyCmd.gameMsg.skillInput.y = game.input.y;
+    	inputMessage.lobbyCmd.gameMsg.skillInput.skill_type = 0;
+    	socket.send(inputMessage.bytes());
+    }
+    
     function move() {
+    	//console.log(game.input.x);
+    	//console.log(game.input.y);
+    	inputMessage.lobbyCmd.gameMsg.skillInput = null;
+    	inputMessage.lobbyCmd.gameMsg.input = new Protocol.Server.Input();
     	inputMessage.lobbyCmd.gameMsg.input.xTarget = game.input.x;
     	inputMessage.lobbyCmd.gameMsg.input.yTarget = game.input.y;
     	socket.send(inputMessage.bytes());

@@ -1,0 +1,112 @@
+
+var ByteReader = (function () {
+    function ByteReader(arraybuf) {
+        this.dataview = new DataView(arraybuf);
+        this.pos = 0;
+    }
+    ByteReader.prototype.readInteger = function () {
+        var v = this.dataview.getInt32(this.pos);
+        this.pos += 4;
+        return v;
+    };
+    ByteReader.prototype.readByte = function () {
+        var v = this.dataview.getInt8(this.pos);
+        this.pos += 1;
+        return v;
+    };
+    ByteReader.prototype.readString = function () {
+        var length = this.dataview.getInt32(this.pos);
+        this.pos += 4;
+
+        var chars = [];
+        for (var i = 0; i < length; ++i) {
+            var char = this.dataview.getInt8(this.pos);
+            this.pos += 1;
+            chars.push(char);
+        }
+
+        var decoder = new TextDecoder();
+        var str = decoder.decode(new Int8Array(chars));
+
+        return str;
+    };
+    return ByteReader;
+}());
+ByteReader["__class"] = "ByteReader";
+
+
+
+var ByteWriter = (function () {
+    function ByteWriter() {
+        this.arraybuf = new ArrayBuffer(0);
+        this.dataview = new DataView(this.arraybuf);
+        this.pos = 0;
+    }
+    ByteWriter.prototype.bytes = function () {
+        return this.arraybuf.slice(0, this.pos);
+    };
+    ByteWriter.prototype.writeInt = function (x) {
+        this.grow(this.pos + 4);
+        this.dataview.setInt32(this.pos, x);
+        this.pos += 4;
+    };
+    ByteWriter.prototype.writeByte = function (x) {
+        this.grow(this.pos + 1);
+        this.dataview.setInt8(this.pos, x);
+        this.pos += 1;
+    };
+    ByteWriter.prototype.writeBytes = function (arraybuf) {
+        this.grow(this.pos + arraybuf.byteLength);
+        var bytes = new Int8Array(arraybuf);
+        for (var i = 0; i < bytes.length; ++i) {
+            this.dataview.setInt8(this.pos, bytes[i]);
+            this.pos += 1;
+        }
+    };
+    ByteWriter.prototype.grow = function (capacity) {
+        if (this.arraybuf.byteLength < capacity) {
+            var newArrayBuf = new ArrayBuffer(capacity * 2);
+            var newDataView = new DataView(newArrayBuf);
+
+            for (var i = 0; i < this.arraybuf.byteLength; ++i) {
+                newDataView.setInt8(i, this.dataview.getInt8(i));
+            }
+
+            this.arraybuf = newArrayBuf;
+            this.dataview = newDataView;
+        }
+    };
+    ByteWriter.prototype.toString = function () {
+        return '[' + (new Uint8Array(this.bytes())).toString() + ']';
+    }
+    ByteWriter.Integer2bytes = function (x) {
+        var arraybuf = new ArrayBuffer(4);
+        var dataview = new DataView(arraybuf);
+        dataview.setInt32(0, x);
+        return arraybuf;
+    };
+    ByteWriter.Byte2bytes = function (x) {
+        var arraybuf = new ArrayBuffer(1);
+        var dataview = new DataView(arraybuf);
+        dataview.setInt8(0, x);
+        return arraybuf;
+    };
+    ByteWriter.String2bytes = function (x) {
+        var arraybuf = new ArrayBuffer(4 + x.length);
+        var dataview = new DataView(arraybuf);
+        var pos = 0;
+
+        dataview.setInt32(pos, x.length);
+        pos += 4;
+
+        var encoder = new TextEncoder();
+        var chars = encoder.encode(x);
+        for (var i = 0; i < x.length; ++i) {
+            dataview.setInt8(pos, chars[i]);
+            pos += 1;
+        }
+        return arraybuf;
+    };
+    return ByteWriter;
+}());
+ByteWriter["__class"] = "ByteWriter";

@@ -2,7 +2,7 @@ package game.actors;
 
 public class TileActor extends Actor{
 	public TileActor() {
-		super(0,0,0,0);
+		super(0,0,0,0, -1);
 	}
 	@Override
 	public void update(long delta) {}

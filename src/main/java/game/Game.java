@@ -1,12 +1,17 @@
 package game;
 
 import lobby.WebSocketEndpoint;
+
 import org.apache.commons.lang3.tuple.Pair;
 
 import game.actors.Actor;
 import game.actors.Player;
 import game.actors.TileActor;
+import game.skill.Skill;
+import game.skill.ThrowFireball;
 import lobby.Protocol;
+import lobby.Protocol.Server.Input;
+import lobby.Protocol.Server.SkillInput;
 
 import javax.websocket.Session;
 
@@ -19,6 +24,11 @@ import java.util.Queue;
 import java.util.Random;
 
 public class Game implements Runnable {
+	// Temporary constants, should be moved into separate class in the future
+	public static final int PLAYER_WIDTH = 20;
+	public static final int PLAYER_HEIGHT = 40;
+	public static final int PLAYER_LOWER_HEIGHT = 20;
+	
     private final Queue<Pair<Session, Protocol.Server.GameMsg>> 		messages;
     private final Queue<Integer> 								        playerDisconnectMessages;
     private final Map<Session, Integer> 								sessions;
@@ -81,10 +91,15 @@ public class Game implements Runnable {
 
 
 	private void update(long delta) {
-        for (Actor actor : actors) {
+        for (int i = 0; i < actors.size(); i++) {
+        	Actor actor = actors.get(i);
             actor.update(delta);
             Actor collidedWith = collides(actor);
             actor.resolve_collision(delta, collidedWith);
+            if (actor.isDestroyed()) {
+            	actors.remove(actor);
+            	i--;
+            }
         }
     }
 
@@ -100,33 +115,15 @@ public class Game implements Runnable {
 					id = sessions.get(session);
 				}
 		        Player player = getPlayer(id);
-
-		        if (gameMsg.input != null) {
-		        	//byte key = gameMsg.input.key;
-		        	//player.getInput().press(key);
-		        	// REFACTOR THIS
-		        	int size = ga.getTileSize();
-		        	if (ga.getEntry((gameMsg.input.yTarget + 20) / size, gameMsg.input.xTarget / size) == 0) {
-
-			        	int x_init = (int) player.getPosition().getX() / size;
-			        	int y_init = (int) (player.getPosition().getY() + 20) / size;
-			        	int x_target = gameMsg.input.xTarget / size;
-			        	int y_target = (gameMsg.input.yTarget + 20) / size;
-			        	player.getInput().setDestination(gameMsg.input.xTarget, gameMsg.input.yTarget - 20);
-			        	
-			        	// Initial check if there are no obstacles between initial and target destinations
-			        	if (ga.checkCollision(player.getPosition().getX(),
-			        						  player.getPosition().getY(), 
-			        						  gameMsg.input.xTarget,
-			        						  gameMsg.input.yTarget)) {
-			        		// Call A* search here, setMouse should take a sequence of destination coordinates
-			        		ArrayList<TileNode> sequence =  ga.aStar(x_init, y_init, x_target, y_target);
-			        		player.getInput().setMouse(sequence);
-			        	}
-			        	
-			        	
-		        	}
-		        }
+		        
+		        // Movement input
+		        
+		        if (gameMsg.skillInput != null) {
+		        	player.getInput().activateSkill(gameMsg.skillInput.skillType);
+		        	player.getInput().setSkillTarget(new Vec2(gameMsg.skillInput.x, gameMsg.skillInput.y));
+		        } else if (gameMsg.input != null) {
+		        	setInput(gameMsg.input, player);
+				}
 			}
 		}
 		synchronized (playerDisconnectMessages) {
@@ -137,7 +134,34 @@ public class Game implements Runnable {
 		}
 	}
 
+	private void setInput(Input input, Player player) {
+		int size = ga.getTileSize();
+		// This bias is needed for path-finding algorithm, because
+		// collision occurs with lower part of player, but the movement is calculated using upper part of player.
+		int dy = PLAYER_HEIGHT - PLAYER_LOWER_HEIGHT; 
+		if (ga.getEntry((input.yTarget + dy) / size, input.xTarget / size) == 0) {
 
+			int x_init = (int) player.getPosition().getX() / size;
+			int y_init = (int) (player.getPosition().getY() + dy) / size;
+			int x_target = input.xTarget / size;
+			int y_target = (input.yTarget + dy) / size;
+			
+			player.getInput().setDestination(input.xTarget, input.yTarget - dy);
+			
+			// Initial check if there are no obstacles between initial and target destinations
+			if (ga.checkCollision(player.getPosition().getX(),
+								  player.getPosition().getY(), 
+								  input.xTarget,
+								  input.yTarget)) {
+				// Call A* search here, setMouse should take a sequence of destination coordinates
+				ArrayList<TileNode> sequence =  ga.aStar(x_init, y_init, x_target, y_target);
+				player.getInput().setMouse(sequence);
+			}
+			
+			
+		}
+	}
+	
     private void sendWorldState() {
     	if (actors.size() > 0) {
     	    Protocol.Client.ClientMsg message = new Protocol.Client.ClientMsg();
@@ -158,9 +182,6 @@ public class Game implements Runnable {
 
 
 	private void addPlayer(int id) {
-		int w = 20;
-		int h = 40;
-		int lh = 20;
 		
 		Player p = null;
 		Random r = new Random();
@@ -169,11 +190,14 @@ public class Game implements Runnable {
 			x = r.nextInt(ga.getWidth());
 			y = r.nextInt(ga.getHeight());
 
-			if(p != null)
+			if(p != null) {
 				p.setPosition(x, y);
-			else
-				p = new Player(x, y, w, h, lh, id);
-		}while(!(	( (x + w) < ga.getWidth()  ) && ( (y + h) < ga.getHeight() ) && (collides(p) == null)	));
+			}else {
+				p = new Player(x, y, PLAYER_WIDTH, PLAYER_HEIGHT, PLAYER_LOWER_HEIGHT, id);
+				Skill Q =  new ThrowFireball(p, this) ;
+				p.setSkill(Q, (byte) 0);
+			}
+		}while(!(	( (x + PLAYER_WIDTH) < ga.getWidth()  ) && ( (y + PLAYER_HEIGHT) < ga.getHeight() ) && (collides(p) == null)	));
 		actors.add(p);
 		players.add(p);
 	}
@@ -182,24 +206,30 @@ public class Game implements Runnable {
 	//returns -2 if no collision happens, or -1 if actor collides with arena, otherwise returns id
 	public Actor collides(Actor a) {	
 		//collision with tile map part
-		Rectangle hitbox = a.getHitbox();
-		Rectangle lowerBox = a.getLowerBox();
-		int left = a.lowerBox.x/ga.getTileSize();
-		int right = (a.lowerBox.x + a.lowerBox.width)/ga.getTileSize();
-		int up = lowerBox.y/ga.getTileSize();
-		int bottom = (lowerBox.y + lowerBox.height)/ga.getTileSize();
+		Rectangle hitbox = (a.getLowerBox() != null ) ? a.getLowerBox() : a.getHitbox();
+		int left = hitbox.x/ga.getTileSize();
+		int right = (hitbox.x + hitbox.width)/ga.getTileSize();
+		int up = hitbox.y/ga.getTileSize();
+		int bottom = (hitbox.y + hitbox.height)/ga.getTileSize();
 
 		for(int i = up; i <= bottom; i++)
 			for(int j = left; j <= right; j++)
 				if(ga.getEntry(i, j) == 1)
 					return new TileActor();
 		//collision with objects
+
+		hitbox = a.getHitbox();
 		for(Actor b : actors)
-			if (a != b && hitbox.intersects(b.hitbox))
+			if (a != b && hitbox.intersects(b.getHitbox()))
 				return b;
 		return null;
 	}
 	
+	public void addActor(Actor a) { actors.add(a);}
+	
+	public int getFreeId() {
+		return actors.size();
+	}
 	
 	private void removePlayer(int id) {
 	    Player player = getPlayer(id);
@@ -215,6 +245,4 @@ public class Game implements Runnable {
 		return null;
 	}
 	public GameArena getArena() {return ga;}
-	public List<Actor> getActors(){return actors;}
-	public List<Player> getPlayers(){return players;}
 }

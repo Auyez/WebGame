@@ -1,5 +1,6 @@
 package game.actors;
 
+import game.Constants;
 import game.Game;
 import game.Input;
 import game.Vec2;
@@ -17,21 +18,24 @@ public class Player extends Actor{
 	private Input input;
 	private int speed;
 	private Vec2 updated_movement;
-	//private Skill[] skills;
+	private Skill skills[];
 
 
 	public Player(float x, float y, int w, int h, int lh, int ID) {
 		super(x, y, w, h, lh, ID);
 		input = new Input();
 		speed = 200;
-		//skills = new Skill [4];
+		skills = new Skill[Constants.SKILL_NUMBER];
 	}
 	
 	public void update(long delta) {
 		Vec2 target = input.getMouse();
 		setAnimation(ANIM_IDLE);
 
-		if (target != null) {
+		if (input.getActiveSkill() >= 0) {
+			input.clrMouse();
+			skills[input.getActiveSkill()].use(input.getSkillTarget());
+		} else if (target != null) {
 			Vec2 movement = Vec2.subs(position, target);
 
 			// animation
@@ -58,9 +62,7 @@ public class Player extends Actor{
 	}
 
 	public void resolve_collision(long delta, Actor a) {
-		if (a != null) {
-			//if (input.getPrev() != input.getMouse())
-			//	input.putBackTarget();
+		if ( a != null && (a.getType() == Actor.PLAYER || a.getType() == Actor.TILE) ) {
 			input.clrMouse();
 			setAnimation(ANIM_IDLE);
 			updated_movement.scalar(-1.0f);
@@ -69,8 +71,10 @@ public class Player extends Actor{
 		input.releaseAll();
 	}
 	
-	public Input getInput() {
-		return input;
+	public void setSkill(Skill s, byte skillIndex) {
+		skills[skillIndex] = s;
 	}
+	
+	public Input getInput() {return input;}
 	public int getType() {return Actor.PLAYER;}
 }
