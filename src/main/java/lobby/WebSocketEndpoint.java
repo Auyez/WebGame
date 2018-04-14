@@ -1,10 +1,8 @@
 package lobby;
 import javax.websocket.*;
 import javax.websocket.server.ServerEndpoint;
-
 import java.io.IOException;
 import java.nio.ByteBuffer;
-import java.util.ArrayList;
 
 @ServerEndpoint(value="/websocketendpoint")
 public class WebSocketEndpoint {

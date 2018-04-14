@@ -1,9 +1,7 @@
 package game;
 
 import lobby.WebSocketEndpoint;
-
 import org.apache.commons.lang3.tuple.Pair;
-
 import game.actors.Actor;
 import game.actors.Player;
 import game.actors.TileActor;
@@ -12,10 +10,7 @@ import game.skill.Skill;
 import game.skill.ThrowFireball;
 import lobby.Protocol;
 import lobby.Protocol.Server.Input;
-import lobby.Protocol.Server.SkillInput;
-
 import javax.websocket.Session;
-
 import java.awt.Rectangle;
 import java.io.BufferedWriter;
 import java.io.FileWriter;
@@ -102,6 +97,13 @@ public class Game implements Runnable {
 	private void update(long delta) {
 		for (Player p : players) {
 			if( p.update_dead(delta) ) {
+				Random r = new Random();
+				// randomly choose free spawn point
+				do{
+					Vec2 spawn = new Vec2(Constants.SPAWN_POINTS[r.nextInt(Constants.MAX_PLAYERS)]);	// get new spawn point
+					spawn.scalar(Constants.GAME_TILE_SIZE);				// convert to pixels
+					p.setPosition(spawn);
+				}while(collides(p) != null);
 				actors.add(p);
 			}
 		}

@@ -1,11 +1,9 @@
 package game.actors;
 
 import game.Constants;
-import game.Game;
 import game.Input;
 import game.Vec2;
 import game.skill.Skill;
-import lobby.Protocol;
 
 public class Player extends Actor{
 	private static final byte ANIM_UP = 0;
@@ -15,18 +13,23 @@ public class Player extends Actor{
 	private static final byte ANIM_IDLE = 4;
 	
 	private int 		hp;
-	private boolean		isDead;
-	private float		deathTimer;
-	private Input 		input;
-	private int 		speed;
-	private Vec2 		updated_movement;
-	private Skill 		skills[];
+	private boolean		isDead;				//flag that indicates that Player is dead, required to control death and reviving
+	private float		deathTimer;			//required to return player back in the game
+	private Input 		input;				//contains information about input from front-end
+	private int 		speed;				//speed of the player, we keep it in Constants (However it might be useful to keep it as variable)
+	private Vec2 		updated_movement;	//need this field to keep track of our displacement (caused by overall bad design of this class)
+	private Skill 		skills[];			//array of skills which are interfaces
 
-
+	/*
+	 * lh - means height of the lower hitbox of the player which is required when we collide with walls
+	 * (So part of the player sprite can get over wall)
+	 * ID - should be obtained from database and unique for each account in our system
+	 * (It would be good to keep this number not big because game objects use it to obtain their own id (see getFreeId() method in game))
+	 */
 	public Player(float x, float y, int w, int h, int lh, int ID) {
 		super(x, y, w, h, lh, ID);
 		input = new Input();
-		speed = 200;
+		speed = Constants.PLAYER_SPEED;
 		skills = new Skill[Constants.SKILL_NUMBER];
 		hp = Constants.PLAYER_HP;
 		deathTimer = Constants.PLAYER_DEATH_TIME;
@@ -34,10 +37,10 @@ public class Player extends Actor{
 	}
 	
 	public void update(long delta) {
-		if (hp <= 0) {
-			if(!isDead) {
+		if (hp <= 0) {	//this block can return from this method
+			if(!isDead) {	//here we set isDead flag
 				isDead = true; // kill yourself
-				destroy();// remove yourself from actors
+				destroy();// remove yourself from actors (actors is a list in Game)
 			}
 			return; //don't do anything
 		}
@@ -46,13 +49,11 @@ public class Player extends Actor{
 		setAnimation(ANIM_IDLE);
 
 		for (int i = 0; i < 2; i++)//Constants.SKILL_NUMBER; i++)
-			skills[i].update(delta);
+			skills[i].update(delta);	//Update skills, for example their cooldown
 		
-		if (input.getActiveSkill() >= 0) {
-			if( skills[input.getActiveSkill()].use(input.getSkillTarget()) )
-				input.clrMouse();
-		} 
-		if (target != null) {
+		if (input.getActiveSkill() >= 0) {	//gets first pressed skill
+			skills[input.getActiveSkill()].use(input.getSkillTarget());
+		} else if (target != null) {
 			Vec2 movement = Vec2.subs(position, target);
 
 			// animation
@@ -68,41 +69,43 @@ public class Player extends Actor{
 			else
 				setAnimation(ANIM_LEFT);
 			// animation
-
+			
 			movement.scalar( -(speed * (delta/1000.0f))/movement.getMagnitude() );
 			addPosition(movement);
-			updated_movement = new Vec2(movement.getX(), movement.getY());
-
-			if (position.isClose(target, 2.0f))
+			updated_movement = movement;
+			if (position.isClose(target, 2.0f))	// path-finding-getting next movement
 				input.getNextTarget();
 		}
 	}
 
+	//This is update method for the dead players
+	//we need it because update() is called in the for loop over the actors
+	//but dead players are excluded from that list(actors)
+	//it is boolean in order to signal if player gets alive (bad design, but we have no time)
 	public boolean update_dead(long delta) {
-		if(isDead) {
+		if(isDead) {	//this method is only for dead players
 			deathTimer -= delta/1000.0f;
-			if (deathTimer <= 0) {
+			if (deathTimer <= 0) {	//block to revive the player
 				hp = Constants.PLAYER_HP;
 				deathTimer = Constants.PLAYER_DEATH_TIME;
-				Vec2 spawn = new Vec2(Constants.SPAWN_POINTS[0]);	// get new spawn point
-				spawn.scalar(Constants.GAME_TILE_SIZE);				// convert to pixels
-				setPosition(spawn);									// move
 				isDead = false;
-				back();												//return player back to actors
+				back();			//return player back to actors (the list in Game)
 				return true;	//signal that player was revived
 			}
 		}
-		return false;
+		return false; //signal that no reviving happened
 	}
 	
+	
+	//Reaction of the player to the collision
 	public void resolve_collision(long delta, Actor a) {
 		if ( a != null && (a.getType() == Actor.PLAYER || a.getType() == Actor.TILE) ) {
-			input.clrMouse();
+			input.clrMouse();	//stops any further movement (stops path-finding)
 			setAnimation(ANIM_IDLE);
 			updated_movement.scalar(-1.0f);
-			addPosition(updated_movement);
+			addPosition(updated_movement);	//discard movement made in this update
 		}
-		input.releaseAll();
+		input.releaseAll();	//releases any activated skill
 	}
 	
 	public void setSkill(Skill s, byte skillIndex) {
