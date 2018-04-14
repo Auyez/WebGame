@@ -99,7 +99,7 @@ public class Database {
         if (connection == null) {
             try {
             	try {
-            		Class.forName("com.mysql.jdbc.Driver").newInstance();
+            		Class.forName("com.mysql.cj.jdbc.Driver").newInstance();
             	} catch (Exception ex) {
             		System.out.println("Database error: couldn't load jdbc driver");
             	}
