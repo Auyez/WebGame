@@ -12,7 +12,9 @@ public class Services extends Application {
 
     public Services() {
         System.out.println("!!!!!!!!!!!!!!!!!!!!!");
-        singletons.add(new LobbyListService());
+        //singletons.add(new LobbyListService());
+        singletons.add(new AuthEndpoint());
+        singletons.add(new UserEndpoint());
     }
 
     @Override
