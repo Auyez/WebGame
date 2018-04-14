@@ -16,7 +16,10 @@ import java.io.BufferedWriter;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.nio.ByteBuffer;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 import java.util.Map;
 import java.util.Queue;
@@ -43,8 +46,13 @@ public class Game implements Runnable {
 		actors = new ArrayList<Actor>();
 		players = new ArrayList<Player>();
 		ga = new GameArena("map.txt");
-		String name = number + System.currentTimeMillis() + ".txt";
+		
+		DateFormat dateFormat = new SimpleDateFormat("yyyyMMddHHmmss");
+		Date date = new Date();
+		
+		String name = number + dateFormat.format(date) + ".txt";
 		System.out.println(name);
+		// relative path of absolute path?
 		try {
 			writer = new BufferedWriter(new FileWriter(name, true));
 		} catch (IOException e) {

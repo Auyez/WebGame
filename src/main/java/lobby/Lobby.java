@@ -66,7 +66,7 @@ class Lobby {
 
 
             if (sessions.size() >= Constants.MAX_PLAYERS) {
-                startGame(); // change start game only if all players checked "ready"
+                startGame(); // TODO change start game only if all players checked "ready"
             }
         }
     }

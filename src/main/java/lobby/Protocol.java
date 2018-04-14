@@ -43,32 +43,39 @@ ServerMsg serverMsg = ServerMsg.parse(ByteBuffer.wrap(bytes));
 
 /*
 namespace Server
-	struct server_msg
-		Integer lobby_index
-		union lobby_cmd
-			Integer add_player_id
-			struct ready
-			union game_msg
-				struct input
-					Integer x_target
-					Integer y_target
-				struct skill_input
-					Integer x
-					Integer y
-					Byte skill_type
+        struct server_msg
+                Integer lobby_index
+                union lobby_cmd
+                        Integer add_player_id
+                        struct ready
+                        union game_msg
+                                struct input
+                                        Integer x_target
+                                        Integer y_target
+                                struct skill_input
+                                        Integer x
+                                        Integer y
+                                        Byte skill_type
 
 namespace Client
-	union client_msg
-		struct start_game
-		union game_msg
-			list world_state
-				struct actor
-					Integer id
-					Integer type
-					Integer x
-					Integer y
-					Byte animation
-					Integer angle
+        union client_msg
+                struct start_game
+                union game_msg
+                        list world_state
+                                struct actor
+                                        Integer id
+                                        Integer type
+                                        Integer x
+                                        Integer y
+                                        Byte animation
+                                        Integer angle
+                        struct feedback
+                                list skills_cooldown
+                                        struct skill
+                                                Byte skill_type
+                                                Integer cooldown
+                                list players
+                                        Integer hp
 */
 public class Protocol {
     public static class Server {
@@ -246,13 +253,18 @@ public class Protocol {
         }
         public static class GameMsg { /*Union*/
             public WorldState worldState;
+            public Feedback feedback;
             static final byte WORLD_STATE = 0;
+            static final byte FEEDBACK = 1;
             public byte[] bytes() {
                 ByteWriter writer = new ByteWriter();
                 if (false) {;
                 } else if (worldState != null) {
                     writer.writeByte(WORLD_STATE);
                     writer.writeBytes(worldState.bytes());
+                } else if (feedback != null) {
+                    writer.writeByte(FEEDBACK);
+                    writer.writeBytes(feedback.bytes());
                 }
                 return writer.bytes();
             }
@@ -261,6 +273,10 @@ public class Protocol {
                 byte type = reader.readByte();
                 if (type == WORLD_STATE) {
                     obj.worldState = WorldState.parse(reader);
+                }
+
+                if (type == FEEDBACK) {
+                    obj.feedback = Feedback.parse(reader);
                 }
                 return obj;
             }
@@ -310,6 +326,78 @@ public class Protocol {
                 obj.y = reader.readInteger();
                 obj.animation = reader.readByte();
                 obj.angle = reader.readInteger();
+                return obj;
+            }
+        }
+        public static class Feedback { /*Struct*/
+            public SkillsCooldown skillsCooldown;
+            public Players players;
+            public byte[] bytes() {
+                ByteWriter writer = new ByteWriter();
+                writer.writeBytes(skillsCooldown.bytes());
+                writer.writeBytes(players.bytes());
+                return writer.bytes();
+            }
+            public static Feedback parse(ByteReader reader) {
+                Feedback obj = new Feedback();
+                obj.skillsCooldown = SkillsCooldown.parse(reader);
+                obj.players = Players.parse(reader);
+                return obj;
+            }
+        }
+        public static class SkillsCooldown { /*List*/
+            public ArrayList < Skill > items = new ArrayList < > ();
+            public byte[] bytes() {
+                ByteWriter writer = new ByteWriter();
+                writer.writeInt(items.size());
+                for (int i = 0; i < items.size(); ++i) {
+                    writer.writeBytes(items.get(i).bytes());
+                }
+                return writer.bytes();
+            }
+            public static SkillsCooldown parse(ByteReader reader) {
+                SkillsCooldown obj = new SkillsCooldown();
+                int size = reader.readInteger();
+                for (int i = 0; i < size; ++i) {
+                    Skill item = Skill.parse(reader);
+                    obj.items.add(item);
+                }
+                return obj;
+            }
+        }
+        public static class Skill { /*Struct*/
+            public Byte skillType;
+            public Integer cooldown;
+            public byte[] bytes() {
+                ByteWriter writer = new ByteWriter();
+                writer.writeBytes(ByteWriter.Byte2bytes(skillType));
+                writer.writeBytes(ByteWriter.Integer2bytes(cooldown));
+                return writer.bytes();
+            }
+            public static Skill parse(ByteReader reader) {
+                Skill obj = new Skill();
+                obj.skillType = reader.readByte();
+                obj.cooldown = reader.readInteger();
+                return obj;
+            }
+        }
+        public static class Players { /*List*/
+            public ArrayList < Integer > items = new ArrayList < > ();
+            public byte[] bytes() {
+                ByteWriter writer = new ByteWriter();
+                writer.writeInt(items.size());
+                for (int i = 0; i < items.size(); ++i) {
+                    writer.writeBytes(ByteWriter.Integer2bytes(items.get(i)));
+                }
+                return writer.bytes();
+            }
+            public static Players parse(ByteReader reader) {
+                Players obj = new Players();
+                int size = reader.readInteger();
+                for (int i = 0; i < size; ++i) {
+                    Integer item = reader.readInteger();
+                    obj.items.add(item);
+                }
                 return obj;
             }
         }
