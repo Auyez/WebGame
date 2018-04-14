@@ -30,7 +30,7 @@ public class Game implements Runnable {
 	private List<Actor> 												actors;
 	private List<Player> 												players;
 	private GameArena 													ga;
-	private BufferedWriter writer;
+	//private BufferedWriter writer;
 
 
     public Game(Queue<Pair<Session, Protocol.Server.GameMsg>> messages,
@@ -43,13 +43,13 @@ public class Game implements Runnable {
 		actors = new ArrayList<Actor>();
 		players = new ArrayList<Player>();
 		ga = new GameArena("map.txt");
-		String name = number + System.currentTimeMillis() + ".txt";
+		/*String name = number + System.currentTimeMillis() + ".txt";
 		System.out.println(name);
 		try {
 			writer = new BufferedWriter(new FileWriter(name, true));
 		} catch (IOException e) {
 			e.printStackTrace();
-		}
+		}*/
     }
 
 
@@ -189,7 +189,7 @@ public class Game implements Runnable {
                 message.gameMsg.worldState.items.add(a.getState());
             }
             // Write to file as replay
-            recordAsReplay();
+            //recordAsReplay();
             
             synchronized (sessions) {
 				for (Session s : sessions.keySet()) {
@@ -200,14 +200,14 @@ public class Game implements Runnable {
     }
 
 
-	private void recordAsReplay()  {
+	/*private void recordAsReplay()  {
 		try {
 			String str = "1_";
 			writer.append(str);
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
-	}
+	}*/
 
 
 	private void addPlayer(int id) {	
