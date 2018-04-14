@@ -49,10 +49,8 @@ public class Player extends Actor{
 			skills[i].update(delta);
 		
 		if (input.getActiveSkill() >= 0) {
-			if( skills[input.getActiveSkill()].use(input.getSkillTarget()) )
-				input.clrMouse();
-		} 
-		if (target != null) {
+			skills[input.getActiveSkill()].use(input.getSkillTarget());
+		} else if (target != null) {
 			Vec2 movement = Vec2.subs(position, target);
 
 			// animation

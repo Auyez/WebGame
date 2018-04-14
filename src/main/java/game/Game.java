@@ -88,6 +88,9 @@ public class Game implements Runnable {
 
 	private void update(long delta) {
 		for (Player p : players) {
+			/**
+			 * (CLASS THAT HOLDS EVENTS) CTHE.collect(p.getEvent());
+			 */
 			if( p.update_dead(delta) ) {
 				actors.add(p);
 			}
