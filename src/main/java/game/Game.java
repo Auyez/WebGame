@@ -12,6 +12,10 @@ import lobby.Protocol;
 import lobby.Protocol.Server.Input;
 import javax.websocket.Session;
 import java.awt.Rectangle;
+import java.io.BufferedWriter;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -26,17 +30,26 @@ public class Game implements Runnable {
 	private List<Actor> 												actors;
 	private List<Player> 												players;
 	private GameArena 													ga;
+	private BufferedWriter writer;
 
 
     public Game(Queue<Pair<Session, Protocol.Server.GameMsg>> messages,
                 Queue<Integer> playerDisconnectMessages,
-                Map<Session, Integer> sessions) {
+                Map<Session, Integer> sessions,
+                int number) {
         this.messages = messages;
         this.playerDisconnectMessages = playerDisconnectMessages;
         this.sessions = sessions;
 		actors = new ArrayList<Actor>();
 		players = new ArrayList<Player>();
 		ga = new GameArena("map.txt");
+		String name = number + System.currentTimeMillis() + ".txt";
+		System.out.println(name);
+		try {
+			writer = new BufferedWriter(new FileWriter(name, true));
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
     }
 
 
@@ -61,8 +74,9 @@ public class Game implements Runnable {
                 delta = frameStartTime - delta;
                 processMessages();
                 update(delta);
-                if(frameCount % 2 == 0) // kind of tick rate
+                if(frameCount % 1 == 0) { // kind of tick rate
                 	sendWorldState();
+                }
                 long frameElapsedTime = System.currentTimeMillis() - frameStartTime;
                 long frameRemainingTime = 1000/FPS - frameElapsedTime;
                 if (frameRemainingTime > 0)
@@ -165,7 +179,7 @@ public class Game implements Runnable {
 		}
 	}
 	
-    private void sendWorldState() {
+    private void sendWorldState()  {
     	if (actors.size() > 0) {
     	    Protocol.Client.ClientMsg message = new Protocol.Client.ClientMsg();
             message.gameMsg = new Protocol.Client.GameMsg();
@@ -174,7 +188,9 @@ public class Game implements Runnable {
             for (Actor a : actors) {
                 message.gameMsg.worldState.items.add(a.getState());
             }
-
+            // Write to file as replay
+            recordAsReplay();
+            
             synchronized (sessions) {
 				for (Session s : sessions.keySet()) {
 					WebSocketEndpoint.sendBinary(s, message.bytes());
@@ -182,6 +198,16 @@ public class Game implements Runnable {
 			}
     	}
     }
+
+
+	private void recordAsReplay()  {
+		try {
+			String str = "1_";
+			writer.append(str);
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+	}
 
 
 	private void addPlayer(int id) {	
