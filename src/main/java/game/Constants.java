@@ -5,6 +5,11 @@ public class Constants {
 	public static final int	GAME_WIDTH = 900;
 	public static final int	GAME_HEIGHT = 1200;
 	
+	//PLAYER
+	public static final int PLAYER_WIDTH = 20;
+	public static final int PLAYER_HEIGHT = 40;
+	public static final int PLAYER_LOWER_HEIGHT = 20;
+	public static final int PLAYER_HP = 300;
 
 	public static final int	SKILL_NUMBER = 6;
 	

@@ -25,10 +25,6 @@ import java.util.Queue;
 import java.util.Random;
 
 public class Game implements Runnable {
-	// Temporary constants, should be moved into separate class in the future
-	public static final int PLAYER_WIDTH = 20;
-	public static final int PLAYER_HEIGHT = 40;
-	public static final int PLAYER_LOWER_HEIGHT = 20;
 	
     private final Queue<Pair<Session, Protocol.Server.GameMsg>> 		messages;
     private final Queue<Integer> 								        playerDisconnectMessages;
@@ -139,7 +135,7 @@ public class Game implements Runnable {
 		int size = ga.getTileSize();
 		// This bias is needed for path-finding algorithm, because
 		// collision occurs with lower part of player, but the movement is calculated using upper part of player.
-		int dy = PLAYER_HEIGHT - PLAYER_LOWER_HEIGHT; 
+		int dy = Constants.PLAYER_HEIGHT - Constants.PLAYER_LOWER_HEIGHT; 
 		if (ga.getEntry((input.yTarget + dy) / size, input.xTarget / size) == 0) {
 
 			int x_init = (int) player.getPosition().getX() / size;
@@ -194,13 +190,13 @@ public class Game implements Runnable {
 			if(p != null) {
 				p.setPosition(x, y);
 			}else {
-				p = new Player(x, y, PLAYER_WIDTH, PLAYER_HEIGHT, PLAYER_LOWER_HEIGHT, id);
+				p = new Player(x, y, Constants.PLAYER_WIDTH, Constants.PLAYER_HEIGHT, Constants.PLAYER_LOWER_HEIGHT, id);
 				Skill Q =  new ThrowFireball(p, this) ;
 				Skill W =  new Blink(p, this);
 				p.setSkill(Q, (byte) 0);
 				p.setSkill(W, (byte) 1);
 			}
-		}while(!(	( (x + PLAYER_WIDTH) < ga.getWidth()  ) && ( (y + PLAYER_HEIGHT) < ga.getHeight() ) && (collides(p) == null)	));
+		}while(!(	( (x + Constants.PLAYER_WIDTH) < ga.getWidth()  ) && ( (y + Constants.PLAYER_HEIGHT) < ga.getHeight() ) && (collides(p) == null)	));
 		actors.add(p);
 		players.add(p);
 	}
