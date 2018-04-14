@@ -1,8 +1,6 @@
 package lobby;
 import org.apache.commons.lang3.tuple.Pair;
 import game.Game;
-import website.AuthTokens;
-
 import javax.websocket.Session;
 import java.io.IOException;
 import java.nio.ByteBuffer;
@@ -27,12 +25,8 @@ class Lobby {
 
 
     public synchronized void onMessage(Protocol.Server.LobbyCmd message, Session session) {
-        if (message.addPlayer != null && !isGameRunning()) {
-            System.out.println(message.addPlayer.playerId + " " + message.addPlayer.authToken);
-
-            //if (AuthTokens.getInstance().isValid(message.addPlayer.playerId, message.addPlayer.authToken)) {
-            addPlayer(session, message.addPlayer.playerId);
-            //}
+        if (message.addPlayerId != null && !isGameRunning()) {
+            addPlayer(session, message.addPlayerId);
         } else if (message.ready != null && isGameRunning()) {
             readyCount++;
             if (readyCount >= MAX_PLAYERS) {

@@ -1,6 +1,5 @@
 package lobby;
 
-import java.io.UnsupportedEncodingException;
 import java.nio.ByteBuffer;
 import java.util.Arrays;
 
@@ -63,19 +62,5 @@ public class ByteWriter {
         byte[] bytes = new byte[1];
         bytes[0] = x;
         return bytes;
-    }
-
-    public static byte[] String2bytes(String x) {
-        try {
-            byte[] chars = x.getBytes("UTF-8");
-            byte[] length = Integer2bytes(chars.length);
-            ByteBuffer buf = ByteBuffer.allocate(length.length + chars.length);
-            buf.put(length);
-            buf.put(chars);
-            return buf.array();
-        } catch (UnsupportedEncodingException ex) {
-            System.out.println("ByteWriter error: Can't encode strings");
-        }
-        return null;
     }
 }

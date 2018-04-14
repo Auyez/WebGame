@@ -19,9 +19,7 @@ function Lobby(lobbyIndex, parent) {
         var servermsg = new Protocol.Server.ServerMsg();
         servermsg.lobbyIndex = lobbyIndex;
         servermsg.lobbyCmd = new Protocol.Server.LobbyCmd();
-        servermsg.lobbyCmd.addPlayer = new Protocol.Server.AddPlayer();
-        servermsg.lobbyCmd.addPlayer.playerId = playerId;
-        servermsg.lobbyCmd.addPlayer.authToken = "placeholderAuthToken123123";
+        servermsg.lobbyCmd.addPlayerId = playerId;
 
         self.socket.send(servermsg.bytes());
     };
