@@ -1,6 +1,7 @@
 var FRAME_WIDTH = 32;
 var FRAME_HEIGHT = 36;
 
+
 function CreateGame(parent, socket, lobbyIndex) {
 	var game = new Phaser.Game(
 			            1200, 900, Phaser.AUTO, parent,
@@ -15,13 +16,28 @@ function CreateGame(parent, socket, lobbyIndex) {
 	var q,w,e,r;
 	var inputMessage = null;
 	var ready = false;
-
+	
     function preload() {
-        game.load.image('tile', 'game/assets/map.png');
+        //game.load.image('tile', 'game/assets/map.png');
+        
+        this.game.load.tilemap('MyTilemap', 'game/assets/map.json', null, Phaser.Tilemap.TILED_JSON);
+        this.game.load.image('tiles', 'game/assets/map.png');
+        
         ActorManager.preload(game);
     }
     
     function create() {
+        // Load the map.
+    	var Background = game.add.group();
+    	var SpriteLevel = game.add.group();
+    	var Upper = game.add.group();
+        var map = this.game.add.tilemap('MyTilemap');
+        map.addTilesetImage('map', 'tiles');
+        Upper.add( map.createLayer('Upper'));
+        Background.add(map.createLayer('Background'));
+        
+    	ready = true;
+    	
         var servermsg = new Protocol.Server.ServerMsg();
 		servermsg.lobbyIndex = lobbyIndex;
 		servermsg.lobbyCmd = new Protocol.Server.LobbyCmd();
@@ -33,7 +49,6 @@ function CreateGame(parent, socket, lobbyIndex) {
         inputMessage.lobbyIndex = lobbyIndex;
         inputMessage.lobbyCmd = new Protocol.Server.LobbyCmd();
         inputMessage.lobbyCmd.gameMsg = new Protocol.Server.GameMsg();
-        // inputMessage.lobbyCmd.gameMsg.input = new Protocol.Server.Input();
         
 
         cursors = game.input.keyboard.createCursorKeys();
@@ -46,51 +61,6 @@ function CreateGame(parent, socket, lobbyIndex) {
 		e.onDown.add(function(){spell(2)});
 		r.onDown.add(function(){spell(3)});
     	game.input.onDown.add(move, this);
-    	
-		///////////////////////
-    	var map = [
-			[1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1],
-			[1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1],
-			[1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1],
-			[1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,1], 
-			[1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,1], 
-			[1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,1], 
-			[1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,1], 
-			[1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,1], 
-			[1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,1], 
-			[1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,1], 
-			[1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,1], 
-			[1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,1,1,1,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,1], 
-			[1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,1,1,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,1], 
-			[1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,1], 
-			[1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,1], 
-			[1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,1], 
-			[1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,1], 
-			[1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,1], 
-			[1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,1], 
-			[1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,1],
-			[1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1],
-			[1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1],
-			[1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1],
-			[1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1],
-			[1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1],
-			[1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1],
-			[1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1],
-			[1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1],
-			[1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1],
-			[1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1]
-    	];
-    	
-    	for (var i = 0; i < 30; i++){
-    		for(var j = 0; j < 40; j++){
-    			if(map[i][j] == 1){
-    				var test = game.add.sprite( (j % 40) * 30, (i % 30) * 30, 'tile' );
-    			}
-    		}
-    	}
-    	//////////////////////////////////////////////////
-
-    	ready = true;
     }
 
     function update() {
@@ -194,7 +164,9 @@ function Actor(game, type) {
 
     this.sprite = game.add.sprite(0, 0, Actor.getSpriteKey(type));
     this.type = type;
-
+    //console.log(game)
+    //SpriteLevel.add(this.sprite);
+    game.world.children[1].add(this.sprite);
     var framesPerAnimation = 3;
     var numAnimations = this.sprite.animations.frameTotal / framesPerAnimation;
     for (var i = 0; i < numAnimations; ++i) {

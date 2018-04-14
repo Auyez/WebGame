@@ -69,7 +69,6 @@ public class Player extends Actor{
 			else
 				setAnimation(ANIM_LEFT);
 			// animation
-			
 			movement.scalar( -(speed * (delta/1000.0f))/movement.getMagnitude() );
 			addPosition(movement);
 			updated_movement = movement;

@@ -61,7 +61,7 @@ public class Game implements Runnable {
                 delta = frameStartTime - delta;
                 processMessages();
                 update(delta);
-                if(frameCount % 1 == 0) // kind of tick rate
+                if(frameCount % 2 == 0) // kind of tick rate
                 	sendWorldState();
                 long frameElapsedTime = System.currentTimeMillis() - frameStartTime;
                 long frameRemainingTime = 1000/FPS - frameElapsedTime;
