@@ -200,7 +200,7 @@ public class Game implements Runnable {
 		actors.add(p);
 		players.add(p);
 	}
-
+	
 
 	//returns -2 if no collision happens, or -1 if actor collides with arena, otherwise returns id
 	public Actor collides(Actor a) {	
@@ -247,5 +247,7 @@ public class Game implements Runnable {
 				return p;
 		return null;
 	}
+	
+	
 	public GameArena getArena() {return ga;}
 }

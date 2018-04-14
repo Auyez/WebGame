@@ -17,20 +17,22 @@ public class Blink implements Skill{
 		isActivated = false;
 	}
 	@Override
-	public void use(Vec2 target) {
+	//target - center of the position where we want to blink
+	public boolean use(Vec2 target) {
 		if(!isActivated) {
 			isActivated = true;
-			target.add(new Vec2(-caster.getHitbox().width/2.0f, -caster.getHitbox().height/2.0f));
-			Vec2 move = Vec2.subs(target, caster.getPosition());
+			target.add(new Vec2(-caster.getHitbox().width/2.0f, -caster.getHitbox().height/2.0f)); //calculate true position of target
+			Vec2 move = Vec2.subs(target, caster.getPosition()); //vector from player to target
 			if (move.getMagnitude() > Constants.BLINK_RANGE)
 				move.scalar(Constants.BLINK_RANGE/move.getMagnitude());
 			caster.addPosition(move);
-			if (game.collides(caster) != null) {
+			if (game.collides(caster) != null) { //checking 
 				move.scalar(-1.0f);
 				caster.addPosition(move);
 				isActivated = false;
 			}
 		}
+		return isActivated;
 	}
 	@Override
 	public void update(long delta) {

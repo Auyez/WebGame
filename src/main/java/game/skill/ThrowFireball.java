@@ -19,12 +19,13 @@ public class ThrowFireball implements Skill{
 	}
 	
 	@Override
-	public void use(Vec2 target) {
+	public boolean use(Vec2 target) {
 		if (!isActivated) {
 			isActivated = true;
-			Fireball f = new Fireball(caster.getCenter(), target, 30, game.getFreeId(), caster.getId());
+			Fireball f = new Fireball(caster.getCenter(), target, Constants.FIREBALL_SIZE, game.getFreeId(), caster.getId());
 			game.addActor(f);
 		}
+		return isActivated;
 	}
 	
 	public void update(long delta) {

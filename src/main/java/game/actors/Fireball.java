@@ -11,8 +11,9 @@ public class Fireball extends Actor{
 	
 	public Fireball(Vec2 start, Vec2 target, int size, int id, int parentId) {
 		super(start.getX(), start.getY(), size, size, id);
-		this.direction = Vec2.subs(target, position);
-		this.direction.scalar(1.0f/this.direction.getMagnitude());
+		target.add(new Vec2(-getHitbox().width/2.0f, -getHitbox().height/2.0f)); //adjust target such that center of fireball would be on center
+		this.direction = Vec2.subs(target, position); 
+		this.direction.scalar(1.0f/this.direction.getMagnitude()); //calculate direction vector
 		this.parentId = parentId;
 		traveled = 0;
 		speed = Constants.FIREBALL_SPEED;
@@ -30,9 +31,12 @@ public class Fireball extends Actor{
 
 	@Override
 	public void resolve_collision(long delta, Actor a) {
-		if (a != null && !a.isDestroyed()) {
-			if (a.getId() != parentId)
+		if (a != null && !isDestroyed()) {
+			if (a.getId() != parentId) {
+				if(a.getType() == Actor.FIREBALL)
+					a.destroy();
 				destroy();
+			}
 		}
 	}
 

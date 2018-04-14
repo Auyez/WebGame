@@ -14,11 +14,12 @@ public class Player extends Actor{
 	private static final byte ANIM_LEFT = 3;
 	private static final byte ANIM_IDLE = 4;
 	
-	private int hp = Constants.PLAYER_HP;
-	private Input input;
-	private int speed;
-	private Vec2 updated_movement;
-	private Skill skills[];
+	private int 		hp;
+	private boolean 	isDead;
+	private Input 		input;
+	private int 		speed;
+	private Vec2 		updated_movement;
+	private Skill 		skills[];
 
 
 	public Player(float x, float y, int w, int h, int lh, int ID) {
@@ -26,6 +27,7 @@ public class Player extends Actor{
 		input = new Input();
 		speed = 200;
 		skills = new Skill[Constants.SKILL_NUMBER];
+		hp = Constants.PLAYER_HP;
 	}
 	
 	public void update(long delta) {
@@ -36,9 +38,10 @@ public class Player extends Actor{
 			skills[i].update(delta);
 		
 		if (input.getActiveSkill() >= 0) {
-			input.clrMouse();
-			skills[input.getActiveSkill()].use(input.getSkillTarget());
-		} else if (target != null) {
+			if( skills[input.getActiveSkill()].use(input.getSkillTarget()) )
+				input.clrMouse();
+		} 
+		if (target != null) {
 			Vec2 movement = Vec2.subs(position, target);
 
 			// animation
