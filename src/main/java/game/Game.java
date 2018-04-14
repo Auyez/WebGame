@@ -7,6 +7,7 @@ import org.apache.commons.lang3.tuple.Pair;
 import game.actors.Actor;
 import game.actors.Player;
 import game.actors.TileActor;
+import game.skill.Blink;
 import game.skill.Skill;
 import game.skill.ThrowFireball;
 import lobby.Protocol;
@@ -85,7 +86,6 @@ public class Game implements Runnable {
             }
         } catch (InterruptedException ex) {
             System.out.println("Game::run exception");
-            //ex.printStackTrace();
         }
     }
 
@@ -119,6 +119,7 @@ public class Game implements Runnable {
 		        // Movement input
 		        
 		        if (gameMsg.skillInput != null) {
+		        	System.out.println("Detected Skill input " + gameMsg.skillInput.skillType);
 		        	player.getInput().activateSkill(gameMsg.skillInput.skillType);
 		        	player.getInput().setSkillTarget(new Vec2(gameMsg.skillInput.x, gameMsg.skillInput.y));
 		        } else if (gameMsg.input != null) {
@@ -195,7 +196,9 @@ public class Game implements Runnable {
 			}else {
 				p = new Player(x, y, PLAYER_WIDTH, PLAYER_HEIGHT, PLAYER_LOWER_HEIGHT, id);
 				Skill Q =  new ThrowFireball(p, this) ;
+				Skill W =  new Blink(p, this);
 				p.setSkill(Q, (byte) 0);
+				p.setSkill(W, (byte) 1);
 			}
 		}while(!(	( (x + PLAYER_WIDTH) < ga.getWidth()  ) && ( (y + PLAYER_HEIGHT) < ga.getHeight() ) && (collides(p) == null)	));
 		actors.add(p);

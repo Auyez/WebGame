@@ -15,7 +15,7 @@ public class ThrowFireball implements Skill{
 	
 	@Override
 	public void use(Vec2 target) {
-		Fireball f = new Fireball(caster.getPosition(), target, 30, game.getFreeId(), caster.getId());
+		Fireball f = new Fireball(caster.getCenter(), target, 30, game.getFreeId(), caster.getId());
 		game.addActor(f);
 	}
 }

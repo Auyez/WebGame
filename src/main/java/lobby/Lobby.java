@@ -51,11 +51,7 @@ class Lobby {
                     synchronized (gamePlayerDisconnectMessages) {
                         gamePlayerDisconnectMessages.add(id);
                     }
-                    //System.out.println(id + " onClose3");
-
-                    // clients will remove the player by noticing that it is not present in worldstate
                 }
-                //System.out.println(id + " onClose5");
             }
         }
     }

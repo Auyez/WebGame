@@ -11,8 +11,8 @@ function CreateGame(parent, socket, lobbyIndex) {
 			            }
 		        	);
 	var actorManager = new ActorManager(game);
-    var cursors = null;
-	var q = null;
+    var cursors;
+	var q,w,e,r;
 	var inputMessage = null;
 	var ready = false;
 
@@ -37,10 +37,16 @@ function CreateGame(parent, socket, lobbyIndex) {
         
 
         cursors = game.input.keyboard.createCursorKeys();
-		q = game.input.keyboard.addKey(Phaser.Keyboard.Q); //.onDown .onPress
-		//q.onDown.add(spellOne, )
-		
-		
+		q = game.input.keyboard.addKey(Phaser.Keyboard.Q);
+		w = game.input.keyboard.addKey(Phaser.Keyboard.W);
+		e = game.input.keyboard.addKey(Phaser.Keyboard.E);
+		r = game.input.keyboard.addKey(Phaser.Keyboard.R);
+		q.onDown.add(function(){spell(0)});
+		w.onDown.add(function(){spell(1)});
+		e.onDown.add(function(){spell(2)});
+		r.onDown.add(function(){spell(3)});
+    	game.input.onDown.add(move, this);
+    	
 		///////////////////////
     	var map = [
 			[1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1],
@@ -88,25 +94,19 @@ function CreateGame(parent, socket, lobbyIndex) {
     }
 
     function update() {
-    	//
-    	q.onDown.add(spellQ, this);
-    	game.input.onDown.add(move, this);    	
     	actorManager.update();
     }
     
-    function spellQ() {
-    	// set input null
+    function spell(item) {
     	inputMessage.lobbyCmd.gameMsg.input = null;
     	inputMessage.lobbyCmd.gameMsg.skillInput = new Protocol.Server.SkillInput();
     	inputMessage.lobbyCmd.gameMsg.skillInput.x = game.input.x;
     	inputMessage.lobbyCmd.gameMsg.skillInput.y = game.input.y;
-    	inputMessage.lobbyCmd.gameMsg.skillInput.skill_type = 0;
+    	inputMessage.lobbyCmd.gameMsg.skillInput.skillType = item;
     	socket.send(inputMessage.bytes());
     }
     
     function move() {
-    	//console.log(game.input.x);
-    	//console.log(game.input.y);
     	inputMessage.lobbyCmd.gameMsg.skillInput = null;
     	inputMessage.lobbyCmd.gameMsg.input = new Protocol.Server.Input();
     	inputMessage.lobbyCmd.gameMsg.input.xTarget = game.input.x;

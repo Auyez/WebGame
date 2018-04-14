@@ -39,6 +39,10 @@ public abstract class Actor{
 		this.destroyed = false;
 	}
 	
+	public Vec2 getCenter() {
+		return new Vec2(position.getX() + hitbox.width/2.0f, position.getY() + hitbox.height/2.0f );
+	}
+	
 	public void setPosition(int x, int y) {
 		position.set(x, y);
 		hitbox.setLocation(x, y);
