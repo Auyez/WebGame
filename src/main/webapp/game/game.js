@@ -88,8 +88,8 @@ function CreateGame(parent, socket, lobbyIndex) {
         if (!ready) {
             console.log("not booted");
         }
-        if (gameMsg.worldState != null && ready) {
-            var actorsMsg = gameMsg.worldState.items;
+        if (gameMsg.worldState.actors != null && ready) {
+            var actorsMsg = gameMsg.worldState.actors.items;
             actorManager.onmessage(actorsMsg);
         }
     }

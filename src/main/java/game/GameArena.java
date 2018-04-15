@@ -139,12 +139,6 @@ public class GameArena {
 			check = check.getParent();
 		}
 		turns.add(target.getParent().convert());
-		/*
-		for (int i = 0; i < turns.size() - 1; i++) {
-			turns.get(i).setParent(turns.get(i + 1));
-		}
-		turns.get(turns.size() - 1).setParent(null);
-		*/
 		
 		return turns;
 	}
