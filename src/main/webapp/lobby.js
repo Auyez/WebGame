@@ -49,11 +49,12 @@ function Lobby(lobbyIndex, parent) {
 
     self.socket.onclose = function(event) {
         console.log('onclose::' + JSON.stringify(event, null, 4));
-        // go back to main page
+        location.href = "index.html";
     };
 
     self.socket.onerror = function(event) {
         console.log('onerror::' + JSON.stringify(event, null, 4));
+        location.href = "index.html";
     };
 
 

@@ -29,8 +29,8 @@ function CreateGame(parent, socket, lobbyIndex) {
     function create() {
         // Load the map.
     	var Background = game.add.group();
-    	var SpriteLevel = game.add.group();
     	var Upper = game.add.group();
+    	var SpriteLevel = game.add.group();
         var map = this.game.add.tilemap('MyTilemap');
         map.addTilesetImage('map', 'tiles');
         Upper.add( map.createLayer('Upper'));
@@ -145,13 +145,27 @@ function ActorManager(game) {
     }
 }
 
+
+ActorManager.type2imagenames = {
+    0 : ['Sylv_debug.png'],
+    1 : ['fireball_debug.png']
+}
+
+/*
+ActorManager.type2imagenames = {
+    0 : ['Char.png', 'Sylv.png', 'Char2.png'],
+    1 : ['fireball.png']
+}*/
+
 ActorManager.preload = function(game) {
-    var types = [0, 1];
-    for (var i in types) {
-        var type = types[i];
-        game.load.spritesheet(  Actor.getSpriteKey(type),
-                                'game/assets/' + Actor.getSpriteKey(type) + '.png',
-                                FRAME_WIDTH, FRAME_HEIGHT);
+    for (var type in ActorManager.type2imagenames) {
+        var imagenames = ActorManager.type2imagenames[type];
+        for (var i in imagenames) {
+            var name = imagenames[i];
+            game.load.spritesheet(  name,
+                                    'game/assets/' + name,
+                                    FRAME_WIDTH, FRAME_HEIGHT);
+        }
     }
 }
 
@@ -162,7 +176,9 @@ ActorManager.preload = function(game) {
 // Add actor types to types array in ActorManager.preload()
 function Actor(game, type) {
 
-    this.sprite = game.add.sprite(0, 0, Actor.getSpriteKey(type));
+    this.sprite = game.add.sprite(0, 0, Actor.getRandomSpriteKey(type));
+    this.sprite.anchor.x = 0.5;
+    this.sprite.anchor.y = 0.5; // position by center, not top left corner
     this.type = type;
     //console.log(game)
     //SpriteLevel.add(this.sprite);
@@ -194,6 +210,8 @@ function Actor(game, type) {
     }
 }
 
-Actor.getSpriteKey = function(type) {
-    return "actor" + type;
+Actor.getRandomSpriteKey = function(type) {
+    var imagenames = ActorManager.type2imagenames[type];
+    var name = imagenames[Math.floor(Math.random() * imagenames.length)];
+    return name;
 }
