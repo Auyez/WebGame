@@ -20,14 +20,30 @@
             lobbyList.empty();
 
             for(var i = 0; i < numLobbies; i++) {
-                var item = '<li> <button onlick="joinLobby(' + i + ')"> Lobby' + i + '</button> </li>';
+                var item = '<li> <button onclick="joinLobby(' + i + ')"> Lobby' + i + '</button> </li>';
                 lobbyList.append(item);
             }
         }
 
         function joinLobby(lobbyIndex) {
+            // set lobbyIndex, userId, and equipped skills before joining
             sessionStorage.setItem('lobbyIndex', lobbyIndex);
-            location.href = 'lobby.html';
+
+            var username = sessionStorage.getItem('username');
+            $.get(`services/user/user_id?username=${username}`)
+            .done(function(data) {
+                    sessionStorage.setItem('user_id', data);
+                }
+            )
+            .done(function() {
+                $.get(`services/user/skill_ids?username=${username}`)
+                .done(function(data) {
+                    sessionStorage.setItem('skill_ids', data);
+                    location.href = 'lobby.html';
+                });
+            });
+
+
         }
 
         function logout() {

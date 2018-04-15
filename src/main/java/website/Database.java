@@ -35,7 +35,7 @@ public class Database {
         if (result.next()) {
             return result.getString(1);
         }
-        throw new SQLException();
+        throw new SQLException("no username found with such user_id");
     }
 
     public int getUserId(String username)

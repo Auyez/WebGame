@@ -142,13 +142,13 @@
                 })
                 .done(function(){
                     $.get(`services/user/statistics?username=${username}`,
-                    function(data){
-                        refreshStatistics(data);
-                    },
-                    function(){
-                        messagebox.html('error retrieving statistics');
-                    },
-                    'json'
+                        function(data){
+                            refreshStatistics(data);
+                        },
+                        function(){
+                            messagebox.html('error retrieving statistics');
+                        },
+                        'json'
                     )
                 })
             });
