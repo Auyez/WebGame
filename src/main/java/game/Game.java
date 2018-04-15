@@ -175,7 +175,7 @@ public class Game implements Runnable {
 		}
 	}
 	
-    private synchronized void sendWorldState()  {
+    private void sendWorldState()  {
     	if (actors.size() > 0) {
     	    Protocol.Client.ClientMsg message = new Protocol.Client.ClientMsg();
             message.gameMsg = new Protocol.Client.GameMsg();
