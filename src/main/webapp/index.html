@@ -20,22 +20,28 @@
                 sessionStorage.setItem('user_id', data);
             }
         );
+        
 
+        function fillLobbyList(numLobbies) {
+            var lobbyList = document.getElementById('lobbyList');
 
-        // fill the page
-        var lobbyList = document.getElementById('lobbyList');
-        var numLobbies = 4;
+            for(var i = 0; i < numLobbies; i++) {
+                var item = document.createElement('li');
+                var buttonName = document.createTextNode('Lobby' + i);
+                var button = document.createElement('button');
+                button.setAttribute('onclick', 'joinLobby(' + i + ')');
+                button.appendChild(buttonName);
+                item.appendChild(button);
 
-        for(var i = 0; i < numLobbies; i++) {
-            var item = document.createElement('li');
-            var buttonName = document.createTextNode('Lobby' + i);
-            var button = document.createElement('button');
-            button.setAttribute('onclick', 'joinLobby(' + i + ')');
-            button.appendChild(buttonName);
-            item.appendChild(button);
-
-            lobbyList.appendChild(item);
+                lobbyList.appendChild(item);
+            }
         }
+        $.get('services/lobbylist/num_lobbies',
+            function (data) {
+                fillLobbyList(parseInt(data));
+            }
+        );
+
 
         function joinLobby(lobbyIndex) {
             sessionStorage.setItem('lobbyIndex', lobbyIndex);

@@ -1,7 +1,7 @@
 package lobby;
 import java.util.ArrayList;
 
-class LobbyList {
+public class LobbyList {
     private static ArrayList<Lobby> lobbies;
 
     public static ArrayList<Lobby> getLobbies() {
