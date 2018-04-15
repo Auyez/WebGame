@@ -30,6 +30,8 @@ public class Blink implements Skill{
 				move.scalar(-1.0f);
 				caster.addPosition(move);
 				isActivated = false;
+			} else {
+				caster.getInput().clrMouse();
 			}
 		}
 		return isActivated;

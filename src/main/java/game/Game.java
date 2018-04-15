@@ -12,10 +12,6 @@ import lobby.Protocol;
 import lobby.Protocol.Server.Input;
 import javax.websocket.Session;
 import java.awt.Rectangle;
-import java.io.BufferedWriter;
-import java.io.FileWriter;
-import java.io.IOException;
-import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -42,14 +38,7 @@ public class Game implements Runnable {
         this.sessions = sessions;
 		actors = new ArrayList<Actor>();
 		players = new ArrayList<Player>();
-		ga = new GameArena("map.txt");
-		/*String name = number + System.currentTimeMillis() + ".txt";
-		System.out.println(name);
-		try {
-			writer = new BufferedWriter(new FileWriter(name, true));
-		} catch (IOException e) {
-			e.printStackTrace();
-		}*/
+		ga = new GameArena("map");
     }
 
 
@@ -67,7 +56,6 @@ public class Game implements Runnable {
 					addPlayer(id);
 				}
 			}
-
             while (running) {
             	delta = frameStartTime;
                 frameStartTime = System.currentTimeMillis(); // TODO check whether Java optimizes this or not
