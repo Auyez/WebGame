@@ -3,14 +3,10 @@ package website;
 import java.math.BigInteger;
 import java.security.SecureRandom;
 import java.sql.SQLException;
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Random;
 
 public class AuthTokens {
-    private static boolean DEBUGUSER = true;
-
     private Map<String, String> usernameTokens = new HashMap<>();
     private SecureRandom random = new SecureRandom();
 
@@ -37,7 +33,7 @@ public class AuthTokens {
 
     public boolean isValid(int userId, String token) {
         try {
-            String username = Database.getUsername(userId);
+            String username = Database.getInstance().getUsername(userId);
             return isValid(username, token);
         } catch (SQLException ex) {
             return false;
@@ -52,13 +48,5 @@ public class AuthTokens {
     }
 
     private AuthTokens() {
-        if (DEBUGUSER) {
-            usernameTokens.put("debugname", "debugtoken");
-            try {
-                Database.insertUser("debugname", "debugpass");
-            } catch (SQLException ex) {
-
-            }
-        }
     }
 }

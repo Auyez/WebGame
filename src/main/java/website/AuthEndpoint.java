@@ -15,9 +15,13 @@ public class AuthEndpoint {
     public Response authenticateUser(@FormParam("username") String username,
                                      @FormParam("password") String password) {
         System.out.println(username + " " + password);
-        if (!isValid(username, password)) {
-            System.out.println(username + " " + password + " is not valid");
-            return Response.status(Response.Status.UNAUTHORIZED).build();
+        try {
+            if (!isValid(username, password)) {
+                System.out.println(username + " " + password + " is not valid");
+                return Response.status(Response.Status.UNAUTHORIZED).build();
+            }
+        } catch (SQLException ex) {
+            return Response.serverError().build();
         }
 
         String token = AuthTokens.getInstance().newToken(username);
@@ -35,12 +39,13 @@ public class AuthEndpoint {
                                  @FormParam("password") String password) {
         System.out.println("register " + username + " " + password);
 
-        if (Database.usernameTaken(username)) {
+        if (Database.getInstance().usernameTaken(username)) {
             return Response.status(Response.Status.CONFLICT).build();
         }
 
         try {
-            Database.insertUser(username, hash(password));
+            String salt = generateSalt();
+            Database.getInstance().insertUser(username, hash(password + salt), salt);
         } catch (SQLException ex) {
             return Response.serverError().build();
         }
@@ -48,12 +53,17 @@ public class AuthEndpoint {
         return Response.ok("").build();
     }
 
-    public boolean isValid(String username, String password) {
-        String password_hash = Database.getUserPasswordHash(username);
-        return hash(password).equals(password_hash);
+    private boolean isValid(String username, String password) throws SQLException {
+        String salt = Database.getInstance().getPasswordSalt(username);
+        String passwordHash = Database.getInstance().getPasswordHash(username);
+        return hash(password + salt).equals(passwordHash);
     }
 
     public String hash(String password) {
         return password;
+    }
+
+    private String generateSalt() {
+        return "";
     }
 }

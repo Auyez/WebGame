@@ -10,38 +10,20 @@
 
     <br/>
 
+    <a href="profile.html">Profile</a>
+    <br/>
     <button type="button" onclick="logout()">Logout</button>
 
     <script>
-        // retrieve user id
-        var username = sessionStorage.getItem('username');
-        $.get('services/user/user_id?username=' + username,
-            function (data) {
-                sessionStorage.setItem('user_id', data);
-            }
-        );
-        
-
-        function fillLobbyList(numLobbies) {
-            var lobbyList = document.getElementById('lobbyList');
+        function refreshLobbyList(numLobbies) {
+            var lobbyList = $('#lobbyList');
+            lobbyList.empty();
 
             for(var i = 0; i < numLobbies; i++) {
-                var item = document.createElement('li');
-                var buttonName = document.createTextNode('Lobby' + i);
-                var button = document.createElement('button');
-                button.setAttribute('onclick', 'joinLobby(' + i + ')');
-                button.appendChild(buttonName);
-                item.appendChild(button);
-
-                lobbyList.appendChild(item);
+                var item = '<li> <button onlick="joinLobby(' + i + ')"> Lobby' + i + '</button> </li>';
+                lobbyList.append(item);
             }
         }
-        $.get('services/lobbylist/num_lobbies',
-            function (data) {
-                fillLobbyList(parseInt(data));
-            }
-        );
-
 
         function joinLobby(lobbyIndex) {
             sessionStorage.setItem('lobbyIndex', lobbyIndex);
@@ -68,6 +50,15 @@
                 dataType: 'text'
             });
         }
+
+        $(document).ready(function() {
+            $.get('services/lobbylist/num_lobbies',
+                function (data) {
+                    refreshLobbyList(parseInt(data));
+                }
+            );
+
+        });
     </script>
 </body>
 </html>

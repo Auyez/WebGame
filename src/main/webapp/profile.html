@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Profile</title>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+</head>
+<body>
+    <a href="index.html">Main</a>
+    <p id="usernameHtml"></p>
+    <table id="statisticsHtml" style="border: 1px solid black;"></table>
+
+    <div id="skillmenu">
+        <ul id="equippedHtml"></ul>
+        <ul id="mySkillsHtml"></ul>
+    </div>
+
+    <button onclick="save()">Save</button>
+
+    <p id="messagebox"></p>
+
+    <script>
+        var messagebox = $('#messagebox');
+        var skillLimit;
+
+        var equipped;
+        var mySkills;
+        var skillIdsNames;
+
+        var username = sessionStorage.getItem('username');
+
+        function refreshSkillMenu() {
+            var equippedHtml = $('#equippedHtml');
+            var mySkillsHtml = $('#mySkillsHtml');
+            equippedHtml.empty();
+            mySkillsHtml.empty();
+            equippedHtml.append('Equipped');
+            mySkillsHtml.append('My Skills');
+
+            equipped.sort();
+            mySkills.sort();
+
+            for(var i in equipped) {
+                var id = equipped[i];
+                var name = skillIdsNames[id];
+                var item = `<li><button onclick="unequip(${id}); refreshSkillMenu();">${name}</button></li>`;
+                equippedHtml.append(item);
+            }
+
+            for(var i in mySkills) {
+                var id = mySkills[i];
+                var name = skillIdsNames[id];
+                var item = `<li><button onclick="equip(${id}); refreshSkillMenu();">${name}</button></li>`;
+                mySkillsHtml.append(item);
+            }
+        }
+
+        function equip(item) {
+            if (equipped.length < skillLimit) {
+                move(mySkills, equipped, item);
+                messagebox.empty();
+            } else {
+                messagebox.html('skill limit reached');
+            }
+        }
+
+        function unequip(item) {
+            move(equipped, mySkills, item);
+            messagebox.empty();
+        }
+
+        function move(list1, list2, item) {
+            var i = list1.indexOf(item);
+            list1.splice(i, 1);
+            list2.push(item);
+        }
+
+        function save() {
+            var msg = {username: sessionStorage.getItem('username'),skillIds: equipped};
+            $.ajax({
+                type: 'POST',
+                url: 'services/user/set_skills',
+                data: JSON.stringify(msg),
+                success: function(){messagebox.html('saved')},
+                error: function(){messagebox.html('error')},
+                dataType: 'text',
+                contentType: 'application/json'
+            });
+        }
+
+        function refreshStatistics(statistics) {
+            var statisticsHtml = $('#statisticsHtml');
+            statisticsHtml.append('<tr><th>skill</th><th>damage done</th><th>#used</th></tr>');
+
+            console.log(statistics);
+            for(var i in statistics) {
+                var usage = statistics[i];
+                var skillName = skillIdsNames[usage.skillId];
+                var item = `<tr><th>${skillName}</th><th>${usage.damage}</th><th>${usage.count}</th></tr>`;
+                statisticsHtml.append(item);
+            }
+        }
+
+        $(document).ready(function() {
+            var username = sessionStorage.getItem('username');
+            var usernameHtml = $('#usernameHtml');
+            usernameHtml.html(`username : ${username}`);
+
+            $.get('services/user/skill_limit',
+                function(data) {
+                    skillLimit = parseInt(data);
+                }
+            )
+
+            // retrieves user's skills' ids
+            // then retrieves skill_id:name mapping for all skills
+            // then retrieves statistics
+            // im sorry. we had a deadline
+            $.get(`services/user/skill_ids?username=${username}`, null, null, 'json')
+            .done(function(data) {
+                equipped = data;
+            })
+            .fail(function(){
+                messagebox.html('error retrieving skill_ids');
+            })
+            .done(function() {
+                $.get('services/user/skill_ids_names', null, null, 'json')
+                .done(function(data) {
+                    skillIdsNames = data;
+                    mySkills = [];
+
+                    for (var id in skillIdsNames) {
+                        var id = parseInt(id);
+                        if (!equipped.includes(id))
+                            mySkills.push(id);
+                    }
+
+                    refreshSkillMenu();
+                })
+                .fail(function(){
+                    messagebox.html('error retrieving skill_ids_names');
+                })
+                .done(function(){
+                    $.get(`services/user/statistics?username=${username}`,
+                    function(data){
+                        refreshStatistics(data);
+                    },
+                    function(){
+                        messagebox.html('error retrieving statistics');
+                    },
+                    'json'
+                    )
+                })
+            });
+
+
+        });
+    </script>
+</body>
+</html>
