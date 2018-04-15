@@ -70,7 +70,6 @@ public abstract class Actor{
 		state.y = Math.round(getPosition().getY());
 		state.animation = getAnimation();
 		state.angle = getAngle();
-
 		return state;
 	}
 	public abstract int getType();

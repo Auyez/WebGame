@@ -1,9 +1,12 @@
 package game.actors;
 
+import java.util.ArrayList;
+
 import game.Constants;
 import game.Input;
 import game.Vec2;
 import game.skill.Skill;
+import lobby.Protocol;
 
 public class Player extends Actor{
 	private static final byte ANIM_UP = 0;
@@ -117,4 +120,15 @@ public class Player extends Actor{
 	public int getHp() {return hp;}
 	public Input getInput() {return input;}
 	public int getType() {return Actor.PLAYER;}
+	
+	public ArrayList<lobby.Protocol.Client.Skill> getCooldowns() {
+		ArrayList<Protocol.Client.Skill> skills_cooldowns = new ArrayList<Protocol.Client.Skill>();
+		for (byte i = 0; i < Constants.SKILL_NUMBER; i++) {
+			Protocol.Client.Skill cd = new Protocol.Client.Skill();
+			cd.skillType = i;
+			cd.cooldown = (int) skills[i].cooldown();
+			skills_cooldowns.add(cd);
+		}
+		return skills_cooldowns;
+	}
 }

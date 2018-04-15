@@ -15,7 +15,7 @@ public class Constants {
 	public static final int PLAYER_HP = 300;
 	public static final int PLAYER_DEATH_TIME = 10;
 
-	public static final int	SKILL_NUMBER = 6;
+	public static final int	SKILL_NUMBER = 2;
 	
 	
 	//Fireball

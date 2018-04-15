@@ -118,8 +118,8 @@ function CreateGame(parent, socket, lobbyIndex) {
         if (!ready) {
             console.log("not booted");
         }
-        if (gameMsg.worldState != null && ready) {
-            var actorsMsg = gameMsg.worldState.items;
+        if (gameMsg.worldState.actors != null && ready) {
+            var actorsMsg = gameMsg.worldState.actors.items;
             actorManager.onmessage(actorsMsg);
         }
     }
@@ -135,7 +135,6 @@ function CreateGame(parent, socket, lobbyIndex) {
 
 function ActorManager(game) {
     this.actors = {} // id -> actor
-
     this.onmessage = function(actorsMsg) {
         var idsEncountered = [];
 

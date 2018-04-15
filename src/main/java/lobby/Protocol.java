@@ -61,21 +61,21 @@ namespace Client
         union client_msg
                 struct start_game
                 union game_msg
-                        list world_state
-                                struct actor
-                                        Integer id
-                                        Integer type
-                                        Integer x
-                                        Integer y
-                                        Byte animation
-                                        Integer angle
-                        struct feedback
+                        struct world_state
+                                list actors
+                                        struct actor
+                                                Integer id
+                                                Integer type
+                                                Integer x
+                                                Integer y
+                                                Byte animation
+                                                Integer angle
+                                list players
+                                        Integer hp
                                 list skills_cooldown
                                         struct skill
                                                 Byte skill_type
                                                 Integer cooldown
-                                list players
-                                        Integer hp
 */
 public class Protocol {
     public static class Server {
@@ -253,18 +253,13 @@ public class Protocol {
         }
         public static class GameMsg { /*Union*/
             public WorldState worldState;
-            public Feedback feedback;
             static final byte WORLD_STATE = 0;
-            static final byte FEEDBACK = 1;
             public byte[] bytes() {
                 ByteWriter writer = new ByteWriter();
                 if (false) {;
                 } else if (worldState != null) {
                     writer.writeByte(WORLD_STATE);
                     writer.writeBytes(worldState.bytes());
-                } else if (feedback != null) {
-                    writer.writeByte(FEEDBACK);
-                    writer.writeBytes(feedback.bytes());
                 }
                 return writer.bytes();
             }
@@ -274,14 +269,29 @@ public class Protocol {
                 if (type == WORLD_STATE) {
                     obj.worldState = WorldState.parse(reader);
                 }
-
-                if (type == FEEDBACK) {
-                    obj.feedback = Feedback.parse(reader);
-                }
                 return obj;
             }
         }
-        public static class WorldState { /*List*/
+        public static class WorldState { /*Struct*/
+            public Actors actors;
+            public Players players;
+            public SkillsCooldown skillsCooldown;
+            public byte[] bytes() {
+                ByteWriter writer = new ByteWriter();
+                writer.writeBytes(actors.bytes());
+                writer.writeBytes(players.bytes());
+                writer.writeBytes(skillsCooldown.bytes());
+                return writer.bytes();
+            }
+            public static WorldState parse(ByteReader reader) {
+                WorldState obj = new WorldState();
+                obj.actors = Actors.parse(reader);
+                obj.players = Players.parse(reader);
+                obj.skillsCooldown = SkillsCooldown.parse(reader);
+                return obj;
+            }
+        }
+        public static class Actors { /*List*/
             public ArrayList < Actor > items = new ArrayList < > ();
             public byte[] bytes() {
                 ByteWriter writer = new ByteWriter();
@@ -291,8 +301,8 @@ public class Protocol {
                 }
                 return writer.bytes();
             }
-            public static WorldState parse(ByteReader reader) {
-                WorldState obj = new WorldState();
+            public static Actors parse(ByteReader reader) {
+                Actors obj = new Actors();
                 int size = reader.readInteger();
                 for (int i = 0; i < size; ++i) {
                     Actor item = Actor.parse(reader);
@@ -329,19 +339,23 @@ public class Protocol {
                 return obj;
             }
         }
-        public static class Feedback { /*Struct*/
-            public SkillsCooldown skillsCooldown;
-            public Players players;
+        public static class Players { /*List*/
+            public ArrayList < Integer > items = new ArrayList < > ();
             public byte[] bytes() {
                 ByteWriter writer = new ByteWriter();
-                writer.writeBytes(skillsCooldown.bytes());
-                writer.writeBytes(players.bytes());
+                writer.writeInt(items.size());
+                for (int i = 0; i < items.size(); ++i) {
+                    writer.writeBytes(ByteWriter.Integer2bytes(items.get(i)));
+                }
                 return writer.bytes();
             }
-            public static Feedback parse(ByteReader reader) {
-                Feedback obj = new Feedback();
-                obj.skillsCooldown = SkillsCooldown.parse(reader);
-                obj.players = Players.parse(reader);
+            public static Players parse(ByteReader reader) {
+                Players obj = new Players();
+                int size = reader.readInteger();
+                for (int i = 0; i < size; ++i) {
+                    Integer item = reader.readInteger();
+                    obj.items.add(item);
+                }
                 return obj;
             }
         }
@@ -378,26 +392,6 @@ public class Protocol {
                 Skill obj = new Skill();
                 obj.skillType = reader.readByte();
                 obj.cooldown = reader.readInteger();
-                return obj;
-            }
-        }
-        public static class Players { /*List*/
-            public ArrayList < Integer > items = new ArrayList < > ();
-            public byte[] bytes() {
-                ByteWriter writer = new ByteWriter();
-                writer.writeInt(items.size());
-                for (int i = 0; i < items.size(); ++i) {
-                    writer.writeBytes(ByteWriter.Integer2bytes(items.get(i)));
-                }
-                return writer.bytes();
-            }
-            public static Players parse(ByteReader reader) {
-                Players obj = new Players();
-                int size = reader.readInteger();
-                for (int i = 0; i < size; ++i) {
-                    Integer item = reader.readInteger();
-                    obj.items.add(item);
-                }
                 return obj;
             }
         }
