@@ -27,9 +27,9 @@ public class GameArena {
 					collision_map[i][j] = Integer.parseInt(line[j]);
 				}
 			}
+			s.close();
 		}catch(Exception e) {
 			System.out.println("GameArena::GameArena exception");
-			//System.out.println(e.getMessage());
 		}
 	}
 	

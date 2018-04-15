@@ -1,21 +1,20 @@
 package game;
 
 import lobby.WebSocketEndpoint;
-
 import org.apache.commons.lang3.tuple.Pair;
-
 import game.actors.Actor;
 import game.actors.Player;
 import game.actors.TileActor;
+import game.skill.Blink;
 import game.skill.Skill;
 import game.skill.ThrowFireball;
 import lobby.Protocol;
 import lobby.Protocol.Server.Input;
-import lobby.Protocol.Server.SkillInput;
-
 import javax.websocket.Session;
-
 import java.awt.Rectangle;
+import java.io.BufferedWriter;
+import java.io.FileWriter;
+import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import java.util.List;
@@ -24,10 +23,6 @@ import java.util.Queue;
 import java.util.Random;
 
 public class Game implements Runnable {
-	// Temporary constants, should be moved into separate class in the future
-	public static final int PLAYER_WIDTH = 20;
-	public static final int PLAYER_HEIGHT = 40;
-	public static final int PLAYER_LOWER_HEIGHT = 20;
 	
     private final Queue<Pair<Session, Protocol.Server.GameMsg>> 		messages;
     private final Queue<Integer> 								        playerDisconnectMessages;
@@ -35,17 +30,26 @@ public class Game implements Runnable {
 	private List<Actor> 												actors;
 	private List<Player> 												players;
 	private GameArena 													ga;
+	//private BufferedWriter writer;
 
 
     public Game(Queue<Pair<Session, Protocol.Server.GameMsg>> messages,
                 Queue<Integer> playerDisconnectMessages,
-                Map<Session, Integer> sessions) {
+                Map<Session, Integer> sessions,
+                int number) {
         this.messages = messages;
         this.playerDisconnectMessages = playerDisconnectMessages;
         this.sessions = sessions;
 		actors = new ArrayList<Actor>();
 		players = new ArrayList<Player>();
 		ga = new GameArena("map.txt");
+		/*String name = number + System.currentTimeMillis() + ".txt";
+		System.out.println(name);
+		try {
+			writer = new BufferedWriter(new FileWriter(name, true));
+		} catch (IOException e) {
+			e.printStackTrace();
+		}*/
     }
 
 
@@ -70,8 +74,9 @@ public class Game implements Runnable {
                 delta = frameStartTime - delta;
                 processMessages();
                 update(delta);
-                if(frameCount % 1 == 0) // kind of tick rate
+                if(frameCount % 1 == 0) { // kind of tick rate
                 	sendWorldState();
+                }
                 long frameElapsedTime = System.currentTimeMillis() - frameStartTime;
                 long frameRemainingTime = 1000/FPS - frameElapsedTime;
                 if (frameRemainingTime > 0)
@@ -85,12 +90,23 @@ public class Game implements Runnable {
             }
         } catch (InterruptedException ex) {
             System.out.println("Game::run exception");
-            //ex.printStackTrace();
         }
     }
 
 
 	private void update(long delta) {
+		for (Player p : players) {
+			if( p.update_dead(delta) ) {
+				Random r = new Random();
+				// randomly choose free spawn point
+				do{
+					Vec2 spawn = new Vec2(Constants.SPAWN_POINTS[r.nextInt(Constants.MAX_PLAYERS)]);	// get new spawn point
+					spawn.scalar(Constants.GAME_TILE_SIZE);				// convert to pixels
+					p.setPosition(spawn);
+				}while(collides(p) != null);
+				actors.add(p);
+			}
+		}
         for (int i = 0; i < actors.size(); i++) {
         	Actor actor = actors.get(i);
             actor.update(delta);
@@ -118,11 +134,11 @@ public class Game implements Runnable {
 		        
 		        // Movement input
 		        
-		        if (gameMsg.skillInput != null) {
+		        if (gameMsg.skillInput != null) {							// Detect if 'QWER' was pressed
 		        	player.getInput().activateSkill(gameMsg.skillInput.skillType);
 		        	player.getInput().setSkillTarget(new Vec2(gameMsg.skillInput.x, gameMsg.skillInput.y));
 		        } else if (gameMsg.input != null) {
-		        	setInput(gameMsg.input, player);
+		        	setInput(gameMsg.input, player);						//Movement using path find
 				}
 			}
 		}
@@ -134,11 +150,12 @@ public class Game implements Runnable {
 		}
 	}
 
+	
 	private void setInput(Input input, Player player) {
 		int size = ga.getTileSize();
 		// This bias is needed for path-finding algorithm, because
 		// collision occurs with lower part of player, but the movement is calculated using upper part of player.
-		int dy = PLAYER_HEIGHT - PLAYER_LOWER_HEIGHT; 
+		int dy = Constants.PLAYER_HEIGHT - Constants.PLAYER_LOWER_HEIGHT; 
 		if (ga.getEntry((input.yTarget + dy) / size, input.xTarget / size) == 0) {
 
 			int x_init = (int) player.getPosition().getX() / size;
@@ -162,7 +179,7 @@ public class Game implements Runnable {
 		}
 	}
 	
-    private void sendWorldState() {
+    private void sendWorldState()  {
     	if (actors.size() > 0) {
     	    Protocol.Client.ClientMsg message = new Protocol.Client.ClientMsg();
             message.gameMsg = new Protocol.Client.GameMsg();
@@ -171,7 +188,9 @@ public class Game implements Runnable {
             for (Actor a : actors) {
                 message.gameMsg.worldState.items.add(a.getState());
             }
-
+            // Write to file as replay
+            //recordAsReplay();
+            
             synchronized (sessions) {
 				for (Session s : sessions.keySet()) {
 					WebSocketEndpoint.sendBinary(s, message.bytes());
@@ -181,29 +200,32 @@ public class Game implements Runnable {
     }
 
 
-	private void addPlayer(int id) {
-		
-		Player p = null;
-		Random r = new Random();
-		int x,y;
-		do {
-			x = r.nextInt(ga.getWidth());
-			y = r.nextInt(ga.getHeight());
+	/*private void recordAsReplay()  {
+		try {
+			String str = "1_";
+			writer.append(str);
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+	}*/
 
-			if(p != null) {
-				p.setPosition(x, y);
-			}else {
-				p = new Player(x, y, PLAYER_WIDTH, PLAYER_HEIGHT, PLAYER_LOWER_HEIGHT, id);
-				Skill Q =  new ThrowFireball(p, this) ;
-				p.setSkill(Q, (byte) 0);
-			}
-		}while(!(	( (x + PLAYER_WIDTH) < ga.getWidth()  ) && ( (y + PLAYER_HEIGHT) < ga.getHeight() ) && (collides(p) == null)	));
+
+	private void addPlayer(int id) {	
+		Player p = new Player(ga.getTileSize()*Constants.SPAWN_POINTS[actors.size()].getX(),
+					   ga.getTileSize()*Constants.SPAWN_POINTS[actors.size()].getY(),
+					   Constants.PLAYER_WIDTH, 
+					   Constants.PLAYER_HEIGHT, 
+					   Constants.PLAYER_LOWER_HEIGHT, 
+					   id);
+		Skill Q =  new ThrowFireball(p, this) ;
+		Skill W =  new Blink(p, this);
+		p.setSkill(Q, (byte) 0);
+		p.setSkill(W, (byte) 1);
 		actors.add(p);
 		players.add(p);
 	}
+	
 
-
-	//returns -2 if no collision happens, or -1 if actor collides with arena, otherwise returns id
 	public Actor collides(Actor a) {	
 		//collision with tile map part
 		Rectangle hitbox = (a.getLowerBox() != null ) ? a.getLowerBox() : a.getHitbox();
@@ -248,5 +270,4 @@ public class Game implements Runnable {
 				return p;
 		return null;
 	}
-	public GameArena getArena() {return ga;}
 }

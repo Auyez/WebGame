@@ -1,6 +1,7 @@
 var FRAME_WIDTH = 32;
 var FRAME_HEIGHT = 36;
 
+
 function CreateGame(parent, socket, lobbyIndex) {
 	var game = new Phaser.Game(
 			            1200, 900, Phaser.AUTO, parent,
@@ -11,17 +12,32 @@ function CreateGame(parent, socket, lobbyIndex) {
 			            }
 		        	);
 	var actorManager = new ActorManager(game);
-    var cursors = null;
-	var q = null;
+    var cursors;
+	var q,w,e,r;
 	var inputMessage = null;
 	var ready = false;
-
+	
     function preload() {
-        game.load.image('tile', 'game/assets/map.png');
+        //game.load.image('tile', 'game/assets/map.png');
+        
+        this.game.load.tilemap('MyTilemap', 'game/assets/map.json', null, Phaser.Tilemap.TILED_JSON);
+        this.game.load.image('tiles', 'game/assets/map.png');
+        
         ActorManager.preload(game);
     }
     
     function create() {
+        // Load the map.
+    	var Background = game.add.group();
+    	var SpriteLevel = game.add.group();
+    	var Upper = game.add.group();
+        var map = this.game.add.tilemap('MyTilemap');
+        map.addTilesetImage('map', 'tiles');
+        Upper.add( map.createLayer('Upper'));
+        Background.add(map.createLayer('Background'));
+        
+    	ready = true;
+    	
         var servermsg = new Protocol.Server.ServerMsg();
 		servermsg.lobbyIndex = lobbyIndex;
 		servermsg.lobbyCmd = new Protocol.Server.LobbyCmd();
@@ -33,80 +49,34 @@ function CreateGame(parent, socket, lobbyIndex) {
         inputMessage.lobbyIndex = lobbyIndex;
         inputMessage.lobbyCmd = new Protocol.Server.LobbyCmd();
         inputMessage.lobbyCmd.gameMsg = new Protocol.Server.GameMsg();
-        // inputMessage.lobbyCmd.gameMsg.input = new Protocol.Server.Input();
         
 
         cursors = game.input.keyboard.createCursorKeys();
-		q = game.input.keyboard.addKey(Phaser.Keyboard.Q); //.onDown .onPress
-		//q.onDown.add(spellOne, )
-		
-		
-		///////////////////////
-    	var map = [
-			[1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1],
-			[1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1],
-			[1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1],
-			[1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,1], 
-			[1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,1], 
-			[1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,1], 
-			[1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,1], 
-			[1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,1], 
-			[1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,1], 
-			[1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,1], 
-			[1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,1], 
-			[1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,1,1,1,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,1], 
-			[1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,1,1,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,1], 
-			[1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,1], 
-			[1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,1], 
-			[1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,1], 
-			[1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,1], 
-			[1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,1], 
-			[1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,1], 
-			[1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,1],
-			[1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1],
-			[1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1],
-			[1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1],
-			[1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1],
-			[1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1],
-			[1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1],
-			[1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1],
-			[1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1],
-			[1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1],
-			[1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1]
-    	];
-    	
-    	for (var i = 0; i < 30; i++){
-    		for(var j = 0; j < 40; j++){
-    			if(map[i][j] == 1){
-    				var test = game.add.sprite( (j % 40) * 30, (i % 30) * 30, 'tile' );
-    			}
-    		}
-    	}
-    	//////////////////////////////////////////////////
-
-    	ready = true;
+		q = game.input.keyboard.addKey(Phaser.Keyboard.Q);
+		w = game.input.keyboard.addKey(Phaser.Keyboard.W);
+		e = game.input.keyboard.addKey(Phaser.Keyboard.E);
+		r = game.input.keyboard.addKey(Phaser.Keyboard.R);
+		q.onDown.add(function(){spell(0)});
+		w.onDown.add(function(){spell(1)});
+		e.onDown.add(function(){spell(2)});
+		r.onDown.add(function(){spell(3)});
+    	game.input.onDown.add(move, this);
     }
 
     function update() {
-    	//
-    	q.onDown.add(spellQ, this);
-    	game.input.onDown.add(move, this);    	
     	actorManager.update();
     }
     
-    function spellQ() {
-    	// set input null
+    function spell(item) {
     	inputMessage.lobbyCmd.gameMsg.input = null;
     	inputMessage.lobbyCmd.gameMsg.skillInput = new Protocol.Server.SkillInput();
     	inputMessage.lobbyCmd.gameMsg.skillInput.x = game.input.x;
     	inputMessage.lobbyCmd.gameMsg.skillInput.y = game.input.y;
-    	inputMessage.lobbyCmd.gameMsg.skillInput.skill_type = 0;
+    	inputMessage.lobbyCmd.gameMsg.skillInput.skillType = item;
     	socket.send(inputMessage.bytes());
     }
     
     function move() {
-    	//console.log(game.input.x);
-    	//console.log(game.input.y);
     	inputMessage.lobbyCmd.gameMsg.skillInput = null;
     	inputMessage.lobbyCmd.gameMsg.input = new Protocol.Server.Input();
     	inputMessage.lobbyCmd.gameMsg.input.xTarget = game.input.x;
@@ -194,7 +164,9 @@ function Actor(game, type) {
 
     this.sprite = game.add.sprite(0, 0, Actor.getSpriteKey(type));
     this.type = type;
-
+    //console.log(game)
+    //SpriteLevel.add(this.sprite);
+    game.world.children[1].add(this.sprite);
     var framesPerAnimation = 3;
     var numAnimations = this.sprite.animations.frameTotal / framesPerAnimation;
     for (var i = 0; i < numAnimations; ++i) {

@@ -12,15 +12,15 @@ import java.util.Map;
 import java.util.Queue;
 
 class Lobby {
-    private String name;
+    private int number;
     private final Map<Session, Integer> sessions = new HashMap<Session, Integer>(); // Session -> PlayerID map
     private Thread gameThread;
     private final Queue<Pair<Session, Protocol.Server.GameMsg>> gameMessages = new LinkedList<>();
     private final Queue<Integer> gamePlayerDisconnectMessages = new LinkedList<>();
     private int readyCount;
 
-    Lobby(String name) {
-        this.name = name;
+    Lobby(int number) {
+        this.number = number;
     }
 
 
@@ -49,7 +49,7 @@ class Lobby {
             if (sessions.containsKey(session)) {
                 int id = sessions.get(session);
                 sessions.remove(session);
-                System.out.println(name + ": #" + id + " removed");
+                System.out.println("Lobby" + number + ": #" + id + " removed");
 
                 //System.out.println(id + " onClose1");
                 if (isGameRunning()) {
@@ -57,11 +57,7 @@ class Lobby {
                     synchronized (gamePlayerDisconnectMessages) {
                         gamePlayerDisconnectMessages.add(id);
                     }
-                    //System.out.println(id + " onClose3");
-
-                    // clients will remove the player by noticing that it is not present in worldstate
                 }
-                //System.out.println(id + " onClose5");
             }
         }
     }
@@ -72,7 +68,7 @@ class Lobby {
                 return;
 
             sessions.put(session, playerId);
-            System.out.println(name + ": #" + playerId + " added");
+            System.out.println("Lobby" + number + ": #" + playerId + " added");
 
 
             if (sessions.size() >= Constants.MAX_PLAYERS) {
@@ -94,7 +90,7 @@ class Lobby {
             gameMessages.clear();
             gamePlayerDisconnectMessages.clear();
 
-            Game game = new Game(gameMessages, gamePlayerDisconnectMessages, sessions);
+            Game game = new Game(gameMessages, gamePlayerDisconnectMessages, sessions, number);
             gameThread = new Thread(game);
             gameThread.start();
         }
