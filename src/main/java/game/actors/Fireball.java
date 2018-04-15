@@ -10,10 +10,11 @@ public class Fireball extends Actor{
 	private int 		traveled;
 	
 	public Fireball(Vec2 start, Vec2 target, int size, int id, int parentId) {
-		super(start.getX(), start.getY(), size, size, id);
-		target.add(new Vec2(-getHitbox().width/2.0f, -getHitbox().height/2.0f)); //adjust target such that center of fireball would be on center
-		this.direction = Vec2.subs(target, position); 
+		super(0, 0, size, size, id);
+		setCenter(start);
+		this.direction = Vec2.subs(target, getCenter());
 		this.direction.scalar(1.0f/this.direction.getMagnitude()); //calculate direction vector
+		setSpriteAngle((int)Math.toDegrees(this.direction.getAngleRad()));
 		this.parentId = parentId;
 		traveled = 0;
 		speed = Constants.FIREBALL_SPEED;

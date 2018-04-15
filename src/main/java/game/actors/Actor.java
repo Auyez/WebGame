@@ -14,7 +14,7 @@ public abstract class Actor{
 	private Rectangle 		lowerBox;
 	private int 			id;
 	private byte 			animation; // animation row
-	private int 			angle; // sprite rotation
+	private int spriteAngle; // sprite rotation
 	private boolean			destroyed;
 
 	public abstract void update(long delta);	
@@ -38,6 +38,11 @@ public abstract class Actor{
 	
 	public Vec2 getCenter() {
 		return new Vec2(position.getX() + hitbox.width/2.0f, position.getY() + hitbox.height/2.0f );
+	}
+
+	public void setCenter(Vec2 center) {
+		Vec2 position = new Vec2(center.getX() - hitbox.width/2.0f, center.getY() - hitbox.height/2.0f);
+		setPosition(position);
 	}
 	
 	public void setPosition(Vec2 p) {
@@ -66,10 +71,10 @@ public abstract class Actor{
 		Protocol.Client.Actor state = new Protocol.Client.Actor();
 		state.id = getId();
 		state.type = getType();
-		state.x = Math.round(getPosition().getX());
-		state.y = Math.round(getPosition().getY());
+		state.x = Math.round(getCenter().getX());
+		state.y = Math.round(getCenter().getY());
 		state.animation = getAnimation();
-		state.angle = getAngle();
+		state.angle = getSpriteAngle();
 
 		return state;
 	}
@@ -77,6 +82,6 @@ public abstract class Actor{
 
 	protected void setAnimation(byte animation) {this.animation = animation;}
 	protected byte getAnimation() {return animation;}
-	protected void setAngle(int angle) {this.angle = angle;}
-	protected int getAngle() {return angle;}
+	protected void setSpriteAngle(int spriteAngle) {this.spriteAngle = spriteAngle;}
+	protected int getSpriteAngle() {return spriteAngle;}
 }
