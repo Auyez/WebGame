@@ -106,7 +106,7 @@ public class GameArena {
 		
 		return closed;
 	}
-
+/*
 	private ArrayList<TileNode> generateTargets(ArrayList<TileNode> tiles) {
 		ArrayList<TileNode> turns = new ArrayList<TileNode>();
 		TileNode target = tiles.get(tiles.size() - 1);
@@ -123,6 +123,43 @@ public class GameArena {
 		turns.add(target.getParent().convert());
 		
 		return turns;
+	}
+	*/
+	
+	private ArrayList<TileNode> generateTargets(ArrayList<TileNode> tiles) {
+		ArrayList<TileNode> turns = new ArrayList<TileNode>();
+		TileNode target = tiles.get(tiles.size() - 1);
+		turns.add(target.convert());
+		TileNode check = target.getParent().getParent();
+		while (check != null) {
+			// Detect turn
+			if (check.getX() != target.getX() && check.getY() != target.getY()) {
+				turns.add(target.getParent().convert());
+			}
+			target = target.getParent();
+			check = check.getParent();
+		}
+		turns.add(target.getParent().convert());
+		
+		ArrayList<TileNode> path = new ArrayList<TileNode>();
+		
+		TileNode init = turns.get(turns.size() - 1);
+		TileNode next = init.getChild();
+		path.add(init);
+		
+		while (next.getParent() != null ) {
+			float x0 = (float) init.getX();
+			float y0 = (float) init.getY();
+			int x1 = next.getX();
+			int y1 = next.getY();
+			if (checkCollision(x0, y0, x1, y1)) {
+				init = next.getParent();
+				TileNode line = new TileNode(init);
+				path.add(line);
+			}
+			next = next.getChild();
+		}
+		return path;
 	}
 	
 	public ArrayList<TileNode> raytrace(double x0, double y0, double x1, double y1)
