@@ -18,7 +18,12 @@ server_msg = Struct('server_msg', [lobby_index, lobby_cmd])
 
 # Client
 actor = Struct('actor', [Integer('id'), Integer('type'), Integer('x'), Integer('y'), Byte('animation'), Integer('angle')])
-world_state = List('world_state', actor)
+actors = List('actors', actor)
+players = List('players',Integer('hp'))
+skill = Struct('skill', [Byte('skill_type'), Integer('cooldown')])
+skills_cooldown = List('skills_cooldown', skill)
+
+world_state = Struct('world_state', [actors, players, skills_cooldown])
 game_msg = Union('game_msg', [world_state])
 start_game = Struct('start_game', [])
 

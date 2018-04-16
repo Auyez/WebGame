@@ -1,3 +1,4 @@
+/* Generated from Java with JSweet 2.0.0 - http://www.jsweet.org */
 var Protocol = (function () {
     function Protocol() {
     }
@@ -36,7 +37,7 @@ Protocol["__class"] = "Protocol";
         ServerMsg["__class"] = "Protocol.Server.ServerMsg";
         var LobbyCmd = (function () {
             function LobbyCmd() {
-                this.addPlayerId = null;
+                this.addPlayer = null;
                 this.ready = null;
                 this.gameMsg = null;
             }
@@ -44,9 +45,9 @@ Protocol["__class"] = "Protocol";
                 var writer = new ByteWriter();
                 if (false) {
                 }
-                else if (this.addPlayerId != null) {
-                    writer.writeByte(LobbyCmd.ADD_PLAYER_ID);
-                    writer.writeBytes(ByteWriter.Integer2bytes(this.addPlayerId));
+                else if (this.addPlayer != null) {
+                    writer.writeByte(LobbyCmd.ADD_PLAYER);
+                    writer.writeBytes(this.addPlayer.bytes());
                 }
                 else if (this.ready != null) {
                     writer.writeByte(LobbyCmd.READY);
@@ -61,8 +62,8 @@ Protocol["__class"] = "Protocol";
             LobbyCmd.parse = function (reader) {
                 var obj = new Server.LobbyCmd();
                 var type = reader.readByte();
-                if (type === LobbyCmd.ADD_PLAYER_ID) {
-                    obj.addPlayerId = reader.readInteger();
+                if (type === LobbyCmd.ADD_PLAYER) {
+                    obj.addPlayer = Server.AddPlayer.parse(reader);
                 }
                 if (type === LobbyCmd.READY) {
                     obj.ready = Server.Ready.parse(reader);
@@ -74,11 +75,32 @@ Protocol["__class"] = "Protocol";
             };
             return LobbyCmd;
         }());
-        LobbyCmd.ADD_PLAYER_ID = 0;
+        LobbyCmd.ADD_PLAYER = 0;
         LobbyCmd.READY = 1;
         LobbyCmd.GAME_MSG = 2;
         Server.LobbyCmd = LobbyCmd;
         LobbyCmd["__class"] = "Protocol.Server.LobbyCmd";
+        var AddPlayer = (function () {
+            function AddPlayer() {
+                this.playerId = null;
+                this.authToken = null;
+            }
+            AddPlayer.prototype.bytes = function () {
+                var writer = new ByteWriter();
+                writer.writeBytes(ByteWriter.Integer2bytes(this.playerId));
+                writer.writeBytes(ByteWriter.String2bytes(this.authToken));
+                return writer.bytes();
+            };
+            AddPlayer.parse = function (reader) {
+                var obj = new Server.AddPlayer();
+                obj.playerId = reader.readInteger();
+                obj.authToken = reader.readString();
+                return obj;
+            };
+            return AddPlayer;
+        }());
+        Server.AddPlayer = AddPlayer;
+        AddPlayer["__class"] = "Protocol.Server.AddPlayer";
         var Ready = (function () {
             function Ready() {
             }
@@ -424,6 +446,7 @@ Protocol["__class"] = "Protocol";
     })(Client = Protocol.Client || (Protocol.Client = {}));
 })(Protocol || (Protocol = {}));
 
+
 var ByteReader = (function () {
     function ByteReader(arraybuf) {
         this.dataview = new DataView(arraybuf);
@@ -438,6 +461,22 @@ var ByteReader = (function () {
         var v = this.dataview.getInt8(this.pos);
         this.pos += 1;
         return v;
+    };
+    ByteReader.prototype.readString = function () {
+        var length = this.dataview.getInt32(this.pos);
+        this.pos += 4;
+
+        var chars = [];
+        for (var i = 0; i < length; ++i) {
+            var char = this.dataview.getInt8(this.pos);
+            this.pos += 1;
+            chars.push(char);
+        }
+
+        var decoder = new TextDecoder();
+        var str = decoder.decode(new Int8Array(chars));
+
+        return str;
     };
     return ByteReader;
 }());
@@ -498,6 +537,22 @@ var ByteWriter = (function () {
         var arraybuf = new ArrayBuffer(1);
         var dataview = new DataView(arraybuf);
         dataview.setInt8(0, x);
+        return arraybuf;
+    };
+    ByteWriter.String2bytes = function (x) {
+        var arraybuf = new ArrayBuffer(4 + x.length);
+        var dataview = new DataView(arraybuf);
+        var pos = 0;
+
+        dataview.setInt32(pos, x.length);
+        pos += 4;
+
+        var encoder = new TextEncoder();
+        var chars = encoder.encode(x);
+        for (var i = 0; i < x.length; ++i) {
+            dataview.setInt8(pos, chars[i]);
+            pos += 1;
+        }
         return arraybuf;
     };
     return ByteWriter;

@@ -23,8 +23,8 @@ class Lobby {
 
 
     public synchronized void onMessage(Protocol.Server.LobbyCmd message, Session session) {
-        if (message.addPlayerId != null && !isGameRunning()) {
-            addPlayer(session, message.addPlayerId);
+        if (message.addPlayer != null && !isGameRunning()) {
+            addPlayer(session, message.addPlayer.playerId);
         } else if (message.ready != null && isGameRunning()) {
             readyCount++;
             if (readyCount >= Constants.MAX_PLAYERS) {
