@@ -2,6 +2,9 @@ package website;
 
 import javax.ws.rs.*;
 import javax.ws.rs.core.Response;
+
+import org.mindrot.jbcrypt.*;
+
 import java.sql.SQLException;
 
 
@@ -50,10 +53,11 @@ public class AuthEndpoint {
 
     public boolean isValid(String username, String password) {
         String password_hash = Database.getUserPasswordHash(username);
-        return hash(password).equals(password_hash);
+        return BCrypt.checkpw(password, password_hash);
     }
 
     public String hash(String password) {
-        return password;
+    	String pw_hash = BCrypt.hashpw(password, BCrypt.gensalt(10));
+    	return pw_hash;
     }
 }

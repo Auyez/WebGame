@@ -104,7 +104,7 @@ public class Database {
             		System.out.println("Database error: couldn't load jdbc driver");
             	}
                 connection = DriverManager.getConnection(
-                        "jdbc:mysql://localhost:3306/WebGame",
+                        "jdbc:mysql://localhost:3306/WebGame?useSSL=false",
                         "root",
                         "root"
                 );
