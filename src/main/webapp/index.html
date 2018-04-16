@@ -3,6 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <title>Lobbies</title>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
 </head>
 <body>
     <ul id="lobbyList"></ul>
@@ -23,8 +24,13 @@
         }
 
         function joinLobby(lobbyIndex) {
-            sessionStorage.setItem('lobbyIndex', lobbyIndex);
-            location.href = 'lobby.html';
+            $.get(`services/lobbylist/map?lobbyIndex=${lobbyIndex}`,
+            function(data){
+                localStorage.setItem('mapJson', data);
+                localStorage.setItem('lobbyIndex', lobbyIndex);
+                location.href = 'lobby.html';
+            });
+
         }
     </script>
 </body>

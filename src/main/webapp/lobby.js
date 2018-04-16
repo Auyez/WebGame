@@ -1,10 +1,10 @@
-var lobbyIndex = parseInt(sessionStorage.getItem('lobbyIndex'));
+var lobbyIndex = parseInt(localStorage.getItem('lobbyIndex'));
 document.title = 'Lobby' + lobbyIndex;
 var lobby1 = new Lobby(lobbyIndex, 'game1');
 //var lobby2 = new Lobby(lobbyIndex, 'game2')
 
 function Lobby(lobbyIndex, parent) {
-    //var lobbyIndex = parseInt(sessionStorage.getItem('lobbyIndex'));
+    //var lobbyIndex = parseInt(localStorage.getItem('lobbyIndex'));
     //document.title = 'Lobby' + lobbyIndex;
 
     var self = this;
@@ -40,7 +40,8 @@ function Lobby(lobbyIndex, parent) {
     self.lobbyOnMessage = function(clientMsg) {
         if (clientMsg.startGame != null) {
             document.getElementById(parent).innerHTML = '';
-            self.game = CreateGame(parent, self.socket, lobbyIndex);
+            var mapJson = localStorage.getItem('mapJson');
+            self.game = CreateGame(parent, self.socket, lobbyIndex, mapJson);
         } else if (clientMsg.gameMsg != null) {
             // drop messages if game is not ready yet
             if (self.game.isready()) {
