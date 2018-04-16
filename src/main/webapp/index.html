@@ -27,18 +27,18 @@
 
         function joinLobby(lobbyIndex) {
             // set lobbyIndex, userId, and equipped skills before joining
-            sessionStorage.setItem('lobbyIndex', lobbyIndex);
+            localStorage.setItem('lobbyIndex', lobbyIndex);
 
-            var username = sessionStorage.getItem('username');
+            var username = localStorage.getItem('username');
             $.get(`services/user/user_id?username=${username}`)
             .done(function(data) {
-                    sessionStorage.setItem('user_id', data);
+                    localStorage.setItem('user_id', data);
                 }
             )
             .done(function() {
                 $.get(`services/user/skill_ids?username=${username}`)
                 .done(function(data) {
-                    sessionStorage.setItem('skill_ids', data);
+                    localStorage.setItem('skill_ids', data);
                     location.href = 'lobby.html';
                 });
             });
@@ -47,7 +47,7 @@
         }
 
         function logout() {
-            var username = sessionStorage.getItem('username');
+            var username = localStorage.getItem('username');
 
             function success(data, status, jqhxr) {
                 location.href = 'login.html';

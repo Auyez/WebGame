@@ -27,7 +27,7 @@
         var mySkills;
         var skillIdsNames;
 
-        var username = sessionStorage.getItem('username');
+        var username = localStorage.getItem('username');
 
         function refreshSkillMenu() {
             var equippedHtml = $('#equippedHtml');
@@ -76,7 +76,7 @@
         }
 
         function save() {
-            var msg = {username: sessionStorage.getItem('username'),skillIds: equipped};
+            var msg = {username: localStorage.getItem('username'),skillIds: equipped};
             $.ajax({
                 type: 'POST',
                 url: 'services/user/set_skills',
@@ -102,7 +102,7 @@
         }
 
         $(document).ready(function() {
-            var username = sessionStorage.getItem('username');
+            var username = localStorage.getItem('username');
             var usernameHtml = $('#usernameHtml');
             usernameHtml.html(`username : ${username}`);
 

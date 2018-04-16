@@ -1,7 +1,7 @@
 package game;
 
 public class Constants {
-	public static final int MAX_PLAYERS = 1;
+	public static final int MAX_PLAYERS = 2;
 	public static final int	GAME_WIDTH = 900;
 	public static final int	GAME_HEIGHT = 1200;
 	public static final int GAME_TILE_SIZE = 30;
@@ -15,7 +15,7 @@ public class Constants {
 	public static final int PLAYER_HP = 300;
 	public static final int PLAYER_DEATH_TIME = 10;
 
-	public static final int	SKILL_NUMBER = 6;
+	public static final int	SKILL_NUMBER = 2;
 	public static final int PLAYER_SKILL_LIMIT = 2;
 	
 	//Fireball

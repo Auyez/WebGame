@@ -1,10 +1,10 @@
-var lobbyIndex = parseInt(sessionStorage.getItem('lobbyIndex'));
+var lobbyIndex = parseInt(localStorage.getItem('lobbyIndex'));
 document.title = 'Lobby' + lobbyIndex;
 var lobby1 = new Lobby(lobbyIndex, 'game1');
 //var lobby2 = new Lobby(lobbyIndex, 'game2')
 
 function Lobby(lobbyIndex, parent) {
-    //var lobbyIndex = parseInt(sessionStorage.getItem('lobbyIndex'));
+    //var lobbyIndex = parseInt(localStorage.getItem('lobbyIndex'));
     //document.title = 'Lobby' + lobbyIndex;
 
     var self = this;
@@ -18,8 +18,8 @@ function Lobby(lobbyIndex, parent) {
         servermsg.lobbyIndex = lobbyIndex;
         servermsg.lobbyCmd = new Protocol.Server.LobbyCmd();
         servermsg.lobbyCmd.addPlayer = new Protocol.Server.AddPlayer();
-        servermsg.lobbyCmd.addPlayer.playerId = parseInt(sessionStorage.getItem('user_id'));
-        servermsg.lobbyCmd.addPlayer.authToken = sessionStorage.getItem('authToken');
+        servermsg.lobbyCmd.addPlayer.playerId = parseInt(localStorage.getItem('user_id'));
+        servermsg.lobbyCmd.addPlayer.authToken = localStorage.getItem('authToken');
 
         self.socket.send(servermsg.bytes());
     };

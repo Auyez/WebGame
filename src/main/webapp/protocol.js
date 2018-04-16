@@ -286,9 +286,33 @@ Protocol["__class"] = "Protocol";
         GameMsg["__class"] = "Protocol.Client.GameMsg";
         var WorldState = (function () {
             function WorldState() {
-                this.items = ([]);
+                this.actors = null;
+                this.players = null;
+                this.skillsCooldown = null;
             }
             WorldState.prototype.bytes = function () {
+                var writer = new ByteWriter();
+                writer.writeBytes(this.actors.bytes());
+                writer.writeBytes(this.players.bytes());
+                writer.writeBytes(this.skillsCooldown.bytes());
+                return writer.bytes();
+            };
+            WorldState.parse = function (reader) {
+                var obj = new Client.WorldState();
+                obj.actors = Client.Actors.parse(reader);
+                obj.players = Client.Players.parse(reader);
+                obj.skillsCooldown = Client.SkillsCooldown.parse(reader);
+                return obj;
+            };
+            return WorldState;
+        }());
+        Client.WorldState = WorldState;
+        WorldState["__class"] = "Protocol.Client.WorldState";
+        var Actors = (function () {
+            function Actors() {
+                this.items = ([]);
+            }
+            Actors.prototype.bytes = function () {
                 var writer = new ByteWriter();
                 writer.writeInt(/* size */ this.items.length);
                 for (var i = 0; i < this.items.length; ++i) {
@@ -297,8 +321,8 @@ Protocol["__class"] = "Protocol";
                 ;
                 return writer.bytes();
             };
-            WorldState.parse = function (reader) {
-                var obj = new Client.WorldState();
+            Actors.parse = function (reader) {
+                var obj = new Client.Actors();
                 var size = reader.readInteger();
                 for (var i = 0; i < size; ++i) {
                     var item = Client.Actor.parse(reader);
@@ -307,10 +331,10 @@ Protocol["__class"] = "Protocol";
                 ;
                 return obj;
             };
-            return WorldState;
+            return Actors;
         }());
-        Client.WorldState = WorldState;
-        WorldState["__class"] = "Protocol.Client.WorldState";
+        Client.Actors = Actors;
+        Actors["__class"] = "Protocol.Client.Actors";
         var Actor = (function () {
             function Actor() {
                 this.id = null;
@@ -344,6 +368,81 @@ Protocol["__class"] = "Protocol";
         }());
         Client.Actor = Actor;
         Actor["__class"] = "Protocol.Client.Actor";
+        var Players = (function () {
+            function Players() {
+                this.items = ([]);
+            }
+            Players.prototype.bytes = function () {
+                var writer = new ByteWriter();
+                writer.writeInt(/* size */ this.items.length);
+                for (var i = 0; i < this.items.length; ++i) {
+                    writer.writeBytes(ByteWriter.Integer2bytes(/* get */ this.items[i]));
+                }
+                ;
+                return writer.bytes();
+            };
+            Players.parse = function (reader) {
+                var obj = new Client.Players();
+                var size = reader.readInteger();
+                for (var i = 0; i < size; ++i) {
+                    var item = reader.readInteger();
+                    /* add */ (obj.items.push(item) > 0);
+                }
+                ;
+                return obj;
+            };
+            return Players;
+        }());
+        Client.Players = Players;
+        Players["__class"] = "Protocol.Client.Players";
+        var SkillsCooldown = (function () {
+            function SkillsCooldown() {
+                this.items = ([]);
+            }
+            SkillsCooldown.prototype.bytes = function () {
+                var writer = new ByteWriter();
+                writer.writeInt(/* size */ this.items.length);
+                for (var i = 0; i < this.items.length; ++i) {
+                    writer.writeBytes(/* get */ this.items[i].bytes());
+                }
+                ;
+                return writer.bytes();
+            };
+            SkillsCooldown.parse = function (reader) {
+                var obj = new Client.SkillsCooldown();
+                var size = reader.readInteger();
+                for (var i = 0; i < size; ++i) {
+                    var item = Client.Skill.parse(reader);
+                    /* add */ (obj.items.push(item) > 0);
+                }
+                ;
+                return obj;
+            };
+            return SkillsCooldown;
+        }());
+        Client.SkillsCooldown = SkillsCooldown;
+        SkillsCooldown["__class"] = "Protocol.Client.SkillsCooldown";
+        var Skill = (function () {
+            function Skill() {
+                this.skillType = null;
+                this.cooldown = null;
+            }
+            Skill.prototype.bytes = function () {
+                var writer = new ByteWriter();
+                writer.writeBytes(ByteWriter.Byte2bytes(this.skillType));
+                writer.writeBytes(ByteWriter.Integer2bytes(this.cooldown));
+                return writer.bytes();
+            };
+            Skill.parse = function (reader) {
+                var obj = new Client.Skill();
+                obj.skillType = reader.readByte();
+                obj.cooldown = reader.readInteger();
+                return obj;
+            };
+            return Skill;
+        }());
+        Client.Skill = Skill;
+        Skill["__class"] = "Protocol.Client.Skill";
     })(Client = Protocol.Client || (Protocol.Client = {}));
 })(Protocol || (Protocol = {}));
 
@@ -455,7 +554,7 @@ var ByteWriter = (function () {
             pos += 1;
         }
         return arraybuf;
-    }
+    };
     return ByteWriter;
 }());
 ByteWriter["__class"] = "ByteWriter";

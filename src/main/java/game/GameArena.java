@@ -1,8 +1,12 @@
 package game;
 
+import java.io.InputStreamReader;
+import java.net.URL;
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.Scanner;
+import com.google.gson.JsonArray;
+import com.google.gson.JsonElement;
+import com.google.gson.JsonParser;
 
 public class GameArena {
 	private static final int INF = 999999999;
@@ -10,27 +14,47 @@ public class GameArena {
 	private int[][] collision_map;
 	private int w, h, tileSize;
 	
-	public GameArena(String fileName) {
-		//File file = new File(fileName);
-		try{
-			Scanner s = new Scanner(ExampleMap.getMap());
-			String[] params = s.nextLine().split(" ");
-			
-			w = Integer.parseInt(params[0]);
-			h = Integer.parseInt(params[1]);
-			tileSize = Integer.parseInt(params[2]);
-			collision_map = new int[h][w];	
-			
-			for(int i = 0; s.hasNextLine(); i++) {
-				String[] line = s.nextLine().split(" ");
-				for(int j = 0; j < line.length; j++) {
-					collision_map[i][j] = Integer.parseInt(line[j]);
-				}
-			}
-			s.close();
-		}catch(Exception e) {
-			System.out.println("GameArena::GameArena exception");
-		}
+	public GameArena(String mapName) {
+        try{
+        	URL url = new URL("http://localhost:8080/WebGame/game/assets/" + mapName + ".json");
+            InputStreamReader reader = new InputStreamReader(url.openStream());
+            JsonParser parser = new JsonParser();
+            JsonArray layers = parser.parse(reader).getAsJsonObject().getAsJsonArray("layers");
+            //iterate through each layer
+            for (JsonElement layer : layers) {
+            	if(layer.getAsJsonObject().getAsJsonPrimitive("name")	//find layer with name "Collision"
+            			.getAsString().equals("Collision")) 
+            	{
+            		//might be useful if someone will modify the game to accept arenas with different sizes
+            		h = layer.getAsJsonObject().getAsJsonPrimitive("height").getAsInt();	//get height
+            		w  = layer.getAsJsonObject().getAsJsonPrimitive("width").getAsInt();	//get width
+            		tileSize = Constants.GAME_TILE_SIZE;
+            		JsonArray data = layer.getAsJsonObject().getAsJsonArray("data");	//contains collision map
+            		collision_map = new int[h][w];
+                	for(int i = 0; i < h; i++) {
+                		for(int j = 0; j < w; j++) {
+                			if (data.get(w*i + j).getAsInt() != 0)	
+                				collision_map[i][j] = 1;
+                		}
+                	}
+            		break;
+            	}
+            }
+            reader.close();
+        } catch(Exception e) {
+        	//If map fails to load then just create rectangular arena
+        	System.out.println(e.getMessage());
+        	System.out.println("Could not load " + mapName + ".json map now have only borders");
+        	h = Constants.GAME_HEIGHT/Constants.GAME_TILE_SIZE;
+        	w = Constants.GAME_WIDTH/Constants.GAME_TILE_SIZE;
+        	collision_map = new int[h][w];
+        	for(int i = 0; i < h; i++) {
+        		for(int j = 0; j < w; j++) {
+        			if(i == 0 || i == (h-1) || j == 0 || j == (w-1))
+        				collision_map[i][j] = 1;
+        		}
+        	}
+        }
 	}
 	
 	public int getEntry(int y, int x) {
@@ -115,12 +139,6 @@ public class GameArena {
 			check = check.getParent();
 		}
 		turns.add(target.getParent().convert());
-		/*
-		for (int i = 0; i < turns.size() - 1; i++) {
-			turns.get(i).setParent(turns.get(i + 1));
-		}
-		turns.get(turns.size() - 1).setParent(null);
-		*/
 		
 		return turns;
 	}

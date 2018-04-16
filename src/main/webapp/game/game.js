@@ -12,6 +12,7 @@ function CreateGame(parent, socket, lobbyIndex) {
 			            }
 		        	);
 	var actorManager = new ActorManager(game);
+	var feedbackManager = new FeedbackManager();
     var cursors;
 	var q,w,e,r;
 	var inputMessage = null;
@@ -61,6 +62,7 @@ function CreateGame(parent, socket, lobbyIndex) {
 		e.onDown.add(function(){spell(2)});
 		r.onDown.add(function(){spell(3)});
     	game.input.onDown.add(move, this);
+    	
     }
 
     function update() {
@@ -88,9 +90,14 @@ function CreateGame(parent, socket, lobbyIndex) {
         if (!ready) {
             console.log("not booted");
         }
-        if (gameMsg.worldState != null && ready) {
-            var actorsMsg = gameMsg.worldState.items;
+        if (gameMsg.worldState.actors != null && ready) {
+            var actorsMsg = gameMsg.worldState.actors.items;
             actorManager.onmessage(actorsMsg);
+        }
+        if (gameMsg.worldState.players != null && ready) {
+        	var playersMsg = gameMsg.worldState.players.items;
+        	var cooldownsMsg = gameMsg.worldState.skillsCooldown.items;
+        	feedbackManager.onmessage(playersMsg, cooldownsMsg);
         }
     }
 
@@ -101,7 +108,32 @@ function CreateGame(parent, socket, lobbyIndex) {
 	return game;
 }
 
-
+function FeedbackManager() {
+	var feedback = document.querySelector("#feedback");
+	
+	this.onmessage = function(playersMsg, cooldownsMsg) {
+		var info = "";
+		var hpStats = "<div>";
+		for (let i in playersMsg) {
+			hpStats += "Player " + i + ": ";
+			hpStats += playersMsg[i];
+			hpStats += "<br>";
+		}
+		hpStats += "</div><br>"
+		info += hpStats;
+		var cooldownStats = "<div>"
+		for (let i in cooldownsMsg) {
+			var skillInfo = cooldownsMsg[i];
+			cooldownStats += skillInfo.skillType;
+			cooldownStats += ": ";
+			cooldownStats += skillInfo.cooldown;
+			cooldownStats += "<br>"
+		}
+		cooldownStats += "</div>";
+		info += cooldownStats;
+		feedback.innerHTML = info;
+	}
+}
 
 function ActorManager(game) {
     this.actors = {} // id -> actor

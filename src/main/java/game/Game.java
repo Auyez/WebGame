@@ -16,7 +16,10 @@ import java.io.BufferedWriter;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.nio.ByteBuffer;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 import java.util.Map;
 import java.util.Queue;
@@ -30,7 +33,6 @@ public class Game implements Runnable {
 	private List<Actor> 												actors;
 	private List<Player> 												players;
 	private GameArena 													ga;
-	//private BufferedWriter writer;
 
 
     public Game(Queue<Pair<Session, Protocol.Server.GameMsg>> messages,
@@ -42,14 +44,8 @@ public class Game implements Runnable {
         this.sessions = sessions;
 		actors = new ArrayList<Actor>();
 		players = new ArrayList<Player>();
-		ga = new GameArena("map.txt");
-		/*String name = number + System.currentTimeMillis() + ".txt";
-		System.out.println(name);
-		try {
-			writer = new BufferedWriter(new FileWriter(name, true));
-		} catch (IOException e) {
-			e.printStackTrace();
-		}*/
+		ga = new GameArena("map");
+		
     }
 
 
@@ -184,30 +180,42 @@ public class Game implements Runnable {
     	    Protocol.Client.ClientMsg message = new Protocol.Client.ClientMsg();
             message.gameMsg = new Protocol.Client.GameMsg();
             message.gameMsg.worldState = new Protocol.Client.WorldState();
+            message.gameMsg.worldState.actors = new Protocol.Client.Actors();
+            message.gameMsg.worldState.players = new Protocol.Client.Players();
+            message.gameMsg.worldState.skillsCooldown = new Protocol.Client.SkillsCooldown();
 
             for (Actor a : actors) {
-                message.gameMsg.worldState.items.add(a.getState());
+            	message.gameMsg.worldState.actors.items.add(a.getState());
             }
+            for (Player p : players) {
+            	message.gameMsg.worldState.players.items.add(p.getHp());
+            }
+            
             // Write to file as replay
             //recordAsReplay();
             
             synchronized (sessions) {
 				for (Session s : sessions.keySet()) {
+					int id = sessions.get(s);
+					for (Player p : players) {
+						if (p.getId() == id) {
+							message.gameMsg.worldState.skillsCooldown.items = p.getCooldowns();
+							break;
+						}
+					}
+					
 					WebSocketEndpoint.sendBinary(s, message.bytes());
 				}
 			}
+            /*
+            synchronized (sessions) {
+				for (Session s : sessions.keySet()) {
+					
+					WebSocketEndpoint.sendBinary(s, message.bytes());
+				}
+			}*/
     	}
     }
-
-
-	/*private void recordAsReplay()  {
-		try {
-			String str = "1_";
-			writer.append(str);
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
-	}*/
 
 
 	private void addPlayer(int id) {	
