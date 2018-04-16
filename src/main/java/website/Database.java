@@ -64,19 +64,6 @@ public class Database {
         throw new SQLException();
     }
 
-    public String getPasswordSalt(String username)
-            throws SQLException
-    {
-        String query = "select password_salt from user where username = ?";
-        PreparedStatement statement = connection.prepareStatement(query);
-        statement.setString(1, username);
-        ResultSet result = statement.executeQuery();
-        if (result.next()) {
-            return result.getString(1);
-        }
-        throw new SQLException();
-    }
-
     public List<Integer> getUserSkillIds(String username)
             throws SQLException
     {
@@ -159,7 +146,7 @@ public class Database {
         return skills;
     }
 
-    public void insertUser(String username, String passwordHash, String passwordSalt) throws SQLException {
+    public void insertUser(String username, String passwordHash) throws SQLException {
         // choose new id
         String query = "select max(user_id) from user";
         Statement statement = connection.createStatement();
@@ -170,12 +157,11 @@ public class Database {
         int newId = maxId + 1;
 
         // insert into db
-        String command = "insert into user values (?, ?, ?, ?)";
+        String command = "insert into user values (?, ?, ?)";
         PreparedStatement statement1 = connection.prepareStatement(command);
         statement1.setInt(1, newId);
         statement1.setString(2, username);
         statement1.setString(3, passwordHash);
-        statement1.setString(4, passwordSalt);
         statement1.executeUpdate();
     }
 
@@ -222,7 +208,7 @@ public class Database {
                 System.out.println("Database error: couldn't load jdbc driver");
             }
             connection = DriverManager.getConnection(
-                    "jdbc:mysql://localhost:3306/WebGame",
+                    "jdbc:mysql://localhost:3306/WebGame?useSSL=false",
                     "root",
                     ""
             );
