@@ -38,7 +38,8 @@ function Lobby(lobbyIndex, parent) {
     self.lobbyOnMessage = function(clientMsg) {
         if (clientMsg.startGame != null) {
             document.getElementById(parent).innerHTML = '';
-            self.game = CreateGame(parent, self.socket, lobbyIndex);
+            var mapJson = localStorage.getItem('mapJson');
+            self.game = CreateGame(parent, self.socket, lobbyIndex, mapJson);
         } else if (clientMsg.gameMsg != null) {
             // drop messages if game is not ready yet
             if (self.game.isready()) {

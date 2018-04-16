@@ -11,21 +11,24 @@ import java.util.LinkedList;
 import java.util.Map;
 import java.util.Queue;
 
-class Lobby {
+public class Lobby {
     private int number;
     private final Map<Session, Integer> sessions = new HashMap<Session, Integer>(); // Session -> PlayerID map
     private Thread gameThread;
     private final Queue<Pair<Session, Protocol.Server.GameMsg>> gameMessages = new LinkedList<>();
     private final Queue<Integer> gamePlayerDisconnectMessages = new LinkedList<>();
     private int readyCount;
+    private String mapJson;
 
-    Lobby(int number) {
+    Lobby(int number, String mapJson) {
         this.number = number;
+        this.mapJson = mapJson;
     }
 
 
     public synchronized void onMessage(Protocol.Server.LobbyCmd message, Session session) {
         if (message.addPlayer != null && !isGameRunning()) {
+
             System.out.println(message.addPlayer.playerId + " " + message.addPlayer.authToken);
 
             if (AuthTokens.getInstance().isValid(message.addPlayer.playerId, message.addPlayer.authToken)) {
@@ -90,7 +93,7 @@ class Lobby {
             gameMessages.clear();
             gamePlayerDisconnectMessages.clear();
 
-            Game game = new Game(gameMessages, gamePlayerDisconnectMessages, sessions, number);
+            Game game = new Game(gameMessages, gamePlayerDisconnectMessages, sessions, number, mapJson);
             gameThread = new Thread(game);
             gameThread.start();
         }
@@ -100,5 +103,9 @@ class Lobby {
         if (gameThread == null)
             return false;
         return gameThread.isAlive();
+    }
+
+    public String getMapJson() {
+        return mapJson;
     }
 }

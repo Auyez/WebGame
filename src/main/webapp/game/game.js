@@ -2,7 +2,7 @@ var FRAME_WIDTH = 32;
 var FRAME_HEIGHT = 36;
 
 
-function CreateGame(parent, socket, lobbyIndex) {
+function CreateGame(parent, socket, lobbyIndex, mapJson) {
 	var game = new Phaser.Game(
 			            1200, 900, Phaser.AUTO, parent,
 			            {
@@ -20,8 +20,8 @@ function CreateGame(parent, socket, lobbyIndex) {
 	
     function preload() {
         //game.load.image('tile', 'game/assets/map.png');
-        
-        this.game.load.tilemap('MyTilemap', 'game/assets/map.json', null, Phaser.Tilemap.TILED_JSON);
+
+        this.game.load.tilemap('MyTilemap', null, mapJson, Phaser.Tilemap.TILED_JSON);
         this.game.load.image('tiles', 'game/assets/map.png');
         
         ActorManager.preload(game);

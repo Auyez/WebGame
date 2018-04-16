@@ -12,4 +12,10 @@ public class LobbyListService {
     public Response getUserId() {
         return Response.ok(LobbyList.getLobbies().size()).build();
     }
+
+    @GET
+    @Path("/map")
+    public Response getMap(@QueryParam("lobbyIndex") int lobbyIndex) {
+        return Response.ok(LobbyList.getLobbies().get(lobbyIndex).getMapJson()).build();
+    }
 }

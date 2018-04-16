@@ -38,13 +38,14 @@ public class Game implements Runnable {
     public Game(Queue<Pair<Session, Protocol.Server.GameMsg>> messages,
                 Queue<Integer> playerDisconnectMessages,
                 Map<Session, Integer> sessions,
-                int number) {
+                int number, String mapJson) {
         this.messages = messages;
         this.playerDisconnectMessages = playerDisconnectMessages;
         this.sessions = sessions;
 		actors = new ArrayList<Actor>();
 		players = new ArrayList<Player>();
-		ga = new GameArena("map");
+
+		ga = new GameArena(mapJson);
 		
     }
 

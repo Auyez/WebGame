@@ -26,7 +26,8 @@
         }
 
         function joinLobby(lobbyIndex) {
-            // set lobbyIndex, userId, and equipped skills before joining
+
+            // set lobbyIndex, userId, equipped skills, mapJson before joining
             localStorage.setItem('lobbyIndex', lobbyIndex);
 
             var username = localStorage.getItem('username');
@@ -39,10 +40,16 @@
                 $.get(`services/user/skill_ids?username=${username}`)
                 .done(function(data) {
                     localStorage.setItem('skill_ids', data);
-                    location.href = 'lobby.html';
+                })
+                .done(function() {
+                    $.get(`services/lobbylist/map?lobbyIndex=${lobbyIndex}`,
+                    function(data){
+                        localStorage.setItem('mapJson', data);
+                        localStorage.setItem('lobbyIndex', lobbyIndex);
+                        location.href = 'lobby.html';
+                    });
                 });
             });
-
 
         }
 
