@@ -120,14 +120,16 @@ function FeedbackManager(actorManager, game) {
 			if ( player.id in actorManager.actors ){
 				var sprite = actorManager.actors[player.id].sprite;
 				if ( !(player.id in this.bars)){				
-					var hpBar = new HealthBar(game, {x: sprite.x, y: sprite.y + 10, width: 32, height: 3});
+					var hpBar = new HealthBar(game, {x: sprite.x, y: sprite.y - 10, width: 32, height: 4});
 					hpBar.setPercent(100);
+					hpBar.setBarColor('#FFFF00');
 					this.bars[player.id] = hpBar;
 				} else {
 					if (player.hp <= 0){
+						this.bars[player.id].kill();
 						delete this.bars[player.id];
 					} else {
-						this.bars[player.id].x = 
+						this.bars[player.id].setPosition(sprite.x, sprite.y - 20);
 						this.bars[player.id].setPercent( 100 * player.hp / MAX_HP );
 					}
 				}
@@ -192,16 +194,16 @@ function ActorManager(game) {
 }
 
 
-ActorManager.type2imagenames = {
+/*ActorManager.type2imagenames = {
     0 : ['Sylv_debug.png'],
     1 : ['fireball_debug.png']
-}
+}*/
 
-/*
+
 ActorManager.type2imagenames = {
     0 : ['Char.png', 'Sylv.png', 'Char2.png'],
     1 : ['fireball.png']
-}*/
+}
 
 ActorManager.preload = function(game) {
     for (var type in ActorManager.type2imagenames) {
