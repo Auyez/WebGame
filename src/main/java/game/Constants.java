@@ -7,11 +7,11 @@ public class Constants {
 	public static final int	GAME_HEIGHT = 900;
 	public static final int GAME_TILE_SIZE = 30;
 	
-	public static final Vec2[] SPAWN_POINTS = {new Vec2(48,1), new Vec2(1, 1), new Vec2(48,27), new Vec2(1, 27)}; //given in tiles
+	public static final Vec2[] SPAWN_POINTS = {new Vec2(47,1), new Vec2(2, 1), new Vec2(47,27), new Vec2(2, 27)}; //given in tiles
 	//PLAYER
 	public static final int PLAYER_SPEED = 200;
-	public static final int PLAYER_WIDTH = 20;
-	public static final int PLAYER_HEIGHT = 40;
+	public static final int PLAYER_WIDTH = 32;
+	public static final int PLAYER_HEIGHT = 36;
 	public static final int PLAYER_LOWER_HEIGHT = 20;
 	public static final int PLAYER_HP = 300;
 	public static final int PLAYER_DEATH_TIME = 10;

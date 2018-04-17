@@ -66,11 +66,11 @@ public class TileNode implements Comparable<TileNode>{
 			TileNode left = new TileNode(map_x - 1, map_y, this);
 			result.add(left);
 		}
-		if (map_x + 1 < 40 && map[map_y][map_x + 1] == 0) {
+		if (map_x + 1 < Constants.GAME_WIDTH/Constants.GAME_TILE_SIZE && map[map_y][map_x + 1] == 0) {
 			TileNode right = new TileNode(map_x + 1, map_y, this);
 			result.add(right);
 		}
-		if (map_y + 1 < 30 && map[map_y + 1][map_x] == 0) {
+		if (map_y + 1 < Constants.GAME_HEIGHT/Constants.GAME_TILE_SIZE && map[map_y + 1][map_x] == 0) {
 			TileNode top = new TileNode(map_x, map_y + 1, this);
 			result.add(top);
 		}

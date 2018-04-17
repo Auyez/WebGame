@@ -57,7 +57,7 @@ public class Player extends Actor{
 		if (input.getActiveSkill() >= 0) {	//gets first pressed skill
 			skills[input.getActiveSkill()].use(input.getSkillTarget());
 		} else if (target != null) {
-			Vec2 movement = Vec2.subs(position, target);
+			Vec2 movement = Vec2.subs(target, getLowerCenter());
 
 			// animation
 			int angle = (int)Math.round(Math.toDegrees(movement.getAngleRad()));
@@ -73,10 +73,10 @@ public class Player extends Actor{
 				setAnimation(ANIM_LEFT);
 			// animation
 			
-			movement.scalar( -(speed * (delta/1000.0f))/movement.getMagnitude() );
+			movement.scalar( speed * (delta/1000.0f)/movement.getMagnitude() );
 			addPosition(movement);
 			updated_movement = movement;
-			if (position.isClose(target, 2.0f))	// path-finding-getting next movement
+			if (getLowerCenter().isClose(target, 2.0f))	// path-finding-getting next movement
 				input.getNextTarget();
 		}
 	}

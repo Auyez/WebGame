@@ -260,23 +260,33 @@ public class GameArena {
 		float x1 = (float)x_target;
 		float y1 = (float)y_target;
 		// TODO make player width, height and lower height constants in Player.java ?
-		float dy1 = 20;
-		float dy2 = 40;
-		float dx = 20;
-		
+		//float dy1 = 20;
+		//float dy2 = 40;
+		//float dx = 20;
+		float dy = Constants.PLAYER_LOWER_HEIGHT/2.0f - Constants.PLAYER_LOWER_HEIGHT/8.0f ;
+		//float dy2 = Constants.PLAYER_HEIGHT;
+		float dx = Constants.PLAYER_WIDTH/2.0f;
 		ArrayList<TileNode> lineTiles = new ArrayList<TileNode>();
 		// Checks all four lines from each corner of hit-box
+		/*
 		lineTiles.addAll(raytrace((x0)/tileSize, (y0 + dy1)/tileSize, (x1)/tileSize, (y1 + dy1)/tileSize));
 		lineTiles.addAll(raytrace((x0)/tileSize, (y0 + dy2)/tileSize, (x1)/tileSize, (y1 + dy2)/tileSize));
 		lineTiles.addAll(raytrace((x0 + dx)/tileSize, (y0 + dy1)/tileSize, (x1 + dx)/tileSize, (y1 + dy1)/tileSize));
 		lineTiles.addAll(raytrace((x0 + dx)/tileSize, (y0 + dy2)/tileSize, (x1 + dx)/tileSize, (y1 + dy2)/tileSize));
+		*/
+		lineTiles.addAll(raytrace((x0 - dx)/tileSize, (y0 - dy)/tileSize, (x1 - dx)/tileSize, (y1 - dy)/tileSize));
+		lineTiles.addAll(raytrace((x0 + dx)/tileSize, (y0 - dy)/tileSize, (x1 + dx)/tileSize, (y1 - dy)/tileSize));
+		lineTiles.addAll(raytrace((x0 - dx)/tileSize, (y0 + dy)/tileSize, (x1 - dx)/tileSize, (y1 + dy)/tileSize));
+		lineTiles.addAll(raytrace((x0 + dx)/tileSize, (y0 + dy)/tileSize, (x1 + dx)/tileSize, (y1 + dy)/tileSize));
 		
 		for (TileNode i : lineTiles) {
 			if (collision_map[i.getY()][i.getX()] == 1) {
+				System.out.println(i.getX() + " " + i.getY());
 				collides = true;
 			}
 		}
-		
+
+		System.out.println(x0 + "  " + y0 + "\n" + x_target + " " + y_target + " " + collides);
 		return collides;
 	}
 }
