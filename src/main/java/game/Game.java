@@ -151,31 +151,27 @@ public class Game implements Runnable {
 		int size = ga.getTileSize();
 		// This bias is needed for path-finding algorithm, because
 		// collision occurs with lower part of player, but the movement is calculated using upper part of player.
-		//int dy = Constants.PLAYER_HEIGHT - Constants.PLAYER_LOWER_HEIGHT; 
 		boolean free = true;
-
-		for(int i = (input.yTarget - Constants.PLAYER_LOWER_HEIGHT)/size; i <= (input.yTarget)/size; i++)
-			for(int j = input.xTarget/size; j <= (input.xTarget + Constants.PLAYER_WIDTH)/size; j++)
+		int dy = Constants.PLAYER_LOWER_HEIGHT / 2;
+		int dx = Constants.PLAYER_WIDTH / 2;
+		for(int i = (input.yTarget - dy)/size; i <= (input.yTarget + dy)/size; i++)
+			for(int j = (input.xTarget - dx)/size; j <= (input.xTarget + dx)/size; j++)
 				if(ga.getEntry(i, j) == 1)
 					free = false;
 		
-		//if (ga.getEntry((input.yTarget + dy) / size, input.xTarget / size) == 0) {
+		
 		if (free) {
-			int x_init = (int) player.getLowerCenter().getX() / size;
-			int y_init = (int) player.getLowerCenter().getY() / size;
-			int x_target = input.xTarget / size;
-			int y_target = input.yTarget / size;
-			
-			
 			player.getInput().clrMouse();
 			// Initial check if there are no obstacles between initial and target destinations
 			if (ga.checkCollision(player.getLowerCenter().getX(),
 								  player.getLowerCenter().getY(), 
 								  input.xTarget,
 								  input.yTarget)) {
-				System.out.println("A*");
 				// Call A* search here, setMouse should take a sequence of destination coordinates
-				ArrayList<TileNode> sequence =  ga.aStar(x_init, y_init, x_target, y_target);
+				
+				int x_target = input.xTarget / size;
+				int y_target = input.yTarget / size;
+				ArrayList<TileNode> sequence =  ga.aStar(x_target, y_target, player);
 				player.getInput().setMouse(sequence);
 			}
 			player.getInput().setDestination(input.xTarget, input.yTarget);
@@ -199,9 +195,6 @@ public class Game implements Runnable {
             	message.gameMsg.worldState.players.items.add(p.getStats());
             }
             
-            // Write to file as replay
-            //recordAsReplay();
-            
             synchronized (sessions) {
 				for (Session s : sessions.keySet()) {
 					int id = sessions.get(s);
@@ -215,13 +208,6 @@ public class Game implements Runnable {
 					WebSocketEndpoint.sendBinary(s, message.bytes());
 				}
 			}
-            /*
-            synchronized (sessions) {
-				for (Session s : sessions.keySet()) {
-					
-					WebSocketEndpoint.sendBinary(s, message.bytes());
-				}
-			}*/
     	}
     }
 

@@ -32,7 +32,8 @@ public class TileNode implements Comparable<TileNode>{
 	
 	@Override
 	public int compareTo(TileNode instance) {
-		return (int) Math.round(this.f - instance.f);
+		return (this.f < instance.f ? -1 :
+			   (this.f == instance.f ? 0 : 1));
 	}
 	
 	public TileNode getParent() {return parent;}
@@ -83,7 +84,7 @@ public class TileNode implements Comparable<TileNode>{
 	}
 
 	public TileNode convert() {
-		TileNode converted = new TileNode((this.x * 30) + 5, (this.y * 30) - 15, this.parent);
+		TileNode converted = new TileNode((this.x * 30) + (Constants.GAME_TILE_SIZE / 2), (this.y * 30) + (Constants.GAME_TILE_SIZE / 2), this.parent);
 
 		return converted;
 	}
