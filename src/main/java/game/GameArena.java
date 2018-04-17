@@ -141,10 +141,6 @@ public class GameArena {
 		}
 		turns.add(target.getParent().convert());
 		
-		System.out.println("TURNS:");
-		for (TileNode i : turns) {
-			System.out.println(i.getCoordinates());
-		}
 		
 		ArrayList<TileNode> path = new ArrayList<TileNode>();
 		
@@ -155,17 +151,14 @@ public class GameArena {
 		
 		int i = 0;
 		while (!init.getCoordinates().equals(dest.getCoordinates())) {
-			//System.out.println(i + ":");
 			float x0 = (float) init.getX();
 			float y0 = (float) init.getY();
 			int x1 = dest.getX();
 			int y1 = dest.getY();
 			if (checkCollision(x0, y0, x1, y1)) {
-				System.out.println("collides, dest: " + dest.getCoordinates());
 				++i;
 				dest = turns.get(i);
 			} else {
-				System.out.println("not collides");
 				TileNode next = new TileNode(dest);
 				path.add(next);
 				init = new TileNode(dest);
@@ -247,8 +240,6 @@ public class GameArena {
 
 	public boolean checkCollision(float x0, float y0, int x_target, int y_target) {
 		boolean collides = false;
-		System.out.println("INIT, X: " + x0 + ", Y: " + y0);
-		System.out.println("DEST, X: " + x_target + ", Y: " + y_target);
 		float x1 = (float)x_target;
 		float y1 = (float)y_target;
 		// TODO make player width, height and lower height constants in Player.java ?

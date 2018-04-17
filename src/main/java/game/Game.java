@@ -160,7 +160,7 @@ public class Game implements Runnable {
 			int y_target = (input.yTarget + dy) / size;
 			
 			
-			
+			player.getInput().clrMouse();
 			// Initial check if there are no obstacles between initial and target destinations
 			if (ga.checkCollision(player.getPosition().getX(),
 								  player.getPosition().getY(), 
@@ -168,10 +168,6 @@ public class Game implements Runnable {
 								  input.yTarget)) {
 				// Call A* search here, setMouse should take a sequence of destination coordinates
 				ArrayList<TileNode> sequence =  ga.aStar(x_init, y_init, x_target, y_target);
-				System.out.println("PATH:");
-				for (TileNode i : sequence) {
-					System.out.println(i.getCoordinates());
-				}
 				player.getInput().setMouse(sequence);
 			}
 			player.getInput().setDestination(input.xTarget, input.yTarget - dy);
