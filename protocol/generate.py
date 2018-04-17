@@ -19,7 +19,8 @@ server_msg = Struct('server_msg', [lobby_index, lobby_cmd])
 # Client
 actor = Struct('actor', [Integer('id'), Integer('type'), Integer('x'), Integer('y'), Byte('animation'), Integer('angle')])
 actors = List('actors', actor)
-players = List('players',Integer('hp'))
+player = Struct('player', [Integer('id'), Integer('hp')])
+players = List('players', player)
 skill = Struct('skill', [Byte('skill_type'), Integer('cooldown')])
 skills_cooldown = List('skills_cooldown', skill)
 

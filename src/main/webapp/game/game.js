@@ -1,6 +1,6 @@
 var FRAME_WIDTH = 32;
 var FRAME_HEIGHT = 36;
-
+var MAX_HP = 300;
 
 function CreateGame(parent, socket, lobbyIndex, mapJson) {
 	var game = new Phaser.Game(
@@ -12,7 +12,7 @@ function CreateGame(parent, socket, lobbyIndex, mapJson) {
 			            }
 		        	);
 	var actorManager = new ActorManager(game);
-	var feedbackManager = new FeedbackManager();
+	var feedbackManager = new FeedbackManager(actorManager, game);
     var cursors;
 	var q,w,e,r;
 	var inputMessage = null;
@@ -106,19 +106,35 @@ function CreateGame(parent, socket, lobbyIndex, mapJson) {
 	return game;
 }
 
-function FeedbackManager() {
+function FeedbackManager(actorManager, game) {
 	var feedback = document.querySelector("#feedback");
-	
+	this.bars = {}
 	this.onmessage = function(playersMsg, cooldownsMsg) {
 		var info = "";
-		var hpStats = "<div>";
-		for (let i in playersMsg) {
-			hpStats += "Player " + i + ": ";
-			hpStats += playersMsg[i];
-			hpStats += "<br>";
+		//var hpStats = "<div>";
+		for (var i in playersMsg) {
+			//hpStats += "Player " + i + ": ";
+			//hpStats += playersMsg[i];
+			//hpStats += "<br>";
+			var player = playersMsg[i];
+			if ( player.id in actorManager.actors ){
+				var sprite = actorManager.actors[player.id].sprite;
+				if ( !(player.id in this.bars)){				
+					var hpBar = new HealthBar(game, {x: sprite.x, y: sprite.y + 10, width: 32, height: 3});
+					hpBar.setPercent(100);
+					this.bars[player.id] = hpBar;
+				} else {
+					if (player.hp <= 0){
+						delete this.bars[player.id];
+					} else {
+						this.bars[player.id].x = 
+						this.bars[player.id].setPercent( 100 * player.hp / MAX_HP );
+					}
+				}
+			}
 		}
-		hpStats += "</div><br>"
-		info += hpStats;
+		//hpStats += "</div><br>"
+		//info += hpStats;
 		var cooldownStats = "<div>"
 		for (let i in cooldownsMsg) {
 			var skillInfo = cooldownsMsg[i];

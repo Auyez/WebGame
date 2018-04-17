@@ -131,4 +131,11 @@ public class Player extends Actor{
 		}
 		return skills_cooldowns;
 	}
+	
+	public Protocol.Client.Player getStats(){
+		Protocol.Client.Player player = new Protocol.Client.Player();
+		player.hp = hp;
+		player.id = getId();
+		return player;
+	}
 }

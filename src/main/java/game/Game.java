@@ -196,7 +196,7 @@ public class Game implements Runnable {
             	message.gameMsg.worldState.actors.items.add(a.getState());
             }
             for (Player p : players) {
-            	message.gameMsg.worldState.players.items.add(p.getHp());
+            	message.gameMsg.worldState.players.items.add(p.getStats());
             }
             
             // Write to file as replay

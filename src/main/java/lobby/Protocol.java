@@ -3,44 +3,6 @@ package lobby;//Constants for the protocol
 import java.util.ArrayList;
 
 /*
-Potential Pitfall: Server.GameMsg and Client.GameMsg are different classes.
-
-Writing Examples:
-// Start Game
-ClientMsg clientMsg = new ClientMsg();
-//clientMsg is a union. That is only one of its members should be non-null
-clientMsg.startGame = new StartGame();
-byte[] bytes = clientMsg.bytes();
-
-// Player Setup
-ClientMsg clientMsg = new ClientMsg();
-clientMsg.gameMsg = new GameMsg();
-clientMsg.gameMsg.playerSetup = new PlayerSetup();
-// playerSetup is a list. Every list has a field 'items'
-clientMsg.gameMsg.playerSetup.items.add(15);
-clientMsg.gameMsg.playerSetup.items.add(16);
-byte[] bytes = clientMsg.bytes();
-
-// World State
-ClientMsg clientMsg = new ClientMsg();
-clientMsg.gameMsg = new GameMsg();
-clientMsg.gameMsg.worldState = new WorldState();
-Entity entity = new Entity();
-entity.player = new Player();
-entity.player.x = 12;
-entity.player.y = 13;
-entity.player.a = 14;
-entity.player.id = 15;
-clientMsg.gameMsg.worldState.items.add(entity);
-byte[] bytes = clientMsg.bytes();
-
-
-
-Reading Example:
-//get bytes from socket
-ServerMsg serverMsg = ServerMsg.parse(ByteBuffer.wrap(bytes));
-*/
-/*
 namespace Server
 	struct server_msg
 		Integer lobby_index
@@ -72,7 +34,9 @@ namespace Client
 						Byte animation
 						Integer angle
 				list players
-					Integer hp
+					struct player
+						Integer id
+						Integer hp
 				list skills_cooldown
 					struct skill
 						Byte skill_type
@@ -357,12 +321,12 @@ public class Protocol {
             }
         }
         public static class Players { /*List*/
-            public ArrayList < Integer > items = new ArrayList < > ();
+            public ArrayList < Player > items = new ArrayList < > ();
             public byte[] bytes() {
                 ByteWriter writer = new ByteWriter();
                 writer.writeInt(items.size());
                 for (int i = 0; i < items.size(); ++i) {
-                    writer.writeBytes(ByteWriter.Integer2bytes(items.get(i)));
+                    writer.writeBytes(items.get(i).bytes());
                 }
                 return writer.bytes();
             }
@@ -370,9 +334,25 @@ public class Protocol {
                 Players obj = new Players();
                 int size = reader.readInteger();
                 for (int i = 0; i < size; ++i) {
-                    Integer item = reader.readInteger();
+                    Player item = Player.parse(reader);
                     obj.items.add(item);
                 }
+                return obj;
+            }
+        }
+        public static class Player { /*Struct*/
+            public Integer id;
+            public Integer hp;
+            public byte[] bytes() {
+                ByteWriter writer = new ByteWriter();
+                writer.writeBytes(ByteWriter.Integer2bytes(id));
+                writer.writeBytes(ByteWriter.Integer2bytes(hp));
+                return writer.bytes();
+            }
+            public static Player parse(ByteReader reader) {
+                Player obj = new Player();
+                obj.id = reader.readInteger();
+                obj.hp = reader.readInteger();
                 return obj;
             }
         }
