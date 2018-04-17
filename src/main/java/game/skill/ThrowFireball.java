@@ -15,13 +15,14 @@ public class ThrowFireball implements Skill{
 		this.caster = caster;
 		this.game = game;
 		isActivated = false;
-		cooldown = Constants.FIREBALL_COOLDOWN;
+		cooldown = 0.0f;
 	}
 	
 	@Override
 	public boolean use(Vec2 target) {
 		if (!isActivated) {
 			isActivated = true;
+			cooldown = Constants.FIREBALL_COOLDOWN;
 			Fireball f = new Fireball(caster.getCenter(), target, Constants.FIREBALL_SIZE, game.getFreeId(), caster.getId());
 			game.addActor(f);
 		}
@@ -32,7 +33,7 @@ public class ThrowFireball implements Skill{
 		if (isActivated) {
 			cooldown -= delta/1000.0f;
 			if (cooldown < 0) {
-				cooldown = Constants.FIREBALL_COOLDOWN;
+				cooldown = 0.0f;
 				isActivated = false;
 			}
 		}

@@ -13,13 +13,14 @@ public class Blink implements Skill{
 	public Blink(Player caster, Game game) {
 		this.game = game;
 		this.caster = caster;
-		cooldown = Constants.BLINK_COOLDOWN;
+		cooldown = 0.0f;
 		isActivated = false;
 	}
 	@Override
 	//target - center of the position where we want to blink
 	public boolean use(Vec2 target) {
 		if(!isActivated) {
+			cooldown = Constants.BLINK_COOLDOWN;
 			isActivated = true;
 			target.add(new Vec2(-caster.getHitbox().width/2.0f, -caster.getHitbox().height/2.0f)); //calculate true position of target
 			Vec2 move = Vec2.subs(target, caster.getPosition()); //vector from player to target
@@ -30,6 +31,7 @@ public class Blink implements Skill{
 				move.scalar(-1.0f);
 				caster.addPosition(move);
 				isActivated = false;
+				cooldown = 0.0f;
 			} else {
 				caster.getInput().clrMouse();
 			}
@@ -43,6 +45,7 @@ public class Blink implements Skill{
 			if (cooldown < 0) {
 				cooldown = Constants.BLINK_COOLDOWN;
 				isActivated = false;
+				cooldown = 0;
 			}
 		}
 	}

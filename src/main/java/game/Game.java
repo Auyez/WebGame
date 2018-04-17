@@ -130,7 +130,7 @@ public class Game implements Runnable {
 		        
 		        // Movement input
 		        
-		        if (gameMsg.skillInput != null) {							// Detect if 'QWER' was pressed
+		        if (gameMsg.skillInput != null && !player.isDead()) {							// Detect if 'QWER' was pressed
 		        	player.getInput().activateSkill(gameMsg.skillInput.skillType);
 		        	player.getInput().setSkillTarget(new Vec2(gameMsg.skillInput.x, gameMsg.skillInput.y));
 		        } else if (gameMsg.input != null) {
@@ -227,6 +227,7 @@ public class Game implements Runnable {
 					   id);
 		Skill Q =  new ThrowFireball(p, this) ;
 		Skill W =  new Blink(p, this);
+		Skill E =  new Blink(p, this);
 		p.setSkill(Q, (byte) 0);
 		p.setSkill(W, (byte) 1);
 		actors.add(p);

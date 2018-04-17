@@ -4,7 +4,7 @@ var FRAME_HEIGHT = 36;
 
 function CreateGame(parent, socket, lobbyIndex, mapJson) {
 	var game = new Phaser.Game(
-			            1200, 900, Phaser.AUTO, parent,
+			            1500, 900, Phaser.AUTO, parent,
 			            {
 			            	preload: preload, 
 			            	create: create, 
@@ -22,7 +22,7 @@ function CreateGame(parent, socket, lobbyIndex, mapJson) {
         //game.load.image('tile', 'game/assets/map.png');
         
         this.game.load.tilemap('MyTilemap', null, mapJson, Phaser.Tilemap.TILED_JSON);
-        this.game.load.image('tiles', 'game/assets/map.png');
+        this.game.load.image('tile-set', 'game/assets/tiles.png');
         
         ActorManager.preload(game);
     }
@@ -30,12 +30,10 @@ function CreateGame(parent, socket, lobbyIndex, mapJson) {
     function create() {
         // Load the map.
     	var Background = game.add.group();
-    	var Upper = game.add.group();
     	var SpriteLevel = game.add.group();
         var map = this.game.add.tilemap('MyTilemap');
-        map.addTilesetImage('map', 'tiles');
-        Upper.add( map.createLayer('Upper'));
-        Background.add(map.createLayer('Background'));
+        map.addTilesetImage('tiles', 'tile-set');
+        Background.add(map.createLayer('Cosmetic'));
         
     	ready = true;
     	

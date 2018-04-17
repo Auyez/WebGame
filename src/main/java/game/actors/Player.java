@@ -126,7 +126,7 @@ public class Player extends Actor{
 		for (byte i = 0; i < Constants.SKILL_NUMBER; i++) {
 			Protocol.Client.Skill cd = new Protocol.Client.Skill();
 			cd.skillType = i;
-			cd.cooldown = (int) skills[i].cooldown();
+			cd.cooldown = (int) Math.ceil(skills[i].cooldown());
 			skills_cooldowns.add(cd);
 		}
 		return skills_cooldowns;
