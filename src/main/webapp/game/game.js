@@ -4,7 +4,7 @@ var MAX_HP = 300;
 
 function CreateGame(parent, socket, lobbyIndex, mapJson) {
 	var game = new Phaser.Game(
-			            1500, 900, Phaser.AUTO, parent,
+			            1600, 900, Phaser.AUTO, parent,
 			            {
 			            	preload: preload, 
 			            	create: create, 
@@ -17,10 +17,9 @@ function CreateGame(parent, socket, lobbyIndex, mapJson) {
 	var q,w,e,r;
 	var inputMessage = null;
 	var ready = false;
-	
+
     function preload() {
-        //game.load.image('tile', 'game/assets/map.png');
-        
+        //game.load.image('tile', 'game/assets/map.png');    	
         this.game.load.tilemap('MyTilemap', null, mapJson, Phaser.Tilemap.TILED_JSON);
         this.game.load.image('tile-set', 'game/assets/tiles.png');
         
@@ -28,7 +27,6 @@ function CreateGame(parent, socket, lobbyIndex, mapJson) {
     }
     
     function create() {
-        // Load the map.
     	var Background = game.add.group();
     	var SpriteLevel = game.add.group();
         var map = this.game.add.tilemap('MyTilemap');
@@ -108,7 +106,10 @@ function CreateGame(parent, socket, lobbyIndex, mapJson) {
 
 function FeedbackManager(actorManager, game) {
 	var feedback = document.querySelector("#feedback");
+	var style = { font: "65px Arial", fill: "#ff0044", align: "center" };
 	this.bars = {}
+
+
 	this.onmessage = function(playersMsg, cooldownsMsg) {
 		var info = "";
 		//var hpStats = "<div>";
@@ -138,6 +139,7 @@ function FeedbackManager(actorManager, game) {
 		//hpStats += "</div><br>"
 		//info += hpStats;
 		var cooldownStats = "<div>"
+	    
 		for (let i in cooldownsMsg) {
 			var skillInfo = cooldownsMsg[i];
 			cooldownStats += skillInfo.skillType;
@@ -201,7 +203,7 @@ function ActorManager(game) {
 
 
 ActorManager.type2imagenames = {
-    0 : ['Char.png', 'Sylv.png', 'Char2.png'],
+    0 : ['Sylv.png'],
     1 : ['fireball.png']
 }
 
