@@ -45,14 +45,15 @@ public class Input {
 			return null;
 		}
 		if (mouse.size() > 0) {
-			return mouse.get(mouse.size() - 1);
+			return mouse.get(0);
 		} else {
 			return null;
 		}
 	}
 	public void getNextTarget() {
-		if (mouse.size() > 0)
-			mouse_prev = mouse.remove(mouse.size() - 1);
+		if (mouse.size() > 0) {
+			mouse_prev = mouse.remove(0);
+		}
 	}
 	
 	public void putBackTarget() {
@@ -62,13 +63,16 @@ public class Input {
 	
 	public Vec2 getPrev() { return mouse_prev; }
 	public void setMouse(ArrayList<TileNode> sequence) {
+		mouse = new ArrayList<Vec2>();
 		for (TileNode i : sequence) {
 			mouse.add(new Vec2(i.getX(), i.getY()));
 		}
 	}
 	
 	public void setDestination(int x, int y) {
-		mouse = new ArrayList<Vec2>();
+		if (mouse == null) {
+			mouse = new ArrayList<Vec2>();
+		}
 		mouse.add(new Vec2(x, y));
 	}
 	

@@ -133,31 +133,45 @@ public class GameArena {
 		TileNode check = target.getParent().getParent();
 		while (check != null) {
 			// Detect turn
-			if (check.getX() != target.getX() && check.getY() != target.getY()) {
-				turns.add(target.getParent().convert());
-			}
+			//if (check.getX() != target.getX() && check.getY() != target.getY()) {
+			turns.add(target.getParent().convert());
+			//}
 			target = target.getParent();
 			check = check.getParent();
 		}
 		turns.add(target.getParent().convert());
 		
+		System.out.println("TURNS:");
+		for (TileNode i : turns) {
+			System.out.println(i.getCoordinates());
+		}
+		
 		ArrayList<TileNode> path = new ArrayList<TileNode>();
 		
 		TileNode init = turns.get(turns.size() - 1);
-		TileNode next = init.getChild();
-		path.add(init);
+		TileNode dest = turns.get(0);
+		TileNode start = new TileNode(init);
+		path.add(start);
 		
-		while (next.getParent() != null ) {
+		int i = 0;
+		while (!init.getCoordinates().equals(dest.getCoordinates())) {
+			//System.out.println(i + ":");
 			float x0 = (float) init.getX();
 			float y0 = (float) init.getY();
-			int x1 = next.getX();
-			int y1 = next.getY();
+			int x1 = dest.getX();
+			int y1 = dest.getY();
 			if (checkCollision(x0, y0, x1, y1)) {
-				init = next.getParent();
-				TileNode line = new TileNode(init);
-				path.add(line);
+				System.out.println("collides, dest: " + dest.getCoordinates());
+				++i;
+				dest = turns.get(i);
+			} else {
+				System.out.println("not collides");
+				TileNode next = new TileNode(dest);
+				path.add(next);
+				init = new TileNode(dest);
+				i = 0;
+				dest = turns.get(i);
 			}
-			next = next.getChild();
 		}
 		return path;
 	}
@@ -243,12 +257,13 @@ public class GameArena {
 		
 		ArrayList<TileNode> lineTiles = new ArrayList<TileNode>();
 		// Checks all four lines from each corner of hit-box
-		lineTiles.addAll(raytrace((x0)/tileSize, (y0 + dy1)/tileSize, (x1)/tileSize, (y1)/tileSize));
-		lineTiles.addAll(raytrace((x0)/tileSize, (y0 + dy2)/tileSize, (x1)/tileSize, (y1 + dy1)/tileSize));
-		lineTiles.addAll(raytrace((x0 + dx)/tileSize, (y0 + dy1)/tileSize, (x1 + dx)/tileSize, (y1)/tileSize));
-		lineTiles.addAll(raytrace((x0 + dx)/tileSize, (y0 + dy2)/tileSize, (x1 + dx)/tileSize, (y1 + dy1)/tileSize));
+		lineTiles.addAll(raytrace((x0)/tileSize, (y0)/tileSize, (x1)/tileSize, (y1)/tileSize));
+		lineTiles.addAll(raytrace((x0)/tileSize, (y0 + dy1)/tileSize, (x1)/tileSize, (y1 + dy1)/tileSize));
+		lineTiles.addAll(raytrace((x0 + dx)/tileSize, (y0)/tileSize, (x1 + dx)/tileSize, (y1)/tileSize));
+		lineTiles.addAll(raytrace((x0 + dx)/tileSize, (y0 + dy1)/tileSize, (x1 + dx)/tileSize, (y1 + dy1)/tileSize));
 		
 		for (TileNode i : lineTiles) {
+			System.out.println("Collision check: " + i.getCoordinates());
 			if (collision_map[i.getY()][i.getX()] == 1) {
 				collides = true;
 			}

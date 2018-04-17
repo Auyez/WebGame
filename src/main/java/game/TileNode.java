@@ -15,6 +15,9 @@ public class TileNode implements Comparable<TileNode>{
 		this.x = x;
 		this.y = y;
 		this.parent = parent;
+		if (parent != null) {
+			parent.child = this;
+		}
 	}
 	
 	public TileNode(TileNode copyTarget) {
@@ -40,7 +43,6 @@ public class TileNode implements Comparable<TileNode>{
 	public int getX() {return x;}
 	public int getY() {return y;}
 	public Vec2 getCoordinates() {return new Vec2(x, y);}
-	
 	public void setG(int g) {this.g = g;}
 	public void setH(double h) {this.h = h;}
 	public void setF() {this.f = this.g + this.h;}
@@ -85,7 +87,5 @@ public class TileNode implements Comparable<TileNode>{
 
 		return converted;
 	}
-	
-	
-	
+
 }
