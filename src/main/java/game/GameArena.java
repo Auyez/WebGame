@@ -128,6 +128,11 @@ public class GameArena {
 	
 	private ArrayList<TileNode> generateTargets(ArrayList<TileNode> tiles) {
 		ArrayList<TileNode> turns = new ArrayList<TileNode>();
+		float x0;
+		float y0;
+		int x1;
+		int y1;
+		
 		TileNode target = tiles.get(tiles.size() - 1);
 		turns.add(target.convert());
 		TileNode check = target.getParent().getParent();
@@ -146,15 +151,27 @@ public class GameArena {
 		
 		TileNode init = turns.get(turns.size() - 1);
 		TileNode dest = turns.get(0);
-		TileNode start = new TileNode(init);
-		path.add(start);
+		
+		// Since aStar uses upper-left corner, sometimes right side of collision box can collide.
+		// Thus, we need to check all four corners of hit-box for collision between first and second turns
+		// TODO instead of init, this should use players current position
+		x0 = (float) init.getX();
+		y0 = (float) init.getY();
+		
+		x1 = turns.get(turns.size() - 2).getX();
+		y1 = turns.get(turns.size() - 2).getY();
+		if (checkCollision(x0, y0, x1, y1)) {
+			TileNode start = new TileNode(init);
+			path.add(start);
+		}
+		
 		
 		int i = 0;
 		while (!init.getCoordinates().equals(dest.getCoordinates())) {
-			float x0 = (float) init.getX();
-			float y0 = (float) init.getY();
-			int x1 = dest.getX();
-			int y1 = dest.getY();
+			x0 = (float) init.getX();
+			y0 = (float) init.getY();
+			x1 = dest.getX();
+			y1 = dest.getY();
 			if (checkCollision(x0, y0, x1, y1)) {
 				++i;
 				dest = turns.get(i);
