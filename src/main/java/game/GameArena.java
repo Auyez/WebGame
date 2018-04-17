@@ -133,9 +133,9 @@ public class GameArena {
 		TileNode check = target.getParent().getParent();
 		while (check != null) {
 			// Detect turn
-			//if (check.getX() != target.getX() && check.getY() != target.getY()) {
-			turns.add(target.getParent().convert());
-			//}
+			if (check.getX() != target.getX() && check.getY() != target.getY()) {
+				turns.add(target.getParent().convert());
+			}
 			target = target.getParent();
 			check = check.getParent();
 		}
@@ -247,7 +247,8 @@ public class GameArena {
 
 	public boolean checkCollision(float x0, float y0, int x_target, int y_target) {
 		boolean collides = false;
-		
+		System.out.println("INIT, X: " + x0 + ", Y: " + y0);
+		System.out.println("DEST, X: " + x_target + ", Y: " + y_target);
 		float x1 = (float)x_target;
 		float y1 = (float)y_target;
 		// TODO make player width, height and lower height constants in Player.java ?
@@ -257,13 +258,12 @@ public class GameArena {
 		
 		ArrayList<TileNode> lineTiles = new ArrayList<TileNode>();
 		// Checks all four lines from each corner of hit-box
-		lineTiles.addAll(raytrace((x0)/tileSize, (y0)/tileSize, (x1)/tileSize, (y1)/tileSize));
 		lineTiles.addAll(raytrace((x0)/tileSize, (y0 + dy1)/tileSize, (x1)/tileSize, (y1 + dy1)/tileSize));
-		lineTiles.addAll(raytrace((x0 + dx)/tileSize, (y0)/tileSize, (x1 + dx)/tileSize, (y1)/tileSize));
+		lineTiles.addAll(raytrace((x0)/tileSize, (y0 + dy2)/tileSize, (x1)/tileSize, (y1 + dy2)/tileSize));
 		lineTiles.addAll(raytrace((x0 + dx)/tileSize, (y0 + dy1)/tileSize, (x1 + dx)/tileSize, (y1 + dy1)/tileSize));
+		lineTiles.addAll(raytrace((x0 + dx)/tileSize, (y0 + dy2)/tileSize, (x1 + dx)/tileSize, (y1 + dy2)/tileSize));
 		
 		for (TileNode i : lineTiles) {
-			System.out.println("Collision check: " + i.getCoordinates());
 			if (collision_map[i.getY()][i.getX()] == 1) {
 				collides = true;
 			}
