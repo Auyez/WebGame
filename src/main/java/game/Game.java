@@ -75,7 +75,7 @@ public class Game implements Runnable {
                 delta = frameStartTime - delta;
                 processMessages();
                 update(delta);
-                if(frameCount % 3 == 0) { // kind of tick rate
+                if(frameCount % 2 == 0) { // kind of tick rate
                 	sendWorldState();
                 }
                 long frameElapsedTime = System.currentTimeMillis() - frameStartTime;
@@ -185,7 +185,7 @@ public class Game implements Runnable {
 		if (free) {
 			player.getInput().clrMouse();
 			// Initial check if there are no obstacles between initial and target destinations
-			if (ga.checkCollision(player.getLowerCenter().getX(),
+			/*if (ga.checkCollision(player.getLowerCenter().getX(),
 								  player.getLowerCenter().getY(), 
 								  input.xTarget,
 								  input.yTarget)) {
@@ -195,7 +195,11 @@ public class Game implements Runnable {
 				int y_target = input.yTarget / size;
 				ArrayList<TileNode> sequence =  ga.aStar(x_target, y_target, player);
 				player.getInput().setMouse(sequence);
-			}
+			}*/
+			int x_target = input.xTarget / size;
+			int y_target = input.yTarget / size;
+			ArrayList<TileNode> sequence =  ga.aStar(x_target, y_target, player);
+			player.getInput().setMouse(sequence);
 			player.getInput().setDestination(input.xTarget, input.yTarget);
 			
 		}
