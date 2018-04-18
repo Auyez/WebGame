@@ -9,6 +9,7 @@ import game.skill.Blink;
 import game.skill.Skill;
 import game.skill.CastFireball;
 import game.skill.CastLightningBolt;
+import game.skill.Restore;
 import lobby.Protocol;
 import lobby.Protocol.Server.Input;
 
@@ -233,10 +234,13 @@ public class Game implements Runnable {
 					   id);
 		Skill Q =  new CastFireball(p, this) ;
 		Skill W =  new Blink(p, this);
-		Skill E =  new CastLightningBolt(p, this);
+		Skill R =  new CastLightningBolt(p, this);
+		Skill E =  new Restore(p, this);
+
 		p.setSkill(Q, (byte) 0);
 		p.setSkill(W, (byte) 1);
 		p.setSkill(E, (byte) 2);
+		p.setSkill(R, (byte) 3);
 		actors.add(p);
 		players.add(p);
 	}
