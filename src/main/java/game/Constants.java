@@ -1,23 +1,25 @@
 package game;
 
 public class Constants {
+	public static final int MAX_LOBBIES = 4;
 	public static final int MAX_PLAYERS = 2;
-	public static final int	GAME_WIDTH = 900;
-	public static final int	GAME_HEIGHT = 1200;
+	public static final int	GAME_WIDTH = 1500;
+	public static final int	GAME_HEIGHT = 900;
 	public static final int GAME_TILE_SIZE = 30;
+	public static final int GAME_TIME = 200;
 	
-	public static final Vec2[] SPAWN_POINTS = {new Vec2(1,1), new Vec2(38, 1), new Vec2(38,27), new Vec2(1, 27)}; //given in tiles
+	public static final Vec2[] SPAWN_POINTS = {new Vec2(47,1), new Vec2(2, 1), new Vec2(47,27), new Vec2(2, 27)}; //given in tiles
 	//PLAYER
 	public static final int PLAYER_SPEED = 200;
-	public static final int PLAYER_WIDTH = 20;
-	public static final int PLAYER_HEIGHT = 40;
+	public static final int PLAYER_WIDTH = 24;
+	public static final int PLAYER_HEIGHT = 36;
 	public static final int PLAYER_LOWER_HEIGHT = 20;
 	public static final int PLAYER_HP = 300;
 	public static final int PLAYER_DEATH_TIME = 10;
 
-	public static final int	SKILL_NUMBER = 2;
+	public static final int	SKILL_NUMBER = 4;
 	public static final int PLAYER_SKILL_LIMIT = 2;
-	
+
 	//Fireball
 	public static final int FIREBALL_DMG = 50;
 	public static final int	FIREBALL_SPEED = 400;
@@ -28,4 +30,17 @@ public class Constants {
 	//Blink
 	public static final int BLINK_COOLDOWN = 3;
 	public static final int BLINK_RANGE = 600;
+	
+
+	//Lightning Bolt
+	public static final int LIGHTNINGBOLT_DMG = 150;
+	public static final int LIGHTNINGBOLT_SPEED = 2000;
+	public static final int LIGHTNINGBOLT_RANGE = 300;
+	public static final int LIGHTNINGBOLT_COOLDOWN = 4;
+	public static final int LIGHTNINGBOLT_SIZE = 5;
+	
+
+	public static final int RESTORE_COOLDOWN = 15;
+
+
 }

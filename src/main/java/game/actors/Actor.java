@@ -8,6 +8,7 @@ public abstract class Actor{
 	public static final int TILE = -1;
 	public static final int PLAYER = 0;
 	public static final int FIREBALL = 1;
+	public static final int LIGHTNINGBOLT = 2;
 	
 	protected Vec2 			position;
 	private Rectangle 		hitbox;
@@ -40,6 +41,13 @@ public abstract class Actor{
 		return new Vec2(position.getX() + hitbox.width/2.0f, position.getY() + hitbox.height/2.0f );
 	}
 
+	public Vec2 getLowerCenter() {
+		if (lowerBox != null) {
+			return new Vec2(position.getX() + lowerBox.width/2.0f, position.getY() + hitbox.height - lowerBox.height/2.0f);
+		}
+		return null;
+	}
+	
 	public void setCenter(Vec2 center) {
 		Vec2 position = new Vec2(center.getX() - hitbox.width/2.0f, center.getY() - hitbox.height/2.0f);
 		setPosition(position);

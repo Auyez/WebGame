@@ -3,80 +3,48 @@ package lobby;//Constants for the protocol
 import java.util.ArrayList;
 
 /*
-Potential Pitfall: Server.GameMsg and Client.GameMsg are different classes.
-
-Writing Examples:
-// Start Game
-ClientMsg clientMsg = new ClientMsg();
-//clientMsg is a union. That is only one of its members should be non-null
-clientMsg.startGame = new StartGame();
-byte[] bytes = clientMsg.bytes();
-
-// Player Setup
-ClientMsg clientMsg = new ClientMsg();
-clientMsg.gameMsg = new GameMsg();
-clientMsg.gameMsg.playerSetup = new PlayerSetup();
-// playerSetup is a list. Every list has a field 'items'
-clientMsg.gameMsg.playerSetup.items.add(15);
-clientMsg.gameMsg.playerSetup.items.add(16);
-byte[] bytes = clientMsg.bytes();
-
-// World State
-ClientMsg clientMsg = new ClientMsg();
-clientMsg.gameMsg = new GameMsg();
-clientMsg.gameMsg.worldState = new WorldState();
-Entity entity = new Entity();
-entity.player = new Player();
-entity.player.x = 12;
-entity.player.y = 13;
-entity.player.a = 14;
-entity.player.id = 15;
-clientMsg.gameMsg.worldState.items.add(entity);
-byte[] bytes = clientMsg.bytes();
-
-
-
-Reading Example:
-//get bytes from socket
-ServerMsg serverMsg = ServerMsg.parse(ByteBuffer.wrap(bytes));
-*/
-/*
 namespace Server
-	struct server_msg
-		Integer lobby_index
-		union lobby_cmd
-			struct add_player
-				Integer player_id
-				String authToken
-			struct ready
-			union game_msg
-				struct input
-					Integer x_target
-					Integer y_target
-				struct skill_input
-					Integer x
-					Integer y
-					Byte skill_type
+        struct server_msg
+                Integer lobby_index
+                union lobby_cmd
+                        struct add_player
+                                Integer player_id
+                                String authToken
+                        struct ready
+                        union game_msg
+                                struct input
+                                        Integer x_target
+                                        Integer y_target
+                                struct skill_input
+                                        Integer x
+                                        Integer y
+                                        Byte skill_type
 
 namespace Client
-	union client_msg
-		struct start_game
-		union game_msg
-			struct world_state
-				list actors
-					struct actor
-						Integer id
-						Integer type
-						Integer x
-						Integer y
-						Byte animation
-						Integer angle
-				list players
-					Integer hp
-				list skills_cooldown
-					struct skill
-						Byte skill_type
-						Integer cooldown
+        union client_msg
+                struct start_game
+                union game_msg
+                        struct world_state
+                                list actors
+                                        struct actor
+                                                Integer id
+                                                Integer type
+                                                Integer x
+                                                Integer y
+                                                Byte animation
+                                                Integer angle
+                                list players
+                                        struct player
+                                                Integer id
+                                                Integer hp
+                                list skills_cooldown
+                                        struct skill
+                                                Byte skill_type
+                                                Integer cooldown
+                list statistics
+                        struct player_stats
+                                Integer id
+                                Integer damage
 */
 public class Protocol {
     public static class Server {
@@ -231,8 +199,10 @@ public class Protocol {
         public static class ClientMsg { /*Union*/
             public StartGame startGame;
             public GameMsg gameMsg;
+            public Statistics statistics;
             static final byte START_GAME = 0;
             static final byte GAME_MSG = 1;
+            static final byte STATISTICS = 2;
             public byte[] bytes() {
                 ByteWriter writer = new ByteWriter();
                 if (false) {;
@@ -242,6 +212,9 @@ public class Protocol {
                 } else if (gameMsg != null) {
                     writer.writeByte(GAME_MSG);
                     writer.writeBytes(gameMsg.bytes());
+                } else if (statistics != null) {
+                    writer.writeByte(STATISTICS);
+                    writer.writeBytes(statistics.bytes());
                 }
                 return writer.bytes();
             }
@@ -254,6 +227,10 @@ public class Protocol {
 
                 if (type == GAME_MSG) {
                     obj.gameMsg = GameMsg.parse(reader);
+                }
+
+                if (type == STATISTICS) {
+                    obj.statistics = Statistics.parse(reader);
                 }
                 return obj;
             }
@@ -357,12 +334,12 @@ public class Protocol {
             }
         }
         public static class Players { /*List*/
-            public ArrayList < Integer > items = new ArrayList < > ();
+            public ArrayList < Player > items = new ArrayList < > ();
             public byte[] bytes() {
                 ByteWriter writer = new ByteWriter();
                 writer.writeInt(items.size());
                 for (int i = 0; i < items.size(); ++i) {
-                    writer.writeBytes(ByteWriter.Integer2bytes(items.get(i)));
+                    writer.writeBytes(items.get(i).bytes());
                 }
                 return writer.bytes();
             }
@@ -370,9 +347,25 @@ public class Protocol {
                 Players obj = new Players();
                 int size = reader.readInteger();
                 for (int i = 0; i < size; ++i) {
-                    Integer item = reader.readInteger();
+                    Player item = Player.parse(reader);
                     obj.items.add(item);
                 }
+                return obj;
+            }
+        }
+        public static class Player { /*Struct*/
+            public Integer id;
+            public Integer hp;
+            public byte[] bytes() {
+                ByteWriter writer = new ByteWriter();
+                writer.writeBytes(ByteWriter.Integer2bytes(id));
+                writer.writeBytes(ByteWriter.Integer2bytes(hp));
+                return writer.bytes();
+            }
+            public static Player parse(ByteReader reader) {
+                Player obj = new Player();
+                obj.id = reader.readInteger();
+                obj.hp = reader.readInteger();
                 return obj;
             }
         }
@@ -409,6 +402,42 @@ public class Protocol {
                 Skill obj = new Skill();
                 obj.skillType = reader.readByte();
                 obj.cooldown = reader.readInteger();
+                return obj;
+            }
+        }
+        public static class Statistics { /*List*/
+            public ArrayList < PlayerStats > items = new ArrayList < > ();
+            public byte[] bytes() {
+                ByteWriter writer = new ByteWriter();
+                writer.writeInt(items.size());
+                for (int i = 0; i < items.size(); ++i) {
+                    writer.writeBytes(items.get(i).bytes());
+                }
+                return writer.bytes();
+            }
+            public static Statistics parse(ByteReader reader) {
+                Statistics obj = new Statistics();
+                int size = reader.readInteger();
+                for (int i = 0; i < size; ++i) {
+                    PlayerStats item = PlayerStats.parse(reader);
+                    obj.items.add(item);
+                }
+                return obj;
+            }
+        }
+        public static class PlayerStats { /*Struct*/
+            public Integer id;
+            public Integer damage;
+            public byte[] bytes() {
+                ByteWriter writer = new ByteWriter();
+                writer.writeBytes(ByteWriter.Integer2bytes(id));
+                writer.writeBytes(ByteWriter.Integer2bytes(damage));
+                return writer.bytes();
+            }
+            public static PlayerStats parse(ByteReader reader) {
+                PlayerStats obj = new PlayerStats();
+                obj.id = reader.readInteger();
+                obj.damage = reader.readInteger();
                 return obj;
             }
         }

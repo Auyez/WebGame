@@ -1,10 +1,10 @@
 var FRAME_WIDTH = 32;
 var FRAME_HEIGHT = 36;
-
+var MAX_HP = 300;
 
 function CreateGame(parent, socket, lobbyIndex, mapJson) {
 	var game = new Phaser.Game(
-			            1200, 900, Phaser.AUTO, parent,
+			            1500, 900, Phaser.AUTO, parent,
 			            {
 			            	preload: preload, 
 			            	create: create, 
@@ -12,7 +12,7 @@ function CreateGame(parent, socket, lobbyIndex, mapJson) {
 			            }
 		        	);
 	var actorManager = new ActorManager(game);
-	var feedbackManager = new FeedbackManager();
+	var feedbackManager = new FeedbackManager(actorManager, game);
     var cursors;
 	var q,w,e,r;
 	var inputMessage = null;
@@ -22,7 +22,7 @@ function CreateGame(parent, socket, lobbyIndex, mapJson) {
         //game.load.image('tile', 'game/assets/map.png');
 
         this.game.load.tilemap('MyTilemap', null, mapJson, Phaser.Tilemap.TILED_JSON);
-        this.game.load.image('tiles', 'game/assets/map.png');
+        this.game.load.image('tile-set', 'game/assets/tiles.png');
         
         ActorManager.preload(game);
     }
@@ -30,12 +30,10 @@ function CreateGame(parent, socket, lobbyIndex, mapJson) {
     function create() {
         // Load the map.
     	var Background = game.add.group();
-    	var Upper = game.add.group();
     	var SpriteLevel = game.add.group();
         var map = this.game.add.tilemap('MyTilemap');
-        map.addTilesetImage('map', 'tiles');
-        Upper.add( map.createLayer('Upper'));
-        Background.add(map.createLayer('Background'));
+        map.addTilesetImage('tiles', 'tile-set');
+        Background.add(map.createLayer('Cosmetic'));
         
     	ready = true;
     	
@@ -108,19 +106,37 @@ function CreateGame(parent, socket, lobbyIndex, mapJson) {
 	return game;
 }
 
-function FeedbackManager() {
+function FeedbackManager(actorManager, game) {
 	var feedback = document.querySelector("#feedback");
-	
+	this.bars = {}
 	this.onmessage = function(playersMsg, cooldownsMsg) {
 		var info = "";
-		var hpStats = "<div>";
-		for (let i in playersMsg) {
-			hpStats += "Player " + i + ": ";
-			hpStats += playersMsg[i];
-			hpStats += "<br>";
+		//var hpStats = "<div>";
+		for (var i in playersMsg) {
+			//hpStats += "Player " + i + ": ";
+			//hpStats += playersMsg[i];
+			//hpStats += "<br>";
+			var player = playersMsg[i];
+			if ( player.id in actorManager.actors ){
+				var sprite = actorManager.actors[player.id].sprite;
+				if ( !(player.id in this.bars)){				
+					var hpBar = new HealthBar(game, {x: sprite.x, y: sprite.y - 10, width: 32, height: 4});
+					hpBar.setPercent(100);
+					hpBar.setBarColor('#FFFF00');
+					this.bars[player.id] = hpBar;
+				} else {
+					if (player.hp <= 0){
+						this.bars[player.id].kill();
+						delete this.bars[player.id];
+					} else {
+						this.bars[player.id].setPosition(sprite.x, sprite.y - 20);
+						this.bars[player.id].setPercent( 100 * player.hp / MAX_HP );
+					}
+				}
+			}
 		}
-		hpStats += "</div><br>"
-		info += hpStats;
+		//hpStats += "</div><br>"
+		//info += hpStats;
 		var cooldownStats = "<div>"
 		for (let i in cooldownsMsg) {
 			var skillInfo = cooldownsMsg[i];
@@ -178,16 +194,17 @@ function ActorManager(game) {
 }
 
 
-ActorManager.type2imagenames = {
+/*ActorManager.type2imagenames = {
     0 : ['Sylv_debug.png'],
     1 : ['fireball_debug.png']
-}
+}*/
 
-/*
+
 ActorManager.type2imagenames = {
     0 : ['Char.png', 'Sylv.png', 'Char2.png'],
-    1 : ['fireball.png']
-}*/
+    1 : ['fireball.png'],
+    2 : ['lightningbolt.png']
+}
 
 ActorManager.preload = function(game) {
     for (var type in ActorManager.type2imagenames) {

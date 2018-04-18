@@ -1,7 +1,6 @@
 package lobby;
 
 import java.nio.ByteBuffer;
-import java.util.Arrays;
 
 public class ByteReader {
     private ByteBuffer buffer;

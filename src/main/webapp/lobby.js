@@ -45,7 +45,18 @@ function Lobby(lobbyIndex, parent) {
             if (self.game.isready()) {
                 self.game.onmessage(clientMsg.gameMsg);
             }
-        }
+        } else if (clientMsg.statistics != null) {
+            var stats = document.querySelector("#stats");
+            var serverStats = "";
+            for (let i in clientMsg.statistics.items) {
+                var playerStats = clientMsg.statistics.items[i];
+                serverStats += playerStats.id;
+                serverStats += "'s damage: ";
+                serverStats += playerStats.damage;
+                serverStats += "<br>";
+            }
+            stats.innerHTML = serverStats;
+         }
     };
 
     self.socket.onclose = function(event) {

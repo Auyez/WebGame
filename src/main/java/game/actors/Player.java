@@ -4,9 +4,11 @@ import java.util.ArrayList;
 
 import game.Constants;
 import game.Input;
+import game.Statistics;
 import game.Vec2;
 import game.skill.Skill;
 import lobby.Protocol;
+import lobby.Protocol.Client.PlayerStats;
 
 public class Player extends Actor{
 	private static final byte ANIM_UP = 0;
@@ -15,13 +17,14 @@ public class Player extends Actor{
 	private static final byte ANIM_LEFT = 3;
 	private static final byte ANIM_IDLE = 4;
 	
-	private int 		hp;
-	private boolean		isDead;				//flag that indicates that Player is dead, required to control death and reviving
-	private float		deathTimer;			//required to return player back in the game
-	private Input 		input;				//contains information about input from front-end
-	private int 		speed;				//speed of the player, we keep it in Constants (However it might be useful to keep it as variable)
-	private Vec2 		updated_movement;	//need this field to keep track of our displacement (caused by overall bad design of this class)
-	private Skill 		skills[];			//array of skills which are interfaces
+	private int 			hp;
+	private boolean			isDead;				//flag that indicates that Player is dead, required to control death and reviving
+	private float			deathTimer;			//required to return player back in the game
+	private Input 			input;				//contains information about input from front-end
+	private int 			speed;				//speed of the player, we keep it in Constants (However it might be useful to keep it as variable)
+	private Vec2 			updated_movement;	//need this field to keep track of our displacement (caused by overall bad design of this class)
+	private Skill 			skills[];			//array of skills which are interfaces
+	private Statistics		statistics;
 
 	/*
 	 * lh - means height of the lower hitbox of the player which is required when we collide with walls
@@ -37,6 +40,7 @@ public class Player extends Actor{
 		hp = Constants.PLAYER_HP;
 		deathTimer = Constants.PLAYER_DEATH_TIME;
 		isDead = false;
+		statistics = new Statistics();
 	}
 	
 	public void update(long delta) {
@@ -51,13 +55,13 @@ public class Player extends Actor{
 		Vec2 target = input.getMouse();
 		setAnimation(ANIM_IDLE);
 
-		for (int i = 0; i < 2; i++)//Constants.SKILL_NUMBER; i++)
+		for (int i = 0; i < Constants.SKILL_NUMBER; i++)//Constants.SKILL_NUMBER; i++)
 			skills[i].update(delta);	//Update skills, for example their cooldown
 		
 		if (input.getActiveSkill() >= 0) {	//gets first pressed skill
 			skills[input.getActiveSkill()].use(input.getSkillTarget());
 		} else if (target != null) {
-			Vec2 movement = Vec2.subs(position, target);
+			Vec2 movement = Vec2.subs(target, getLowerCenter());
 
 			// animation
 			int angle = (int)Math.round(Math.toDegrees(movement.getAngleRad()));
@@ -73,10 +77,10 @@ public class Player extends Actor{
 				setAnimation(ANIM_LEFT);
 			// animation
 			
-			movement.scalar( -(speed * (delta/1000.0f))/movement.getMagnitude() );
+			movement.scalar( speed * (delta/1000.0f)/movement.getMagnitude() );
 			addPosition(movement);
 			updated_movement = movement;
-			if (position.isClose(target, 2.0f))	// path-finding-getting next movement
+			if (getLowerCenter().isClose(target, 2.0f))	// path-finding-getting next movement
 				input.getNextTarget();
 		}
 	}
@@ -120,15 +124,30 @@ public class Player extends Actor{
 	public int getHp() {return hp;}
 	public Input getInput() {return input;}
 	public int getType() {return Actor.PLAYER;}
+	public Statistics getStatistics() {return statistics;}
 	
 	public ArrayList<lobby.Protocol.Client.Skill> getCooldowns() {
 		ArrayList<Protocol.Client.Skill> skills_cooldowns = new ArrayList<Protocol.Client.Skill>();
 		for (byte i = 0; i < Constants.SKILL_NUMBER; i++) {
 			Protocol.Client.Skill cd = new Protocol.Client.Skill();
 			cd.skillType = i;
-			cd.cooldown = (int) skills[i].cooldown();
+			cd.cooldown = (int) Math.ceil(skills[i].cooldown());
 			skills_cooldowns.add(cd);
 		}
 		return skills_cooldowns;
+	}
+	
+	public Protocol.Client.Player getStats(){
+		Protocol.Client.Player player = new Protocol.Client.Player();
+		player.hp = hp;
+		player.id = getId();
+		return player;
+	}
+
+	public PlayerStats generateStats() {
+		Protocol.Client.PlayerStats stats = new Protocol.Client.PlayerStats();
+		stats.id = getId();
+		stats.damage = getStatistics().getDamage();
+		return stats;
 	}
 }
