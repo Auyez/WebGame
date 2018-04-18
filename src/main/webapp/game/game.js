@@ -229,6 +229,9 @@ function Actor(game, type) {
     this.sprite.anchor.x = 0.5;
     this.sprite.anchor.y = 0.5; // position by center, not top left corner
     this.type = type;
+    this.serverX = 0;
+    this.serverY = 0;
+    this.firstUpdate = true;
     //console.log(game)
     //SpriteLevel.add(this.sprite);
     game.world.children[1].add(this.sprite);
@@ -244,18 +247,33 @@ function Actor(game, type) {
 
 
     this.onmessage = function(msg) {
-        this.sprite.x = msg.x;
-        this.sprite.y = msg.y;
+        this.sprite.x = this.serverX;
+        this.sprite.y = this.serverY;
+
+        this.serverX = msg.x;
+        this.serverY = msg.y;
         this.sprite.angle = msg.angle;
         this.sprite.animations.play(msg.animation);
     }
 
     this.update = function() {
         this.sprite.animations.update();
+
+        var ratio = 0.5;
+        if (this.firstUpdate) {
+            ratio = 1;
+            this.firstUpdate = false;
+        }
+        this.sprite.x = lerp(this.sprite.x, this.serverX, ratio);
+        this.sprite.y = lerp(this.sprite.y, this.serverY, ratio);
     }
 
     this.destroy = function() {
         this.sprite.destroy();
+    }
+
+    function lerp(v1, v2, ratio) {
+        return v1 + (v2 - v1) * ratio;
     }
 }
 
