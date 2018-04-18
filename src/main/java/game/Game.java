@@ -7,6 +7,7 @@ import game.actors.Player;
 import game.actors.TileActor;
 import game.skill.Blink;
 import game.skill.Skill;
+import game.skill.Restore;
 import game.skill.ThrowFireball;
 import lobby.Protocol;
 import lobby.Protocol.Server.Input;
@@ -227,9 +228,10 @@ public class Game implements Runnable {
 					   id);
 		Skill Q =  new ThrowFireball(p, this) ;
 		Skill W =  new Blink(p, this);
-		Skill E =  new Blink(p, this);
+		Skill E =  new Restore(p, this);
 		p.setSkill(Q, (byte) 0);
 		p.setSkill(W, (byte) 1);
+		p.setSkill(E, (byte) 2);
 		actors.add(p);
 		players.add(p);
 	}
