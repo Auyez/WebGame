@@ -8,6 +8,7 @@ public abstract class Actor{
 	public static final int TILE = -1;
 	public static final int PLAYER = 0;
 	public static final int FIREBALL = 1;
+	public static final int LIGHTNINGBOLT = 2;
 	
 	protected Vec2 			position;
 	private Rectangle 		hitbox;

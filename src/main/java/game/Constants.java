@@ -6,6 +6,7 @@ public class Constants {
 	public static final int	GAME_WIDTH = 1500;
 	public static final int	GAME_HEIGHT = 900;
 	public static final int GAME_TILE_SIZE = 30;
+	public static final int GAME_TIME = 30;
 	
 	public static final Vec2[] SPAWN_POINTS = {new Vec2(47,1), new Vec2(2, 1), new Vec2(47,27), new Vec2(2, 27)}; //given in tiles
 	//PLAYER
@@ -16,7 +17,7 @@ public class Constants {
 	public static final int PLAYER_HP = 300;
 	public static final int PLAYER_DEATH_TIME = 10;
 
-	public static final int	SKILL_NUMBER = 2;
+	public static final int	SKILL_NUMBER = 3;
 	
 	
 	//Fireball
@@ -29,4 +30,12 @@ public class Constants {
 	//Blink
 	public static final int BLINK_COOLDOWN = 3;
 	public static final int BLINK_RANGE = 600;
+	
+	//Lightning Bolt
+	public static final int LIGHTNINGBOLT_DMG = 50;
+	public static final int LIGHTNINGBOLT_SPEED = 3000;
+	public static final int LIGHTNINGBOLT_RANGE = 300;
+	public static final int LIGHTNINGBOLT_COOLDOWN = 4;
+	public static final int LIGHTNINGBOLT_SIZE = 5;
+	
 }

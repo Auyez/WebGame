@@ -51,7 +51,7 @@ public class Player extends Actor{
 		Vec2 target = input.getMouse();
 		setAnimation(ANIM_IDLE);
 
-		for (int i = 0; i < 2; i++)//Constants.SKILL_NUMBER; i++)
+		for (int i = 0; i < Constants.SKILL_NUMBER; i++)//Constants.SKILL_NUMBER; i++)
 			skills[i].update(delta);	//Update skills, for example their cooldown
 		
 		if (input.getActiveSkill() >= 0) {	//gets first pressed skill

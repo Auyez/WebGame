@@ -6,12 +6,12 @@ import game.Vec2;
 import game.actors.Fireball;
 import game.actors.Player;
 
-public class ThrowFireball implements Skill{
+public class CastFireball implements Skill{
 	private Player 		caster;
 	private Game 		game;
 	private float 		cooldown;
 	private boolean		isActivated;
-	public ThrowFireball(Player caster, Game game) {
+	public CastFireball(Player caster, Game game) {
 		this.caster = caster;
 		this.game = game;
 		isActivated = false;

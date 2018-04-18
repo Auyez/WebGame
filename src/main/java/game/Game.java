@@ -7,9 +7,11 @@ import game.actors.Player;
 import game.actors.TileActor;
 import game.skill.Blink;
 import game.skill.Skill;
-import game.skill.ThrowFireball;
+import game.skill.CastFireball;
+import game.skill.CastLightningBolt;
 import lobby.Protocol;
 import lobby.Protocol.Server.Input;
+
 import javax.websocket.Session;
 import java.awt.Rectangle;
 import java.io.BufferedWriter;
@@ -24,6 +26,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Queue;
 import java.util.Random;
+import java.util.Timer;
+import java.util.TimerTask;
 
 public class Game implements Runnable {
 	
@@ -57,7 +61,9 @@ public class Game implements Runnable {
             boolean 	running = true;
             long 		frameStartTime = 0;
             long		delta;
-
+            long 		gameStarted = System.currentTimeMillis();
+            long 		gameNow;
+            
             synchronized (sessions) {
 				for (int id : sessions.values()) {
 					addPlayer(id);
@@ -65,8 +71,14 @@ public class Game implements Runnable {
 			}
 
             while (running) {
+            	gameNow = System.currentTimeMillis();
+            	if ((gameNow - gameStarted) / 1000.0 > Constants.GAME_TIME) {
+            		running = false;
+            		System.out.println("Time is out!");
+            	}
+            	
             	delta = frameStartTime;
-                frameStartTime = System.currentTimeMillis(); // TODO check whether Java optimizes this or not
+                frameStartTime = System.currentTimeMillis();
                 delta = frameStartTime - delta;
                 processMessages();
                 update(delta);
@@ -219,11 +231,12 @@ public class Game implements Runnable {
 					   Constants.PLAYER_HEIGHT, 
 					   Constants.PLAYER_LOWER_HEIGHT, 
 					   id);
-		Skill Q =  new ThrowFireball(p, this) ;
+		Skill Q =  new CastFireball(p, this) ;
 		Skill W =  new Blink(p, this);
-		Skill E =  new Blink(p, this);
+		Skill E =  new CastLightningBolt(p, this);
 		p.setSkill(Q, (byte) 0);
 		p.setSkill(W, (byte) 1);
+		p.setSkill(E, (byte) 2);
 		actors.add(p);
 		players.add(p);
 	}

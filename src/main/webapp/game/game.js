@@ -202,7 +202,8 @@ function ActorManager(game) {
 
 ActorManager.type2imagenames = {
     0 : ['Char.png', 'Sylv.png', 'Char2.png'],
-    1 : ['fireball.png']
+    1 : ['fireball.png'],
+    2 : ['lightningbolt.png']
 }
 
 ActorManager.preload = function(game) {
