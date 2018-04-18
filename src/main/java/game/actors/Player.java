@@ -1,9 +1,12 @@
 package game.actors;
 
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Map;
 
 import game.Constants;
 import game.Input;
+import game.Statistics;
 import game.Vec2;
 import game.skill.Skill;
 import lobby.Protocol;
@@ -15,13 +18,14 @@ public class Player extends Actor{
 	private static final byte ANIM_LEFT = 3;
 	private static final byte ANIM_IDLE = 4;
 	
-	private int 		hp;
-	private boolean		isDead;				//flag that indicates that Player is dead, required to control death and reviving
-	private float		deathTimer;			//required to return player back in the game
-	private Input 		input;				//contains information about input from front-end
-	private int 		speed;				//speed of the player, we keep it in Constants (However it might be useful to keep it as variable)
-	private Vec2 		updated_movement;	//need this field to keep track of our displacement (caused by overall bad design of this class)
-	private Skill 		skills[];			//array of skills which are interfaces
+	private int 			hp;
+	private boolean			isDead;				//flag that indicates that Player is dead, required to control death and reviving
+	private float			deathTimer;			//required to return player back in the game
+	private Input 			input;				//contains information about input from front-end
+	private int 			speed;				//speed of the player, we keep it in Constants (However it might be useful to keep it as variable)
+	private Vec2 			updated_movement;	//need this field to keep track of our displacement (caused by overall bad design of this class)
+	private Skill 			skills[];			//array of skills which are interfaces
+	private Statistics		statistics;
 
 	/*
 	 * lh - means height of the lower hitbox of the player which is required when we collide with walls
@@ -37,6 +41,7 @@ public class Player extends Actor{
 		hp = Constants.PLAYER_HP;
 		deathTimer = Constants.PLAYER_DEATH_TIME;
 		isDead = false;
+		statistics = new Statistics();
 	}
 	
 	public void update(long delta) {

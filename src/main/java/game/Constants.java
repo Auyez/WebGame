@@ -34,7 +34,7 @@ public class Constants {
 
 	//Lightning Bolt
 	public static final int LIGHTNINGBOLT_DMG = 50;
-	public static final int LIGHTNINGBOLT_SPEED = 3000;
+	public static final int LIGHTNINGBOLT_SPEED = 2000;
 	public static final int LIGHTNINGBOLT_RANGE = 300;
 	public static final int LIGHTNINGBOLT_COOLDOWN = 4;
 	public static final int LIGHTNINGBOLT_SIZE = 5;
