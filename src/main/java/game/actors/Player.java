@@ -1,8 +1,6 @@
 package game.actors;
 
 import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Map;
 
 import game.Constants;
 import game.Input;
@@ -10,6 +8,7 @@ import game.Statistics;
 import game.Vec2;
 import game.skill.Skill;
 import lobby.Protocol;
+import lobby.Protocol.Client.PlayerStats;
 
 public class Player extends Actor{
 	private static final byte ANIM_UP = 0;
@@ -125,6 +124,7 @@ public class Player extends Actor{
 	public int getHp() {return hp;}
 	public Input getInput() {return input;}
 	public int getType() {return Actor.PLAYER;}
+	public Statistics getStatistics() {return statistics;}
 	
 	public ArrayList<lobby.Protocol.Client.Skill> getCooldowns() {
 		ArrayList<Protocol.Client.Skill> skills_cooldowns = new ArrayList<Protocol.Client.Skill>();
@@ -142,5 +142,12 @@ public class Player extends Actor{
 		player.hp = hp;
 		player.id = getId();
 		return player;
+	}
+
+	public PlayerStats generateStats() {
+		Protocol.Client.PlayerStats stats = new Protocol.Client.PlayerStats();
+		stats.id = getId();
+		stats.damage = getStatistics().getDamage();
+		return stats;
 	}
 }

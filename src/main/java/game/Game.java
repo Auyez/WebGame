@@ -15,20 +15,11 @@ import lobby.Protocol.Server.Input;
 
 import javax.websocket.Session;
 import java.awt.Rectangle;
-import java.io.BufferedWriter;
-import java.io.FileWriter;
-import java.io.IOException;
-import java.nio.ByteBuffer;
-import java.text.DateFormat;
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
 import java.util.Map;
 import java.util.Queue;
 import java.util.Random;
-import java.util.Timer;
-import java.util.TimerTask;
 
 public class Game implements Runnable {
 	
@@ -76,6 +67,7 @@ public class Game implements Runnable {
             	if ((gameNow - gameStarted) / 1000.0 > Constants.GAME_TIME) {
             		running = false;
             		System.out.println("Time is out!");
+            		sendStatistics();
             	}
             	
             	delta = frameStartTime;
@@ -95,12 +87,29 @@ public class Game implements Runnable {
                 if (actors.size() <= 0) {
                     running = false;
                     System.out.println("Game loop over");
+                    sendStatistics();
                 }
             }
         } catch (InterruptedException ex) {
             System.out.println("Game::run exception");
         }
     }
+
+
+	private void sendStatistics() {
+		Protocol.Client.ClientMsg message = new Protocol.Client.ClientMsg();
+		message.statistics = new Protocol.Client.Statistics();
+		
+		for (Player p : players) {
+			message.statistics.items.add(p.generateStats());
+		}
+		
+		synchronized (sessions) {
+			for (Session s : sessions.keySet()) {
+				WebSocketEndpoint.sendBinary(s, message.bytes());
+			}
+		}
+	}
 
 
 	private void update(long delta) {

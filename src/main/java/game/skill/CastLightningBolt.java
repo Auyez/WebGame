@@ -3,7 +3,6 @@ package game.skill;
 import game.Constants;
 import game.Game;
 import game.Vec2;
-import game.actors.Fireball;
 import game.actors.LightningBolt;
 import game.actors.Player;
 
@@ -25,7 +24,7 @@ public class CastLightningBolt implements Skill {
 		if (!isActivated) {
 			isActivated = true;
 			cooldown = Constants.LIGHTNINGBOLT_COOLDOWN;
-			LightningBolt l = new LightningBolt(caster.getCenter(), target, Constants.LIGHTNINGBOLT_SIZE, game.getFreeId(), caster.getId());
+			LightningBolt l = new LightningBolt(caster.getCenter(), target, Constants.LIGHTNINGBOLT_SIZE, game.getFreeId(), caster);
 			game.addActor(l);
 		}
 		return isActivated;

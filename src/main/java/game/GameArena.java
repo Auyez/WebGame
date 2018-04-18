@@ -1,7 +1,5 @@
 package game;
 
-import java.io.InputStreamReader;
-import java.net.URL;
 import java.util.ArrayList;
 import java.util.Collections;
 import com.google.gson.JsonArray;

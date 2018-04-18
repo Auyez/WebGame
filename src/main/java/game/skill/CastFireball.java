@@ -23,7 +23,7 @@ public class CastFireball implements Skill{
 		if (!isActivated) {
 			isActivated = true;
 			cooldown = Constants.FIREBALL_COOLDOWN;
-			Fireball f = new Fireball(caster.getCenter(), target, Constants.FIREBALL_SIZE, game.getFreeId(), caster.getId());
+			Fireball f = new Fireball(caster.getCenter(), target, Constants.FIREBALL_SIZE, game.getFreeId(), caster);
 			game.addActor(f);
 		}
 		return isActivated;

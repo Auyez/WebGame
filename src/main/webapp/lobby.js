@@ -47,9 +47,20 @@ function Lobby(lobbyIndex, parent) {
             if (self.game.isready()) {
                 self.game.onmessage(clientMsg.gameMsg);
             }
+        } else if (clientMsg.statistics != null) {
+        	var stats = document.querySelector("#stats");
+        	var serverStats = "";
+        	for (let i in clientMsg.statistics.items) {
+        		var playerStats = clientMsg.statistics.items[i];
+        		serverStats += playerStats.id;
+        		serverStats += "'s damage: ";
+        		serverStats += playerStats.damage;
+        		serverStats += "<br>";
+        	}
+        	stats.innerHTML = serverStats;
         }
     };
-
+//var cooldownsMsg = gameMsg.worldState.skillsCooldown.items;
     self.socket.onclose = function(event) {
         console.log('onclose::' + JSON.stringify(event, null, 4));
         location.href = "index.html";
