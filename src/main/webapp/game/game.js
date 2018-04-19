@@ -129,7 +129,10 @@ function FeedbackManager(actorManager, game) {
 						this.bars[player.id].kill();
 						delete this.bars[player.id];
 					} else {
-						this.bars[player.id].setPosition(sprite.x, sprite.y - 20);
+				        var x = lerp(this.bars[player.id].x, sprite.x, 0.75);
+				        var y = lerp(this.bars[player.id].y, sprite.y, 0.75);
+				        
+						this.bars[player.id].setPosition(x, y - 20);
 						this.bars[player.id].setPercent( 100 * player.hp / MAX_HP );
 					}
 				}
@@ -149,6 +152,10 @@ function FeedbackManager(actorManager, game) {
 		info += cooldownStats;
 		feedback.innerHTML = info;
 	}
+	
+    function lerp(v1, v2, ratio) {
+        return v1 + (v2 - v1) * ratio;
+    }
 }
 
 function ActorManager(game) {
