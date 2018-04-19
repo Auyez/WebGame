@@ -60,7 +60,6 @@ public class BurstFireball implements Skill{
 		result.scalar(1.0f/result.getMagnitude());
 		result.setX(result.getX() * (float)Math.cos(Math.toRadians(degree)) - result.getY() * (float)Math.sin(Math.toRadians(degree)));
 		result.setY(result.getX() * (float)Math.sin(Math.toRadians(degree)) + result.getY() * (float)Math.cos(Math.toRadians(degree)));
-		//System.out.println(Vec2.angle(Vec2.subs(target, caster.getCenter()), result));
 		result.add(caster.getCenter());
 		return result;
 	}
