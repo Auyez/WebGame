@@ -58,7 +58,7 @@ public class BurstFireball implements Skill{
 	private Vec2 calculateOffset(Vec2 target, float degree) {
 		Vec2 result = Vec2.subs(target, caster.getCenter());
 		result.scalar(1.0f/result.getMagnitude());
-		result.setX(result.getX() * (float)Math.cos(Math.toRadians(degree)) - (float)Math.sin(Math.toRadians(degree)));
+		result.setX(result.getX() * (float)Math.cos(Math.toRadians(degree)) - result.getY() * (float)Math.sin(Math.toRadians(degree)));
 		result.setY(result.getX() * (float)Math.sin(Math.toRadians(degree)) + result.getY() * (float)Math.cos(Math.toRadians(degree)));
 		System.out.println(Vec2.angle(Vec2.subs(target, caster.getCenter()), result));
 		result.add(caster.getCenter());
