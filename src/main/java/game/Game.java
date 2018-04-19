@@ -19,6 +19,8 @@ import website.Database;
 import javax.websocket.Session;
 import javax.xml.crypto.Data;
 import java.awt.Rectangle;
+import java.lang.reflect.Constructor;
+import java.lang.reflect.InvocationTargetException;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
@@ -256,9 +258,23 @@ public class Game implements Runnable {
 			List<Integer> skillIds = Database.getInstance().getUserSkillIds(username);
 			Map<Integer, String> skillNames = Database.getInstance().getSkills();
 
-
-
-			Skill Q = new BurstFireball(p, this);
+			for(int i = 0; i < 4; i++) {
+				Skill skill = null;
+				if(i < skillIds.size()) {
+					try{
+						Class<?> clazz = Class.forName("game.skill." + skillNames.get(skillIds.get(i)));
+						Constructor<?> constructor = clazz.getConstructor(Player.class, Game.class);
+						Object instance = constructor.newInstance(p, this);
+						skill = (Skill) instance;
+					}catch(Exception e) {
+						System.out.println(e);
+					}
+				}else {
+					skill = new CastFireball(p , this);
+				}
+				p.setSkill(skill, (byte) i);
+			}
+			/*Skill Q = new BurstFireball(p, this);
 			Skill W = new Blink(p, this);
 			Skill E = new CastLightningBolt(p, this);
 			//Skill R =  new Restore(p, this);
@@ -267,7 +283,7 @@ public class Game implements Runnable {
 			p.setSkill(Q, (byte) 0);
 			p.setSkill(W, (byte) 1);
 			p.setSkill(E, (byte) 2);
-			p.setSkill(R, (byte) 3);
+			p.setSkill(R, (byte) 3);*/
 			actors.add(p);
 			players.add(p);
 		} catch (SQLException ex) {

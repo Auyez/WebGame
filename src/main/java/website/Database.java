@@ -210,7 +210,7 @@ public class Database {
             connection = DriverManager.getConnection(
                     "jdbc:mysql://localhost:3306/WebGame?useSSL=false",
                     "root",
-                    ""
+                    "1234"
             );
 
         } catch (SQLException ex) {

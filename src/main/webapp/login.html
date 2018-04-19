@@ -23,7 +23,7 @@
         <div>
             <ul class="nav navbar-nav navbar-right">
                 <input class="in" type="text" id="username" name="Enter Username">
-                <input class="in" type="password" id="password" name="Enter Password">s
+                <input class="in" type="password" id="password" name="Enter Password">
                 <button type="submit" class="btn btn-link btn-logout" onclick="login()" data-toggle="modal" data-target="#myModal"><span class="glyphicon glyphicon-log-in" ></span> Login </button>
                 <button type="submit" class="btn btn-link btn-logout" onclick="register()" data-toggle="modal" data-target="#myModal"><span class="glyphicon glyphicon-user" ></span> Sign Up </button>
 
@@ -98,21 +98,23 @@
             function error(jqXHR, textStatus, errorThrown) {
                 messagebox.html('register failed');
             };
-
-            $.ajax({
-                type: 'POST',
-                url: 'services/auth/register',
-                data: 'username=' + username.val() + '&password=' + password.val(),
-                success: success,
-                error: error,
-                dataType: 'text'
-            });
+            
+			if(username.val() != "" && password.val() != ""){
+	            $.ajax({
+	                type: 'POST',
+	                url: 'services/auth/register',
+	                data: 'username=' + username.val() + '&password=' + password.val(),
+	                success: success,
+	                error: error,
+	                dataType: 'text'
+	            });
+			}
         }
     </script>
 
 <style>
 body {
-    background-image: url("https://static2.askmrrobot.com/amrbeta/images/backgrounds/warriorarms.jpg");
+    background-image: url("https://hdwallsource.com/img/2014/8/8-bit-wallpaper-34949-35754-hd-wallpapers.jpg");
     background-repeat: no-repeat;
     background-position: center;
     background-size: 100%;
