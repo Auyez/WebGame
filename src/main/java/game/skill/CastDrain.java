@@ -1,35 +1,42 @@
 package game.skill;
 
+import java.util.List;
+
 import game.Constants;
 import game.Game;
 import game.Vec2;
+import game.actors.Drain;
 import game.actors.Fireball;
 import game.actors.Player;
 
-public class CastFireball implements Skill{
+public class CastDrain implements Skill {
+
 	private Player 		caster;
 	private Game 		game;
 	private float 		cooldown;
 	private boolean		isActivated;
+	private List<Player> players;
 	
-	public CastFireball(Player caster, Game game) {
+	public CastDrain(Player caster, Game game) {
 		this.caster = caster;
 		this.game = game;
 		isActivated = false;
 		cooldown = 0.0f;
+		this.players = game.getPlayers();
 	}
 	
 	@Override
 	public boolean use(Vec2 target) {
 		if (!isActivated) {
 			isActivated = true;
-			cooldown = Constants.FIREBALL_COOLDOWN;
-			Fireball f = new Fireball(caster.getCenter(), target, Constants.FIREBALL_SIZE, game.getFreeId(), caster);
-			game.addActor(f);
+			cooldown = Constants.DRAIN_COOLDOWN;
+			Drain d = new Drain(caster.getCenter(), target, Constants.FIREBALL_SIZE, game.getFreeId(), caster, players);
+			game.addActor(d);
 		}
 		return isActivated;
 	}
-	
+
+	@Override
 	public void update(long delta) {
 		if (isActivated) {
 			cooldown -= delta/1000.0f;
@@ -44,7 +51,7 @@ public class CastFireball implements Skill{
 	public float cooldown() {
 		return cooldown;
 	}
-	
+
 	@Override
 	public void reset() {
 		isActivated = false;

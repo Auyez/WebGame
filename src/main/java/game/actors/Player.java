@@ -47,6 +47,9 @@ public class Player extends Actor{
 		if (hp <= 0) {	//this block can return from this method
 			if(!isDead) {	//here we set isDead flag
 				isDead = true; // kill yourself
+				input.clrMouse();
+				for(Skill s : skills)
+					s.reset();
 				destroy();// remove yourself from actors (actors is a list in Game)
 			}
 			return; //don't do anything
@@ -150,4 +153,5 @@ public class Player extends Actor{
 		stats.damage = getStatistics().getDamage();
 		return stats;
 	}
+	
 }

@@ -43,7 +43,6 @@ public class Blink implements Skill{
 		if (isActivated) {
 			cooldown -= delta/1000.0f;
 			if (cooldown < 0) {
-				cooldown = Constants.BLINK_COOLDOWN;
 				isActivated = false;
 				cooldown = 0;
 			}
@@ -53,4 +52,10 @@ public class Blink implements Skill{
 	public float cooldown() {
 		return cooldown;
 	}	
+	
+	@Override
+	public void reset() {
+		isActivated = false;
+		cooldown = 0;
+	}
 }

@@ -9,13 +9,14 @@ public abstract class Actor{
 	public static final int PLAYER = 0;
 	public static final int FIREBALL = 1;
 	public static final int LIGHTNINGBOLT = 2;
+	public static final int DRAIN = 3;
 	
 	protected Vec2 			position;
 	private Rectangle 		hitbox;
 	private Rectangle 		lowerBox;
 	private int 			id;
 	private byte 			animation; // animation row
-	private int spriteAngle; // sprite rotation
+	private int 			spriteAngle; // sprite rotation
 	private boolean			destroyed;
 
 	public abstract void update(long delta);	
@@ -68,6 +69,10 @@ public abstract class Actor{
 			lowerBox.setLocation((int)position.getX(), (int)position.getY() + (hitbox.height - lowerBox.height) );
 	}
 	
+	public boolean isProjectile() {
+		int t = getType();
+		return t == FIREBALL || t == LIGHTNINGBOLT || t == DRAIN;
+	}
 	public void destroy() { destroyed = true; }
 	public void back() {destroyed = false;}
 	public boolean isDestroyed() {return destroyed;}

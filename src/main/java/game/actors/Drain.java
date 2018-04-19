@@ -1,15 +1,18 @@
 package game.actors;
 
+import java.util.List;
+
 import game.Constants;
 import game.Vec2;
 
-public class LightningBolt extends Actor implements Projectile{
+public class Drain extends Actor implements Projectile{
 	private int 		speed;
 	private Vec2 		direction;
 	private Player 		parent;
 	private int 		traveled;
+	private List<Player> players;
 	
-	public LightningBolt(Vec2 start, Vec2 target, int size, int id, Player parent) {
+	public Drain(Vec2 start, Vec2 target, int size, int id, Player parent, List<Player> players) {
 		super(0, 0, size, size, id);
 		setCenter(start);
 		this.direction = Vec2.subs(target, getCenter());
@@ -17,7 +20,7 @@ public class LightningBolt extends Actor implements Projectile{
 		setSpriteAngle((int)Math.toDegrees(this.direction.getAngleRad()));
 		this.parent = parent;
 		traveled = 0;
-		speed = Constants.LIGHTNINGBOLT_SPEED;
+		speed = Constants.DRAIN_SPEED;
 	}
 
 	@Override
@@ -26,8 +29,19 @@ public class LightningBolt extends Actor implements Projectile{
 		movement.scalar(speed * (delta/1000.0f));
 		addPosition(movement);
 		traveled += movement.getMagnitude();
-		if (traveled > Constants.LIGHTNINGBOLT_RANGE)
+		/*if (traveled > Constants.DRAIN_RANGE / 2) {
+			direction = findTarget();
+		}*/
+		
+		if (traveled > Constants.DRAIN_RANGE)
 			destroy();
+	}
+	// TODO : find closest player
+	private Vec2 findTarget() {
+		for (Player p : players) {
+			
+		}
+		return null;
 	}
 
 	@Override
@@ -39,8 +53,13 @@ public class LightningBolt extends Actor implements Projectile{
 					destroy();
 				}else if(a.getType() == Actor.PLAYER) {
 					Player p = (Player) a;
-					p.setHp(p.getHp() - Constants.LIGHTNINGBOLT_DMG);
-					parent.getStatistics().damageDone(Constants.LIGHTNINGBOLT_DMG);
+					p.setHp(p.getHp() - Constants.DRAIN_DMG);
+					parent.getStatistics().damageDone(Constants.DRAIN_DMG);
+					if (parent.getHp() + Constants.DRAIN_DMG > Constants.PLAYER_HP) {
+						parent.setHp(Constants.PLAYER_HP);
+					} else {
+						parent.setHp(parent.getHp() + Constants.DRAIN_DMG);
+					}
 					destroy();
 				}else if (a.getType() == Actor.TILE){
 					destroy();
@@ -51,7 +70,7 @@ public class LightningBolt extends Actor implements Projectile{
 
 	@Override
 	public int getType() {
-		return Actor.LIGHTNINGBOLT;
+		return Actor.DRAIN;
 	}
 
 	@Override

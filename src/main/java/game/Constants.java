@@ -2,7 +2,7 @@ package game;
 
 public class Constants {
 	public static final int MAX_LOBBIES = 4;
-	public static final int MAX_PLAYERS = 2;
+	public static final int MAX_PLAYERS = 1;
 	public static final int	GAME_WIDTH = 1500;
 	public static final int	GAME_HEIGHT = 900;
 	public static final int GAME_TILE_SIZE = 30;
@@ -26,20 +26,29 @@ public class Constants {
 	public static final int FIREBALL_RANGE = 500;
 	public static final int FIREBALL_COOLDOWN = 1;
 	public static final int FIREBALL_SIZE = 12;
+	//Fireball burst
+	public static final int BURST_FIREBALL_DMG = 35;
+	public static final int BURST_FIREBALL_COOLDOWN = 3;
+	//Lightning Bolt
+	public static final int LIGHTNINGBOLT_DMG = 100;
+	public static final int LIGHTNINGBOLT_SPEED = 2000;
+	public static final int LIGHTNINGBOLT_RANGE = 200;
+	public static final int LIGHTNINGBOLT_COOLDOWN = 4;
+	public static final int LIGHTNINGBOLT_SIZE = 5;
 	
+	//Drain
+	public static final int DRAIN_DMG = 50;
+	public static final int DRAIN_SPEED = 300;
+	public static final int DRAIN_RANGE = 400;
+	public static final int DRAIN_COOLDOWN = 6;
+	public static final int DRAIN_SIZE = 15;
+
 	//Blink
 	public static final int BLINK_COOLDOWN = 3;
 	public static final int BLINK_RANGE = 600;
 	
-
-	//Lightning Bolt
-	public static final int LIGHTNINGBOLT_DMG = 150;
-	public static final int LIGHTNINGBOLT_SPEED = 2000;
-	public static final int LIGHTNINGBOLT_RANGE = 300;
-	public static final int LIGHTNINGBOLT_COOLDOWN = 4;
-	public static final int LIGHTNINGBOLT_SIZE = 5;
-	
-
+	//RESTORE
+	public static final int RESTORE_AMOUNT = 50;
 	public static final int RESTORE_COOLDOWN = 15;
 
 

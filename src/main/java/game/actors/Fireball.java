@@ -3,11 +3,12 @@ package game.actors;
 import game.Constants;
 import game.Vec2;
 
-public class Fireball extends Actor{
+public class Fireball extends Actor implements Projectile{
 	private int 		speed;
 	private Vec2 		direction;
 	private Player 		parent;
 	private int 		traveled;
+	private int			damage;
 	
 	public Fireball(Vec2 start, Vec2 target, int size, int id, Player parent) {
 		super(0, 0, size, size, id);
@@ -18,6 +19,7 @@ public class Fireball extends Actor{
 		this.parent = parent;
 		traveled = 0;
 		speed = Constants.FIREBALL_SPEED;
+		damage = Constants.FIREBALL_DMG;
 	}
 
 	@Override
@@ -33,15 +35,18 @@ public class Fireball extends Actor{
 	@Override
 	public void resolve_collision(long delta, Actor a) {
 		if (a != null && !isDestroyed()) {
-			if (a.getId() != parent.getId()) {
-				if(a.getType() == Actor.FIREBALL)
+			if (a.getId() != parent.getId() ) {
+				if(a.isProjectile() && ((Projectile) a).getParentId() != parent.getId()) {
 					a.destroy();
-				if(a.getType() == Actor.PLAYER) {
+					destroy();
+				}else if(a.getType() == Actor.PLAYER) {
 					Player p = (Player) a;
-					p.setHp(p.getHp() - Constants.FIREBALL_DMG);
-					parent.getStatistics().damageDone(Constants.FIREBALL_DMG);
+					p.setHp(p.getHp() - damage);
+					parent.getStatistics().damageDone(damage);
+					destroy();
+				}else if (a.getType() == Actor.TILE){
+					destroy();
 				}
-				destroy();
 			}
 		}
 	}
@@ -51,4 +56,12 @@ public class Fireball extends Actor{
 		return Actor.FIREBALL;
 	}
 
+	@Override
+	public int getParentId() {
+		return parent.getId();
+	}
+	
+	public void setDamage(int damage) {
+		this.damage = damage;
+	}
 }

@@ -20,12 +20,12 @@ public class Restore implements Skill{
 	@Override
 	//target - center of the position where we want to blink
 	public boolean use(Vec2 target) {
-		if(!isActivated) {
+		if(!isActivated && caster.getHp() < Constants.PLAYER_HP) {
 			cooldown = Constants.RESTORE_COOLDOWN;
 			isActivated = true;
-			if (caster.getHp() < Constants.PLAYER_HP) {
-				caster.setHp(caster.getHp()+50);
-			} 
+			caster.setHp(caster.getHp() + Constants.RESTORE_AMOUNT);
+			if(caster.getHp() > Constants.PLAYER_HP)
+				caster.setHp(Constants.PLAYER_HP);
 		}
 		return isActivated;
 	}
@@ -34,7 +34,6 @@ public class Restore implements Skill{
 		if (isActivated) {
 			cooldown -= delta/1000.0f;
 			if (cooldown < 0) {
-				cooldown = Constants.RESTORE_COOLDOWN;
 				isActivated = false;
 				cooldown = 0;
 			}
@@ -43,5 +42,11 @@ public class Restore implements Skill{
 	@Override
 	public float cooldown() {
 		return cooldown;
+	}
+	
+	@Override
+	public void reset() {
+		isActivated = false;
+		cooldown = 0;
 	}
 }

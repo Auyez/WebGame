@@ -44,5 +44,10 @@ public class CastLightningBolt implements Skill {
 	public float cooldown() {
 		return cooldown;
 	}
-
+	
+	@Override
+	public void reset() {
+		isActivated = false;
+		cooldown = 0;
+	}
 }
