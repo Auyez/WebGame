@@ -17,12 +17,12 @@ public class CastDrain implements Skill {
 	private boolean		isActivated;
 	private List<Player> players;
 	
-	public CastDrain(Player caster, Game game, List<Player> players) {
+	public CastDrain(Player caster, Game game) {
 		this.caster = caster;
 		this.game = game;
 		isActivated = false;
 		cooldown = 0.0f;
-		this.players = players;
+		this.players = game.getPlayers();
 	}
 	
 	@Override

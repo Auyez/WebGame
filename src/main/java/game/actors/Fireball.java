@@ -3,7 +3,7 @@ package game.actors;
 import game.Constants;
 import game.Vec2;
 
-public class Fireball extends Actor{
+public class Fireball extends Actor implements Projectile{
 	private int 		speed;
 	private Vec2 		direction;
 	private Player 		parent;
@@ -33,15 +33,16 @@ public class Fireball extends Actor{
 	@Override
 	public void resolve_collision(long delta, Actor a) {
 		if (a != null && !isDestroyed()) {
-			if (a.getId() != parent.getId()) {
-				if(a.isProjectile())
+			if (a.getId() != parent.getId() ) {
+				if(a.isProjectile() && ((Projectile) a).getParentId() != parent.getId()) {
 					a.destroy();
-				if(a.getType() == Actor.PLAYER) {
+					destroy();
+				}if(a.getType() == Actor.PLAYER) {
 					Player p = (Player) a;
 					p.setHp(p.getHp() - Constants.FIREBALL_DMG);
 					parent.getStatistics().damageDone(Constants.FIREBALL_DMG);
+					destroy();
 				}
-				destroy();
 			}
 		}
 	}
@@ -49,5 +50,10 @@ public class Fireball extends Actor{
 	@Override
 	public int getType() {
 		return Actor.FIREBALL;
+	}
+
+	@Override
+	public int getParentId() {
+		return parent.getId();
 	}
 }

@@ -249,7 +249,7 @@ public class Game implements Runnable {
 		Skill W =  new Blink(p, this);
 		Skill E =  new CastLightningBolt(p, this);
 		//Skill R =  new Restore(p, this);
-		Skill R =  new CastDrain(p, this, players);
+		Skill R =  new CastDrain(p, this);
 		
 		p.setSkill(Q, (byte) 0);
 		p.setSkill(W, (byte) 1);
@@ -303,5 +303,9 @@ public class Game implements Runnable {
 			if (p.getId() == id)
 				return p;
 		return null;
+	}
+	
+	public List<Player> getPlayers(){
+		return players;
 	}
 }

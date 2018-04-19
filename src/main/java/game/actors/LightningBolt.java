@@ -3,7 +3,7 @@ package game.actors;
 import game.Constants;
 import game.Vec2;
 
-public class LightningBolt extends Actor {
+public class LightningBolt extends Actor implements Projectile{
 	private int 		speed;
 	private Vec2 		direction;
 	private Player 		parent;
@@ -34,14 +34,15 @@ public class LightningBolt extends Actor {
 	public void resolve_collision(long delta, Actor a) {
 		if (a != null && !isDestroyed()) {
 			if (a.getId() != parent.getId()) {
-				if(a.isProjectile())
+				if(a.isProjectile() && ((Projectile) a).getParentId() != parent.getId()) {
 					a.destroy();
-				if(a.getType() == Actor.PLAYER) {
+					destroy();
+				}else if(a.getType() == Actor.PLAYER) {
 					Player p = (Player) a;
 					p.setHp(p.getHp() - Constants.LIGHTNINGBOLT_DMG);
 					parent.getStatistics().damageDone(Constants.LIGHTNINGBOLT_DMG);
+					destroy();
 				}
-				destroy();
 			}
 		}
 	}
@@ -49,5 +50,10 @@ public class LightningBolt extends Actor {
 	@Override
 	public int getType() {
 		return Actor.LIGHTNINGBOLT;
+	}
+
+	@Override
+	public int getParentId() {
+		return parent.getId();
 	}
 }

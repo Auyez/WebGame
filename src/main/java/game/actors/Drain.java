@@ -5,7 +5,7 @@ import java.util.List;
 import game.Constants;
 import game.Vec2;
 
-public class Drain extends Actor{
+public class Drain extends Actor implements Projectile{
 	private int 		speed;
 	private Vec2 		direction;
 	private Player 		parent;
@@ -48,8 +48,9 @@ public class Drain extends Actor{
 	public void resolve_collision(long delta, Actor a) {
 		if (a != null && !isDestroyed()) {
 			if (a.getId() != parent.getId()) {
-				if(a.isProjectile()) {
+				if(a.isProjectile() && ((Projectile) a).getParentId() != parent.getId()) {
 					a.destroy();
+					destroy();
 				}else if(a.getType() == Actor.PLAYER) {
 					Player p = (Player) a;
 					p.setHp(p.getHp() - Constants.DRAIN_DMG);
@@ -59,8 +60,8 @@ public class Drain extends Actor{
 					} else {
 						parent.setHp(parent.getHp() + Constants.DRAIN_DMG);
 					}
+					destroy();
 				}
-				destroy();
 			}
 		}
 	}
@@ -68,5 +69,10 @@ public class Drain extends Actor{
 	@Override
 	public int getType() {
 		return Actor.DRAIN;
+	}
+
+	@Override
+	public int getParentId() {
+		return parent.getId();
 	}
 }
