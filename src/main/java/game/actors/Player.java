@@ -120,6 +120,7 @@ public class Player extends Actor{
 	
 	public void setSkill(Skill s, byte skillIndex) {
 		skills[skillIndex] = s;
+		statistics.initializeSkill(s.getId());
 	}
 	
 	public boolean isDead() { return isDead;}
@@ -151,6 +152,10 @@ public class Player extends Actor{
 		Protocol.Client.PlayerStats stats = new Protocol.Client.PlayerStats();
 		stats.id = getId();
 		stats.damage = getStatistics().getDamage();
+		
+		System.out.println("This print is called in Player.java generateStats() method");
+		System.out.println(getStatistics());
+		
 		return stats;
 	}
 	

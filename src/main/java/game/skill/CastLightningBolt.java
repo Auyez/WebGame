@@ -50,4 +50,6 @@ public class CastLightningBolt implements Skill {
 		isActivated = false;
 		cooldown = 0;
 	}
+	
+	public int getId() {return Constants.LIGHTNINGBOLT_ID;}
 }

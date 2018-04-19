@@ -6,4 +6,5 @@ public interface Skill {
 	public void update(long delta);
 	public float cooldown();
 	public void reset();
+	public int getId();
 }

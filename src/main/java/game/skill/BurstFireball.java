@@ -4,6 +4,7 @@ import game.Constants;
 import game.Game;
 import game.Vec2;
 import game.actors.Fireball;
+import game.actors.FireballBursted;
 import game.actors.Player;
 
 public class BurstFireball implements Skill{
@@ -23,11 +24,11 @@ public class BurstFireball implements Skill{
 		if (!isActivated) {
 			isActivated = true;
 			cooldown = Constants.BURST_FIREBALL_COOLDOWN;
-			Fireball f = new Fireball(caster.getCenter(), target, Constants.FIREBALL_SIZE, game.getFreeId(), caster);
+			FireballBursted f = new FireballBursted(caster.getCenter(), target, Constants.FIREBALL_SIZE, game.getFreeId(), caster);
 			f.setDamage(Constants.BURST_FIREBALL_DMG);
 			game.addActor(f);
 			for(float i = 1, alpha = -8; i <= 4; i++, alpha += 16.0f/4.0f) {
-				Fireball af = new Fireball(caster.getCenter(), calculateOffset(target, alpha), Constants.FIREBALL_SIZE, game.getFreeId() + (int)i, caster);
+				FireballBursted af = new FireballBursted(caster.getCenter(), calculateOffset(target, alpha), Constants.FIREBALL_SIZE, game.getFreeId() + (int)i, caster);
 				f.setDamage(Constants.BURST_FIREBALL_DMG);
 				game.addActor(af);
 			}
@@ -60,8 +61,9 @@ public class BurstFireball implements Skill{
 		result.scalar(1.0f/result.getMagnitude());
 		result.setX(result.getX() * (float)Math.cos(Math.toRadians(degree)) - result.getY() * (float)Math.sin(Math.toRadians(degree)));
 		result.setY(result.getX() * (float)Math.sin(Math.toRadians(degree)) + result.getY() * (float)Math.cos(Math.toRadians(degree)));
-		System.out.println(Vec2.angle(Vec2.subs(target, caster.getCenter()), result));
 		result.add(caster.getCenter());
 		return result;
 	}
+	
+	public int getId() {return Constants.BURST_FIREBALL_ID;}
 }

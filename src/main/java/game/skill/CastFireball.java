@@ -50,4 +50,6 @@ public class CastFireball implements Skill{
 		isActivated = false;
 		cooldown = 0;
 	}
+	
+	public int getId() {return Constants.FIREBALL_ID;}
 }

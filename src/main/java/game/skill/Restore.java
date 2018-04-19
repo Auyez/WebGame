@@ -49,4 +49,6 @@ public class Restore implements Skill{
 		isActivated = false;
 		cooldown = 0;
 	}
+	
+	public int getId() {return Constants.RESTORE_ID;}
 }

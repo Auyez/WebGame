@@ -10,6 +10,7 @@ public class Blink implements Skill{
 	private Player 	caster;
 	private float	cooldown;
 	private boolean isActivated;
+	
 	public Blink(Player caster, Game game) {
 		this.game = game;
 		this.caster = caster;
@@ -58,4 +59,6 @@ public class Blink implements Skill{
 		isActivated = false;
 		cooldown = 0;
 	}
+	
+	public int getId() {return Constants.BLINK_ID;}
 }

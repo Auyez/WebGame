@@ -57,4 +57,6 @@ public class CastDrain implements Skill {
 		isActivated = false;
 		cooldown = 0;
 	}
+	
+	public int getId() {return Constants.DRAIN_ID;}
 }

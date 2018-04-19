@@ -3,13 +3,14 @@ package game.actors;
 import game.Constants;
 import game.Vec2;
 
-public class LightningBolt extends Actor implements Projectile{
+public class FireballBursted extends Actor implements Projectile{
 	private int 		speed;
 	private Vec2 		direction;
 	private Player 		parent;
 	private int 		traveled;
+	private int			damage;
 	
-	public LightningBolt(Vec2 start, Vec2 target, int size, int id, Player parent) {
+	public FireballBursted(Vec2 start, Vec2 target, int size, int id, Player parent) {
 		super(0, 0, size, size, id);
 		setCenter(start);
 		this.direction = Vec2.subs(target, getCenter());
@@ -17,7 +18,8 @@ public class LightningBolt extends Actor implements Projectile{
 		setSpriteAngle((int)Math.toDegrees(this.direction.getAngleRad()));
 		this.parent = parent;
 		traveled = 0;
-		speed = Constants.LIGHTNINGBOLT_SPEED;
+		speed = Constants.FIREBALL_SPEED;
+		damage = Constants.BURST_FIREBALL_DMG;
 	}
 
 	@Override
@@ -26,22 +28,22 @@ public class LightningBolt extends Actor implements Projectile{
 		movement.scalar(speed * (delta/1000.0f));
 		addPosition(movement);
 		traveled += movement.getMagnitude();
-		if (traveled > Constants.LIGHTNINGBOLT_RANGE)
+		if (traveled > Constants.FIREBALL_RANGE)
 			destroy();
 	}
 
 	@Override
 	public void resolve_collision(long delta, Actor a) {
 		if (a != null && !isDestroyed()) {
-			if (a.getId() != parent.getId()) {
+			if (a.getId() != parent.getId() ) {
 				if(a.isProjectile() && ((Projectile) a).getParentId() != parent.getId()) {
 					a.destroy();
 					destroy();
 				}else if(a.getType() == Actor.PLAYER) {
 					Player p = (Player) a;
-					p.setHp(p.getHp() - Constants.LIGHTNINGBOLT_DMG);
-					parent.getStatistics().damageDone(Constants.LIGHTNINGBOLT_DMG);
-					parent.getStatistics().skillDamage(Constants.LIGHTNINGBOLT_ID, Constants.LIGHTNINGBOLT_DMG);
+					p.setHp(p.getHp() - damage);
+					parent.getStatistics().damageDone(damage);
+					parent.getStatistics().skillDamage(Constants.BURST_FIREBALL_ID, Constants.BURST_FIREBALL_DMG);
 					destroy();
 				}else if (a.getType() == Actor.TILE){
 					destroy();
@@ -52,11 +54,15 @@ public class LightningBolt extends Actor implements Projectile{
 
 	@Override
 	public int getType() {
-		return Actor.LIGHTNINGBOLT;
+		return Actor.FIREBALL;
 	}
 
 	@Override
 	public int getParentId() {
 		return parent.getId();
+	}
+	
+	public void setDamage(int damage) {
+		this.damage = damage;
 	}
 }

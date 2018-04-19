@@ -43,6 +43,7 @@ public class Fireball extends Actor implements Projectile{
 					Player p = (Player) a;
 					p.setHp(p.getHp() - damage);
 					parent.getStatistics().damageDone(damage);
+					parent.getStatistics().skillDamage(Constants.FIREBALL_ID, Constants.FIREBALL_DMG);
 					destroy();
 				}else if (a.getType() == Actor.TILE){
 					destroy();
