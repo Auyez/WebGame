@@ -172,38 +172,37 @@ public class Game implements Runnable {
 	
 	private void setInput(Input input, Player player) {
 		int size = ga.getTileSize();
-		// This bias is needed for path-finding algorithm, because
-		// collision occurs with lower part of player, but the movement is calculated using upper part of player.
-		boolean free = true;
-		int dy = Constants.PLAYER_LOWER_HEIGHT / 2;
-		int dx = Constants.PLAYER_WIDTH / 2;
-		for(int i = (input.yTarget - dy)/size; i <= (input.yTarget + dy)/size; i++)
-			for(int j = (input.xTarget - dx)/size; j <= (input.xTarget + dx)/size; j++)
-				if(ga.getEntry(i, j) == 1)
-					free = false;
+		int x_target = new Integer(input.xTarget);
+		int y_target = new Integer(input.yTarget); // Do I need this?
 		
+		float player_x = player.getLowerCenter().getX();
+		float player_y = player.getLowerCenter().getY();
+		float dx = x_target - player_x;
+		float dy = y_target - player_y;
+		double length = Math.sqrt(Math.pow(Math.abs(dx), 2) + Math.pow(Math.abs(dy), 2));
+		double step = size / 5;
+		int divisor = (int) Math.ceil(length/step);
 		
-		if (free) {
-			player.getInput().clrMouse();
-			// Initial check if there are no obstacles between initial and target destinations
-			/*if (ga.checkCollision(player.getLowerCenter().getX(),
-								  player.getLowerCenter().getY(), 
-								  input.xTarget,
-								  input.yTarget)) {
-				// Call A* search here, setMouse should take a sequence of destination coordinates
-				
-				int x_target = input.xTarget / size;
-				int y_target = input.yTarget / size;
-				ArrayList<TileNode> sequence =  ga.aStar(x_target, y_target, player);
-				player.getInput().setMouse(sequence);
-			}*/
-			int x_target = input.xTarget / size;
-			int y_target = input.yTarget / size;
-			ArrayList<TileNode> sequence =  ga.aStar(x_target, y_target, player);
-			player.getInput().setMouse(sequence);
-			player.getInput().setDestination(input.xTarget, input.yTarget);
+		while (ga.getEntry(y_target / size, x_target / size) == 1) {
+			if (dy > 0) {
+				y_target -= Math.abs(dy) / divisor;
+			} else {
+				y_target += Math.abs(dy) / divisor;
+			}
 			
+			if (dx > 0) {
+				x_target -= Math.abs(dx) / divisor;
+			} else {
+				x_target += Math.abs(dx) / divisor;
+			}
 		}
+		player.getInput().clrMouse();
+		int x_target_aStar = (int) Math.floor(x_target / size);
+		int y_target_aStar = (int) Math.floor(y_target / size);
+		ArrayList<TileNode> sequence =  ga.aStar(x_target_aStar, y_target_aStar, player);
+		player.getInput().setMouse(sequence);
+		player.getInput().setDestination(x_target, y_target);
+			
 	}
 	
     private void sendWorldState()  {
