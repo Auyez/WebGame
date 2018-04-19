@@ -69,15 +69,15 @@ public class Player extends Actor{
 			// animation
 			int angle = (int)Math.round(Math.toDegrees(movement.getAngleRad()));
 			if (angle < 45)
-				setAnimation(ANIM_LEFT);
-			else if (angle < 45*3)
-				setAnimation(ANIM_UP);
-			else if (angle < 45*5)
 				setAnimation(ANIM_RIGHT);
-			else if (angle < 45*7)
+			else if (angle < 45*3)
 				setAnimation(ANIM_DOWN);
-			else
+			else if (angle < 45*5)
 				setAnimation(ANIM_LEFT);
+			else if (angle < 45*7)
+				setAnimation(ANIM_UP);
+			else
+				setAnimation(ANIM_RIGHT);
 			// animation
 			
 			movement.scalar( speed * (delta/1000.0f)/movement.getMagnitude() );
