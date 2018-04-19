@@ -18,9 +18,8 @@ public class Constants {
 	public static final int PLAYER_DEATH_TIME = 10;
 
 	public static final int	SKILL_NUMBER = 4;
-	public static final int GLOBAL_SKILL_NUMBER = 6;
-	
-	
+	public static final int PLAYER_SKILL_LIMIT = 2;
+
 	//Fireball
 	public static final int FIREBALL_DMG = 50;
 	public static final int	FIREBALL_SPEED = 400;

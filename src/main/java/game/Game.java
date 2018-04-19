@@ -14,9 +14,12 @@ import game.skill.CastLightningBolt;
 import game.skill.Restore;
 import lobby.Protocol;
 import lobby.Protocol.Server.Input;
+import website.Database;
 
 import javax.websocket.Session;
+import javax.xml.crypto.Data;
 import java.awt.Rectangle;
+import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -42,6 +45,7 @@ public class Game implements Runnable {
         this.sessions = sessions;
 		actors = new ArrayList<Actor>();
 		players = new ArrayList<Player>();
+
 		ga = new GameArena(mapJson);
 		
     }
@@ -246,18 +250,29 @@ public class Game implements Runnable {
 					   Constants.PLAYER_HEIGHT, 
 					   Constants.PLAYER_LOWER_HEIGHT, 
 					   id);
-		Skill Q =  new BurstFireball(p, this) ;
-		Skill W =  new Blink(p, this);
-		Skill E =  new CastLightningBolt(p, this);
-		//Skill R =  new Restore(p, this);
-		Skill R =  new CastDrain(p, this);
-		
-		p.setSkill(Q, (byte) 0);
-		p.setSkill(W, (byte) 1);
-		p.setSkill(E, (byte) 2);
-		p.setSkill(R, (byte) 3);
-		actors.add(p);
-		players.add(p);
+
+		try {
+			String username = Database.getInstance().getUsername(id);
+			List<Integer> skillIds = Database.getInstance().getUserSkillIds(username);
+			Map<Integer, String> skillNames = Database.getInstance().getSkills();
+
+
+
+			Skill Q = new BurstFireball(p, this);
+			Skill W = new Blink(p, this);
+			Skill E = new CastLightningBolt(p, this);
+			//Skill R =  new Restore(p, this);
+			Skill R = new CastDrain(p, this);
+
+			p.setSkill(Q, (byte) 0);
+			p.setSkill(W, (byte) 1);
+			p.setSkill(E, (byte) 2);
+			p.setSkill(R, (byte) 3);
+			actors.add(p);
+			players.add(p);
+		} catch (SQLException ex) {
+			System.out.println("Database exception on addPlayer()");
+		}
 	}
 	
 

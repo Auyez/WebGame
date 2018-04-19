@@ -13,7 +13,7 @@ public class GameArena {
 	
 	private int[][] collision_map;
 	private int w, h, tileSize;
-	
+
 	public GameArena(String mapJson) {
         JsonParser parser = new JsonParser();
         JsonArray layers = parser.parse(mapJson).getAsJsonObject().getAsJsonArray("layers");

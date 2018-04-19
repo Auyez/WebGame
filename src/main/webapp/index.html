@@ -3,35 +3,141 @@
 <head>
     <meta charset="UTF-8">
     <title>Lobbies</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+    <!-- Bootstrap ! -->
+    <!-- Latest compiled and minified CSS -->
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
+
+    <!-- jQuery library -->
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+
+    <!-- Latest compiled JavaScript -->
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
 </head>
 <body>
-    <ul id="lobbyList"></ul>
 
-    <script>
-        var lobbyList = document.getElementById('lobbyList');
-        var numLobbies = 4;
+<nav class="navbar navbar-inverse navbar-fixed-top">
+    <div class="container-fluid">
+        <div class="navbar-header">
+            <a href="#" class="navbar-brand"> WARLOCK 2D </a>
+        </div>
 
-        for(var i = 0; i < numLobbies; i++) {
-            var item = document.createElement('li');
-            var buttonName = document.createTextNode('Lobby' + i);
-            var button = document.createElement('button');
-            button.setAttribute('onclick', 'joinLobby(' + i + ')');
-            button.appendChild(buttonName);
-            item.appendChild(button);
+        <div>
+            <ul class="nav navbar-nav">
+                <li class="active"><a href="#"> Lobbies </a></li>
+                <li><a href="profile.html">Profile</a></li>
+            </ul>
 
-            lobbyList.appendChild(item);
+            <ul class="nav navbar-nav navbar-right">
+                <form>
+                    <button type="submit" class="btn btn-link btn-logout" onclick="logout()"><span class="glyphicon glyphicon-log-out" ></span> Logout </button>
+                </form>
+            </ul>
+        </div>
+    </div>
+</nav>
+
+
+
+<div  class="list-group" id="lobbyList" >
+</div>
+
+
+
+<style>
+body {
+    background-image: url("https://static2.askmrrobot.com/amrbeta/images/backgrounds/warriorarms.jpg");
+    background-repeat: no-repeat;
+    background-position: center;
+    background-size: 100%;
+    padding-top: 65px;
+    background-attachment: fixed;
+}
+
+.list-group {
+    opacity: 0.5;
+}
+</style>
+
+<script>
+        function refreshLobbyList(names) {
+            var lobbyList = $('#lobbyList');
+            lobbyList.empty();
+
+            for(var i = 0; i < names.length; i++) {
+                var item = '<li> <button onclick="joinLobby(' + i + ',\'' + names[i] + '\')" class="list-group-item list-group-item-action">' + names[i] + '</button> </li>';
+                lobbyList.append(item);
+            }
         }
 
-        function joinLobby(lobbyIndex) {
-            $.get(`services/lobbylist/map?lobbyIndex=${lobbyIndex}`,
-            function(data){
-                localStorage.setItem('mapJson', data);
-                localStorage.setItem('lobbyIndex', lobbyIndex);
-                location.href = 'lobby.html';
+        function joinLobby(lobbyIndex, name) {
+
+            // set lobbyIndex, userId, equipped skills, mapJson before joining
+            localStorage.setItem('lobbyIndex', lobbyIndex);
+
+            localStorage.setItem('lobbyName', name);
+
+            var username = localStorage.getItem('username');
+            $.get(`services/user/user_id?username=${username}`)
+            .done(function(data) {
+                    localStorage.setItem('user_id', data);
+                }
+            )
+            .done(function() {
+                $.get(`services/user/skill_ids?username=${username}`)
+                .done(function(data) {
+                    localStorage.setItem('skill_ids', data);
+                })
+                .done(function() {
+                    $.get(`services/lobbylist/map?lobbyIndex=${lobbyIndex}`,
+                    function(data){
+                        localStorage.setItem('mapJson', data);
+                        localStorage.setItem('lobbyIndex', lobbyIndex);
+                        location.href = 'lobby.html';
+                    });
+                });
             });
 
         }
+
+        function logout() {
+            var username = localStorage.getItem('username');
+
+            function success(data, status, jqhxr) {
+                location.href = 'login.html';
+            };
+
+            function error(jqXHR, textStatus, errorThrown) {
+                console.log('logout failed');
+            };
+
+            $.ajax({
+                type: 'POST',
+                url: 'services/user/logout',
+                data: 'username=' + username,
+                success: success,
+                error: error,
+                dataType: 'text'
+            });
+        }
+
+
+        $(document).ready(function() {
+            /*
+            $.get('services/lobbylist/num_lobbies',
+                function (data) {
+                    refreshLobbyList(parseInt(data));
+                }
+            );
+            */
+
+            names = ['Lobby Kalimdor',
+                     'Lobby Northrend',
+                     'Lobby Pandaria',
+                     'Lobby Eastern Kingdoms'];
+            refreshLobbyList(names);
+        });
     </script>
 </body>
 </html>

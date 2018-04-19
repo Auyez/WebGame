@@ -1,5 +1,6 @@
 var lobbyIndex = parseInt(localStorage.getItem('lobbyIndex'));
-document.title = 'Lobby' + lobbyIndex;
+var lobbyName = localStorage.getItem('lobbyName')
+document.title = lobbyName;
 var lobby1 = new Lobby(lobbyIndex, 'game1');
 //var lobby2 = new Lobby(lobbyIndex, 'game2')
 
@@ -13,15 +14,13 @@ function Lobby(lobbyIndex, parent) {
 
     self.socket.onopen = function(event) {
         console.log('onopen::' + JSON.stringify(event, null, 4));
-        //var lobbyIndex = 0;
-        var playerId = self.getRandomInt(1, 2147483637); // almost upper limit of int32 signed
 
         var servermsg = new Protocol.Server.ServerMsg();
         servermsg.lobbyIndex = lobbyIndex;
         servermsg.lobbyCmd = new Protocol.Server.LobbyCmd();
         servermsg.lobbyCmd.addPlayer = new Protocol.Server.AddPlayer();
-        servermsg.lobbyCmd.addPlayer.playerId = playerId;
-        servermsg.lobbyCmd.addPlayer.authToken = '';
+        servermsg.lobbyCmd.addPlayer.playerId = parseInt(localStorage.getItem('user_id'));
+        servermsg.lobbyCmd.addPlayer.authToken = localStorage.getItem('authToken');
 
         self.socket.send(servermsg.bytes());
     };
@@ -48,19 +47,19 @@ function Lobby(lobbyIndex, parent) {
                 self.game.onmessage(clientMsg.gameMsg);
             }
         } else if (clientMsg.statistics != null) {
-        	var stats = document.querySelector("#stats");
-        	var serverStats = "";
-        	for (let i in clientMsg.statistics.items) {
-        		var playerStats = clientMsg.statistics.items[i];
-        		serverStats += playerStats.id;
-        		serverStats += "'s damage: ";
-        		serverStats += playerStats.damage;
-        		serverStats += "<br>";
-        	}
-        	stats.innerHTML = serverStats;
-        }
+            var stats = document.querySelector("#stats");
+            var serverStats = "";
+            for (let i in clientMsg.statistics.items) {
+                var playerStats = clientMsg.statistics.items[i];
+                serverStats += playerStats.id;
+                serverStats += "'s damage: ";
+                serverStats += playerStats.damage;
+                serverStats += "<br>";
+            }
+            stats.innerHTML = serverStats;
+         }
     };
-//var cooldownsMsg = gameMsg.worldState.skillsCooldown.items;
+
     self.socket.onclose = function(event) {
         console.log('onclose::' + JSON.stringify(event, null, 4));
         location.href = "index.html";

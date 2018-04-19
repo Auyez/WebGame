@@ -1,0 +1,229 @@
+<!doctype html>
+<html>
+<head>
+        <meta charset="utf-8">
+        <meta http-equiv="X-UA-Compatible" content="IE=edge">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <!-- The above 3 meta tags *must* come first in the head; any other head content must come *after* these tags -->
+        <meta name="description" content="">
+        <meta name="author" content="">
+
+        <title>Administrator Panel</title>
+
+        <!-- Bootstrap core CSS -->
+        <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.1.0/css/bootstrap.min.css" integrity="sha384-9gVQ4dYFwwWSjIDZnLEWnxCjeSWFphJiwGPXr1jddIhOegiu1FwO5qRGvFXOdJZ4" crossorigin="anonymous">
+        <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+        
+        <script type="text/javascript">
+
+        function getOption() {
+
+            //filter
+            var sel = document.getElementById("typeFilter");
+            var filter = sel.options[sel.selectedIndex].text;
+
+            //search
+            var search = document.getElementById("keywordSearch").value;
+
+            var Words; 
+            var WordFile = new XMLHttpRequest();   
+            WordFile.open("GET", "http://localhost/adminp/text.txt", false);   
+            WordFile.onreadystatechange = function () {       
+                if(WordFile.readyState === 4){     
+                     
+                    if(WordFile.status === 200 || WordFile.status == 0){           
+                        
+                        Words = WordFile.responseText.split("\r\n"); 
+                        var splitted = [];
+                        for(var i = 0; i < Words.length; i++){
+                            splitted[i] = Words[i].split("|");
+                        }
+
+
+                        
+                        //~~~~~~FILTER ONLY~~~~~~
+                        if(filter != "Any"){
+                            var obj = {};
+                            for(var i = 0; i < splitted.length; i++){
+                                if(splitted[i][0] == filter){
+                                    if(!(filter in obj)){  
+                                        obj = {[filter]: new Array()};
+                                    }
+                                    obj[[filter]].push(splitted[i][1]);
+                                
+                                }
+                                
+                            }
+                        }
+                        //~~~~~~FILTER ONLY~~~~~~
+
+
+                        //~~~~~~~SEARCH UPON FILTER~~~~~~
+                        if(search != "" && filter != "Any"){
+                            var len = obj[[filter]].length;
+                            var del = 0;
+                            for(var i = 0; i < len; i++){
+
+                                var tempf = obj[[filter]][i - del].toLowerCase();
+                                tempff = tempf.split(/[^A-Za-z]/);
+                                //console.log(tempff);
+
+                                var temps = search.toLowerCase();
+                                tempss = temps.split(/[^A-Za-z]/);
+                                //console.log(tempss);
+
+                                var cont = 0;
+                                for(var s = 0; s < tempss.length; s++){
+                                    for(var f = 0; f < tempff.length; f++){
+                                        if(tempss[s] != "" && tempss[s] == tempff[f]){
+                                            cont++;
+                                            break;
+                                        }
+                                        else if(tempss[s] == ""){
+                                            cont++;
+                                            break;
+                                        }
+                                    }
+                                }
+                                
+                                if(cont != tempss.length){
+                                    obj[[filter]].splice(i - del, 1);
+                                    //console.log(obj);
+                                    del++;
+                                }
+
+                            }
+                        }
+                        //~~~~~~~SEARCH UPON FILTER~~~~~~
+
+
+                        //~~~~~~PRINT~~~~~~~
+                        var tab = document.getElementById("table");
+                        tab.innerHTML = "";
+                        document.getElementById("msg").innerHTML = "";
+
+                        //plain print
+                        if(filter == "Any" && search == ""){
+                            for(var i = 0; i < splitted.length; i++){
+                                tab.innerHTML += '<tr><th scope="row">' + i + '</th><td>' + splitted[i][0] + '</td><td>' + splitted[i][1] + '</td></tr>';
+                            }
+                        }
+                        //~~~~~~SEARCH ONLY~~~~~~
+                        else if(search != "" && filter == "Any"){
+                            var count = 0;
+                            for(var i = 0; i < splitted.length; i++){
+                                
+                                var tempf = splitted[i][1].toLowerCase();
+                                tempff = tempf.split(/[^A-Za-z]/);
+                                //console.log(tempff);
+
+                                var temps = search.toLowerCase();
+                                tempss = temps.split(/[^A-Za-z]/);
+                                //console.log(tempss);
+
+                                var cont = 0;
+                                for(var s = 0; s < tempss.length; s++){
+                                    for(var f = 0; f < tempff.length; f++){
+                                        if(tempss[s] == tempff[f]){
+                                            cont++;
+                                            break;
+                                        }
+                                        else if(tempss[s] == ""){
+                                            cont++;
+                                            break;
+                                        }
+                                    }
+                                }
+                                if(cont == tempss.length) {
+                                    tab.innerHTML += '<tr><th scope="row">' + count + '</th><td>' + splitted[i][0] + '</td><td>' + splitted[i][1] + '</td></tr>';
+                                    count++;
+                                }
+                            }
+                        }
+                        else{
+                            for(var i = 0; i < obj[[filter]].length; i++){
+                                tab.innerHTML += '<tr><th scope="row">' + i + '</th><td>' + filter + '</td><td>' + obj[[filter]][i] + '</td></tr>';
+                            }
+                        }
+
+                        if(tab.innerHTML == "") document.getElementById("msg").innerHTML = "No results.";
+
+
+                    } 
+
+                }  
+
+            };  WordFile.send(null);
+
+        
+
+        }
+        </script>
+		
+</head>
+
+<body>
+
+    <div class="container">
+        <br><br>
+        <div class="row">
+            <h1>Administrator Panel</h1>
+        </div>
+        <br>
+        <br>
+        <div class="form-row">
+
+            <div class="form-group col-sm-3">
+                <label for="typeFilter">Select type</label>
+                <select class="form-control" id="typeFilter">
+                    <option>Any</option>
+                    <option>typeone</option>
+                    <option>typetwo</option>
+                    <option>typethree</option>
+                </select>
+            </div>
+
+            <div class="form-group col-md-6">
+                <label for="exampleFormControlInput1">Search by a keyword</label>
+                <input type="text" class="form-control" id="keywordSearch" placeholder="Enter the keyword" value="">
+            </div>
+
+        </div>
+
+        <div class="form-row">
+            <button type="button" onclick="getOption()" class="btn btn-primary">Search</button>
+        </div>
+        
+        <br><br>
+
+        <div class="row">
+            <p id="msg"></p>
+        </div>
+
+        <div class="row">
+            <table class="table">
+                <thead>
+                  <tr>
+                    <th scope="col">#</th>
+                    <th scope="col">Type</th>
+                    <th scope="col">Message</th>
+                  </tr>
+                </thead>
+                <tbody id="table">
+                  
+                </tbody>
+              </table>
+        </div>
+
+
+    </div>
+
+
+ <!-- Bootstrap core JavaScript
+    ================================================== -->  
+        <!-- Placed at the end of the document so the pages load faster -->
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.0/umd/popper.min.js" integrity="sha384-cs/chFZiN24E4KMATLdqdvsezGxaGsi4hLGOzlXwp5UZB1LY//20VyM2taTB4QvJ" crossorigin="anonymous"></script>
+        <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.1.0/js/bootstrap.min.js" integrity="sha384-uefMccjFJAIv6A+rW+L4AHf99KvxDjWSu1z9VI8SKNVmz4sk7buKt/6v9KI65qnm" crossorigin="anonymous"></script>
+        
+</body>
+</html>
