@@ -24,8 +24,8 @@
             <ul class="nav navbar-nav navbar-right">
                 <input class="in" type="text" id="username" name="Enter Username">
                 <input class="in" type="password" id="password" name="Enter Password">s
-                <button type="submit" class="btn btn-link btn-logout" onclick="login()"><span class="glyphicon glyphicon-log-in" ></span> Login </button>
-                <button type="submit" class="btn btn-link btn-logout" onclick="register()"><span class="glyphicon glyphicon-user" ></span> Sign Up </button>
+                <button type="submit" class="btn btn-link btn-logout" onclick="login()" data-toggle="modal" data-target="#myModal"><span class="glyphicon glyphicon-log-in" ></span> Login </button>
+                <button type="submit" class="btn btn-link btn-logout" onclick="register()" data-toggle="modal" data-target="#myModal"><span class="glyphicon glyphicon-user" ></span> Sign Up </button>
 
 
             </ul>
@@ -33,9 +33,22 @@
     </div>
 </nav>
 
-<div>
-    <p class="LOL" id="messagebox"></p>
-</div>
+   <div id="myModal" class="modal fade">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header"><button class="close" type="button" data-dismiss="modal">×</button>
+                    <h4 class="modal-title">Result</h4>
+                </div>
+                <div class="modal-body">
+                    <p class="LOL" id="messagebox" ></p>
+                </div>
+                <div class="modal-footer">
+                    <button class="btn btn-default" type="button" data-dismiss="modal">Close</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
 
 
 <script>
@@ -118,6 +131,8 @@ body {
     background-color: grey;
     opacity: 0.5;
 }
+
+
 
 </style>
 
