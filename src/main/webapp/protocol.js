@@ -1,4 +1,3 @@
-/* Generated from Java with JSweet 2.0.0 - http://www.jsweet.org */
 var Protocol = (function () {
     function Protocol() {
     }
@@ -210,6 +209,7 @@ Protocol["__class"] = "Protocol";
             function ClientMsg() {
                 this.startGame = null;
                 this.gameMsg = null;
+                this.statistics = null;
             }
             ClientMsg.prototype.bytes = function () {
                 var writer = new ByteWriter();
@@ -223,6 +223,10 @@ Protocol["__class"] = "Protocol";
                     writer.writeByte(ClientMsg.GAME_MSG);
                     writer.writeBytes(this.gameMsg.bytes());
                 }
+                else if (this.statistics != null) {
+                    writer.writeByte(ClientMsg.STATISTICS);
+                    writer.writeBytes(this.statistics.bytes());
+                }
                 return writer.bytes();
             };
             ClientMsg.parse = function (reader) {
@@ -234,12 +238,16 @@ Protocol["__class"] = "Protocol";
                 if (type === ClientMsg.GAME_MSG) {
                     obj.gameMsg = Client.GameMsg.parse(reader);
                 }
+                if (type === ClientMsg.STATISTICS) {
+                    obj.statistics = Client.Statistics.parse(reader);
+                }
                 return obj;
             };
             return ClientMsg;
         }());
         ClientMsg.START_GAME = 0;
         ClientMsg.GAME_MSG = 1;
+        ClientMsg.STATISTICS = 2;
         Client.ClientMsg = ClientMsg;
         ClientMsg["__class"] = "Protocol.Client.ClientMsg";
         var StartGame = (function () {
@@ -464,10 +472,56 @@ Protocol["__class"] = "Protocol";
         }());
         Client.Skill = Skill;
         Skill["__class"] = "Protocol.Client.Skill";
+        var Statistics = (function () {
+            function Statistics() {
+                this.items = ([]);
+            }
+            Statistics.prototype.bytes = function () {
+                var writer = new ByteWriter();
+                writer.writeInt(/* size */ this.items.length);
+                for (var i = 0; i < this.items.length; ++i) {
+                    writer.writeBytes(/* get */ this.items[i].bytes());
+                }
+                ;
+                return writer.bytes();
+            };
+            Statistics.parse = function (reader) {
+                var obj = new Client.Statistics();
+                var size = reader.readInteger();
+                for (var i = 0; i < size; ++i) {
+                    var item = Client.PlayerStats.parse(reader);
+                    /* add */ (obj.items.push(item) > 0);
+                }
+                ;
+                return obj;
+            };
+            return Statistics;
+        }());
+        Client.Statistics = Statistics;
+        Statistics["__class"] = "Protocol.Client.Statistics";
+        var PlayerStats = (function () {
+            function PlayerStats() {
+                this.id = null;
+                this.damage = null;
+            }
+            PlayerStats.prototype.bytes = function () {
+                var writer = new ByteWriter();
+                writer.writeBytes(ByteWriter.Integer2bytes(this.id));
+                writer.writeBytes(ByteWriter.Integer2bytes(this.damage));
+                return writer.bytes();
+            };
+            PlayerStats.parse = function (reader) {
+                var obj = new Client.PlayerStats();
+                obj.id = reader.readInteger();
+                obj.damage = reader.readInteger();
+                return obj;
+            };
+            return PlayerStats;
+        }());
+        Client.PlayerStats = PlayerStats;
+        PlayerStats["__class"] = "Protocol.Client.PlayerStats";
     })(Client = Protocol.Client || (Protocol.Client = {}));
 })(Protocol || (Protocol = {}));
-
-
 
 var ByteReader = (function () {
     function ByteReader(arraybuf) {

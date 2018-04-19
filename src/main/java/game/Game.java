@@ -6,20 +6,17 @@ import game.actors.Actor;
 import game.actors.Player;
 import game.actors.TileActor;
 import game.skill.Blink;
+import game.skill.CastDrain;
 import game.skill.Skill;
-import game.skill.ThrowFireball;
+import game.skill.CastFireball;
+import game.skill.CastLightningBolt;
+import game.skill.Restore;
 import lobby.Protocol;
 import lobby.Protocol.Server.Input;
+
 import javax.websocket.Session;
 import java.awt.Rectangle;
-import java.io.BufferedWriter;
-import java.io.FileWriter;
-import java.io.IOException;
-import java.nio.ByteBuffer;
-import java.text.DateFormat;
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
 import java.util.Map;
 import java.util.Queue;
@@ -57,7 +54,9 @@ public class Game implements Runnable {
             boolean 	running = true;
             long 		frameStartTime = 0;
             long		delta;
-
+            long 		gameStarted = System.currentTimeMillis();
+            long 		gameNow;
+            
             synchronized (sessions) {
 				for (int id : sessions.values()) {
 					addPlayer(id);
@@ -65,12 +64,19 @@ public class Game implements Runnable {
 			}
 
             while (running) {
+            	gameNow = System.currentTimeMillis();
+            	if ((gameNow - gameStarted) / 1000.0 > Constants.GAME_TIME) {
+            		running = false;
+            		System.out.println("Time is out!");
+            		sendStatistics();
+            	}
+            	
             	delta = frameStartTime;
-                frameStartTime = System.currentTimeMillis(); // TODO check whether Java optimizes this or not
+                frameStartTime = System.currentTimeMillis();
                 delta = frameStartTime - delta;
                 processMessages();
                 update(delta);
-                if(frameCount % 1 == 0) { // kind of tick rate
+                if(frameCount % 2 == 0) { // kind of tick rate
                 	sendWorldState();
                 }
                 long frameElapsedTime = System.currentTimeMillis() - frameStartTime;
@@ -82,12 +88,29 @@ public class Game implements Runnable {
                 if (actors.size() <= 0) {
                     running = false;
                     System.out.println("Game loop over");
+                    sendStatistics();
                 }
             }
         } catch (InterruptedException ex) {
             System.out.println("Game::run exception");
         }
     }
+
+
+	private void sendStatistics() {
+		Protocol.Client.ClientMsg message = new Protocol.Client.ClientMsg();
+		message.statistics = new Protocol.Client.Statistics();
+		
+		for (Player p : players) {
+			message.statistics.items.add(p.generateStats());
+		}
+		
+		synchronized (sessions) {
+			for (Session s : sessions.keySet()) {
+				WebSocketEndpoint.sendBinary(s, message.bytes());
+			}
+		}
+	}
 
 
 	private void update(long delta) {
@@ -149,38 +172,37 @@ public class Game implements Runnable {
 	
 	private void setInput(Input input, Player player) {
 		int size = ga.getTileSize();
-		// This bias is needed for path-finding algorithm, because
-		// collision occurs with lower part of player, but the movement is calculated using upper part of player.
-		//int dy = Constants.PLAYER_HEIGHT - Constants.PLAYER_LOWER_HEIGHT; 
-		boolean free = true;
-
-		for(int i = (input.yTarget - Constants.PLAYER_LOWER_HEIGHT)/size; i <= (input.yTarget)/size; i++)
-			for(int j = input.xTarget/size; j <= (input.xTarget + Constants.PLAYER_WIDTH)/size; j++)
-				if(ga.getEntry(i, j) == 1)
-					free = false;
+		int x_target = new Integer(input.xTarget);
+		int y_target = new Integer(input.yTarget); // Do I need this?
 		
-		//if (ga.getEntry((input.yTarget + dy) / size, input.xTarget / size) == 0) {
-		if (free) {
-			int x_init = (int) player.getLowerCenter().getX() / size;
-			int y_init = (int) player.getLowerCenter().getY() / size;
-			int x_target = input.xTarget / size;
-			int y_target = input.yTarget / size;
-			
-			
-			player.getInput().clrMouse();
-			// Initial check if there are no obstacles between initial and target destinations
-			if (ga.checkCollision(player.getLowerCenter().getX(),
-								  player.getLowerCenter().getY(), 
-								  input.xTarget,
-								  input.yTarget)) {
-				System.out.println("A*");
-				// Call A* search here, setMouse should take a sequence of destination coordinates
-				ArrayList<TileNode> sequence =  ga.aStar(x_init, y_init, x_target, y_target);
-				player.getInput().setMouse(sequence);
+		float player_x = player.getLowerCenter().getX();
+		float player_y = player.getLowerCenter().getY();
+		float dx = x_target - player_x;
+		float dy = y_target - player_y;
+		double length = Math.sqrt(Math.pow(Math.abs(dx), 2) + Math.pow(Math.abs(dy), 2));
+		double step = size / 5;
+		int divisor = (int) Math.ceil(length/step);
+		
+		while (ga.getEntry(y_target / size, x_target / size) == 1) {
+			if (dy > 0) {
+				y_target -= Math.abs(dy) / divisor;
+			} else {
+				y_target += Math.abs(dy) / divisor;
 			}
-			player.getInput().setDestination(input.xTarget, input.yTarget);
 			
+			if (dx > 0) {
+				x_target -= Math.abs(dx) / divisor;
+			} else {
+				x_target += Math.abs(dx) / divisor;
+			}
 		}
+		player.getInput().clrMouse();
+		int x_target_aStar = (int) Math.floor(x_target / size);
+		int y_target_aStar = (int) Math.floor(y_target / size);
+		ArrayList<TileNode> sequence =  ga.aStar(x_target_aStar, y_target_aStar, player);
+		player.getInput().setMouse(sequence);
+		player.getInput().setDestination(x_target, y_target);
+			
 	}
 	
     private void sendWorldState()  {
@@ -199,9 +221,6 @@ public class Game implements Runnable {
             	message.gameMsg.worldState.players.items.add(p.getStats());
             }
             
-            // Write to file as replay
-            //recordAsReplay();
-            
             synchronized (sessions) {
 				for (Session s : sessions.keySet()) {
 					int id = sessions.get(s);
@@ -215,13 +234,6 @@ public class Game implements Runnable {
 					WebSocketEndpoint.sendBinary(s, message.bytes());
 				}
 			}
-            /*
-            synchronized (sessions) {
-				for (Session s : sessions.keySet()) {
-					
-					WebSocketEndpoint.sendBinary(s, message.bytes());
-				}
-			}*/
     	}
     }
 
@@ -233,11 +245,16 @@ public class Game implements Runnable {
 					   Constants.PLAYER_HEIGHT, 
 					   Constants.PLAYER_LOWER_HEIGHT, 
 					   id);
-		Skill Q =  new ThrowFireball(p, this) ;
+		Skill Q =  new CastFireball(p, this) ;
 		Skill W =  new Blink(p, this);
-		Skill E =  new Blink(p, this);
+		Skill E =  new CastLightningBolt(p, this);
+		//Skill R =  new Restore(p, this);
+		Skill R =  new CastDrain(p, this, players);
+		
 		p.setSkill(Q, (byte) 0);
 		p.setSkill(W, (byte) 1);
+		p.setSkill(E, (byte) 2);
+		p.setSkill(R, (byte) 3);
 		actors.add(p);
 		players.add(p);
 	}

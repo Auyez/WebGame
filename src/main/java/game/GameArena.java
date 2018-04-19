@@ -1,12 +1,12 @@
 package game;
 
-import java.io.InputStreamReader;
-import java.net.URL;
 import java.util.ArrayList;
 import java.util.Collections;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonParser;
+
+import game.actors.Player;
 
 public class GameArena {
 	private static final int INF = 999999999;
@@ -51,7 +51,10 @@ public class GameArena {
 	public int getTileSize() {return tileSize;}
 	
 	// Return sequence of target coordinates
-	public ArrayList<TileNode> aStar(int x_init, int y_init, int x_target, int y_target) {
+	public ArrayList<TileNode> aStar(int x_target, int y_target, Player player) {
+		
+		int x_init = (int) player.getLowerCenter().getX() / tileSize;
+		int y_init = (int) player.getLowerCenter().getY() / tileSize;
 		
 		ArrayList<TileNode> open = new ArrayList<TileNode>();
 		ArrayList<TileNode> closed = new ArrayList<TileNode>();
@@ -72,7 +75,7 @@ public class GameArena {
 				
 				if(i.getX() == x_target && i.getY() == y_target) {
 					closed.add(i);
-					return generateTargets(closed);
+					return generateTargets(closed, player);
 				}
 				i.setG(q.getG() + 1);
 				i.setH(Math.sqrt(Math.pow(Math.abs(i.getX() - x_target), 2) + Math.pow(Math.abs(i.getY() - y_target), 2)));
@@ -126,7 +129,7 @@ public class GameArena {
 	}
 	*/
 	
-	private ArrayList<TileNode> generateTargets(ArrayList<TileNode> tiles) {
+	private ArrayList<TileNode> generateTargets(ArrayList<TileNode> tiles, Player player) {
 		ArrayList<TileNode> turns = new ArrayList<TileNode>();
 		float x0;
 		float y0;
@@ -155,8 +158,8 @@ public class GameArena {
 		// Since aStar uses upper-left corner, sometimes right side of collision box can collide.
 		// Thus, we need to check all four corners of hit-box for collision between first and second turns
 		// TODO instead of init, this should use players current position
-		x0 = (float) init.getX();
-		y0 = (float) init.getY();
+		x0 = (float) player.getLowerCenter().getX();
+		y0 = (float )player.getLowerCenter().getY();
 		
 		x1 = turns.get(turns.size() - 2).getX();
 		y1 = turns.get(turns.size() - 2).getY();
@@ -186,6 +189,41 @@ public class GameArena {
 		return path;
 	}
 	
+
+	public boolean checkCollision(float x0, float y0, int x_target, int y_target) {
+		boolean collides = false;
+		float x1 = (float)x_target;
+		float y1 = (float)y_target;
+		// TODO make player width, height and lower height constants in Player.java ?
+		//float dy1 = 20;
+		//float dy2 = 40;
+		//float dx = 20;
+		float dy = Constants.PLAYER_LOWER_HEIGHT/2.0f;
+		//float dy2 = Constants.PLAYER_HEIGHT;
+		float dx = Constants.PLAYER_WIDTH/2.0f;
+		ArrayList<TileNode> lineTiles = new ArrayList<TileNode>();
+		// Checks all four lines from each corner of hit-box
+		/*
+		lineTiles.addAll(raytrace((x0)/tileSize, (y0 + dy1)/tileSize, (x1)/tileSize, (y1 + dy1)/tileSize));
+		lineTiles.addAll(raytrace((x0)/tileSize, (y0 + dy2)/tileSize, (x1)/tileSize, (y1 + dy2)/tileSize));
+		lineTiles.addAll(raytrace((x0 + dx)/tileSize, (y0 + dy1)/tileSize, (x1 + dx)/tileSize, (y1 + dy1)/tileSize));
+		lineTiles.addAll(raytrace((x0 + dx)/tileSize, (y0 + dy2)/tileSize, (x1 + dx)/tileSize, (y1 + dy2)/tileSize));
+		*/
+		lineTiles.addAll(raytrace((x0 - dx)/tileSize, (y0 - dy)/tileSize, (x1 - dx)/tileSize, (y1 - dy)/tileSize));
+		lineTiles.addAll(raytrace((x0 + dx)/tileSize, (y0 - dy)/tileSize, (x1 + dx)/tileSize, (y1 - dy)/tileSize));
+		lineTiles.addAll(raytrace((x0 - dx)/tileSize, (y0 + dy)/tileSize, (x1 - dx)/tileSize, (y1 + dy)/tileSize));
+		lineTiles.addAll(raytrace((x0 + dx)/tileSize, (y0 + dy)/tileSize, (x1 + dx)/tileSize, (y1 + dy)/tileSize));
+		
+		for (TileNode i : lineTiles) {
+			if (collision_map[i.getY()][i.getX()] == 1) {
+				collides = true;
+			}
+		}
+
+		return collides;
+	}
+	
+
 	public ArrayList<TileNode> raytrace(double x0, double y0, double x1, double y1)
 	{
 		ArrayList<TileNode> result = new ArrayList<TileNode>();
@@ -253,40 +291,5 @@ public class GameArena {
 	    }
 	    
 	    return result;
-	}
-
-	public boolean checkCollision(float x0, float y0, int x_target, int y_target) {
-		boolean collides = false;
-		float x1 = (float)x_target;
-		float y1 = (float)y_target;
-		// TODO make player width, height and lower height constants in Player.java ?
-		//float dy1 = 20;
-		//float dy2 = 40;
-		//float dx = 20;
-		float dy = Constants.PLAYER_LOWER_HEIGHT/2.0f - Constants.PLAYER_LOWER_HEIGHT/8.0f ;
-		//float dy2 = Constants.PLAYER_HEIGHT;
-		float dx = Constants.PLAYER_WIDTH/2.0f;
-		ArrayList<TileNode> lineTiles = new ArrayList<TileNode>();
-		// Checks all four lines from each corner of hit-box
-		/*
-		lineTiles.addAll(raytrace((x0)/tileSize, (y0 + dy1)/tileSize, (x1)/tileSize, (y1 + dy1)/tileSize));
-		lineTiles.addAll(raytrace((x0)/tileSize, (y0 + dy2)/tileSize, (x1)/tileSize, (y1 + dy2)/tileSize));
-		lineTiles.addAll(raytrace((x0 + dx)/tileSize, (y0 + dy1)/tileSize, (x1 + dx)/tileSize, (y1 + dy1)/tileSize));
-		lineTiles.addAll(raytrace((x0 + dx)/tileSize, (y0 + dy2)/tileSize, (x1 + dx)/tileSize, (y1 + dy2)/tileSize));
-		*/
-		lineTiles.addAll(raytrace((x0 - dx)/tileSize, (y0 - dy)/tileSize, (x1 - dx)/tileSize, (y1 - dy)/tileSize));
-		lineTiles.addAll(raytrace((x0 + dx)/tileSize, (y0 - dy)/tileSize, (x1 + dx)/tileSize, (y1 - dy)/tileSize));
-		lineTiles.addAll(raytrace((x0 - dx)/tileSize, (y0 + dy)/tileSize, (x1 - dx)/tileSize, (y1 + dy)/tileSize));
-		lineTiles.addAll(raytrace((x0 + dx)/tileSize, (y0 + dy)/tileSize, (x1 + dx)/tileSize, (y1 + dy)/tileSize));
-		
-		for (TileNode i : lineTiles) {
-			if (collision_map[i.getY()][i.getX()] == 1) {
-				System.out.println(i.getX() + " " + i.getY());
-				collides = true;
-			}
-		}
-
-		System.out.println(x0 + "  " + y0 + "\n" + x_target + " " + y_target + " " + collides);
-		return collides;
 	}
 }

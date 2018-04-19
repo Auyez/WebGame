@@ -130,7 +130,10 @@ function FeedbackManager(actorManager, game) {
 						this.bars[player.id].kill();
 						delete this.bars[player.id];
 					} else {
-						this.bars[player.id].setPosition(sprite.x, sprite.y - 20);
+				        var x = lerp(this.bars[player.id].x, sprite.x, 0.75);
+				        var y = lerp(this.bars[player.id].y, sprite.y, 0.75);
+				        
+						this.bars[player.id].setPosition(x, y - 20);
 						this.bars[player.id].setPercent( 100 * player.hp / MAX_HP );
 					}
 				}
@@ -151,6 +154,10 @@ function FeedbackManager(actorManager, game) {
 		info += cooldownStats;
 		feedback.innerHTML = info;
 	}
+	
+    function lerp(v1, v2, ratio) {
+        return v1 + (v2 - v1) * ratio;
+    }
 }
 
 function ActorManager(game) {
@@ -203,8 +210,10 @@ function ActorManager(game) {
 
 
 ActorManager.type2imagenames = {
-    0 : ['Sylv.png'],
-    1 : ['fireball.png']
+    0 : ['Char.png', 'Sylv.png', 'Char2.png'],
+    1 : ['fireball.png'],
+    2 : ['lightningbolt.png'],
+	3 : ['drain.png']
 }
 
 ActorManager.preload = function(game) {
@@ -230,6 +239,9 @@ function Actor(game, type) {
     this.sprite.anchor.x = 0.5;
     this.sprite.anchor.y = 0.5; // position by center, not top left corner
     this.type = type;
+    this.serverX = 0;
+    this.serverY = 0;
+    this.firstUpdate = true;
     //console.log(game)
     //SpriteLevel.add(this.sprite);
     game.world.children[1].add(this.sprite);
@@ -245,18 +257,33 @@ function Actor(game, type) {
 
 
     this.onmessage = function(msg) {
-        this.sprite.x = msg.x;
-        this.sprite.y = msg.y;
+        this.sprite.x = this.serverX;
+        this.sprite.y = this.serverY;
+
+        this.serverX = msg.x;
+        this.serverY = msg.y;
         this.sprite.angle = msg.angle;
         this.sprite.animations.play(msg.animation);
     }
 
     this.update = function() {
         this.sprite.animations.update();
+
+        var ratio = 0.5;
+        if (this.firstUpdate) {
+            ratio = 1;
+            this.firstUpdate = false;
+        }
+        this.sprite.x = lerp(this.sprite.x, this.serverX, ratio);
+        this.sprite.y = lerp(this.sprite.y, this.serverY, ratio);
     }
 
     this.destroy = function() {
         this.sprite.destroy();
+    }
+
+    function lerp(v1, v2, ratio) {
+        return v1 + (v2 - v1) * ratio;
     }
 }
 
