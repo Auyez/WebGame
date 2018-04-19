@@ -34,7 +34,7 @@ public class Fireball extends Actor{
 	public void resolve_collision(long delta, Actor a) {
 		if (a != null && !isDestroyed()) {
 			if (a.getId() != parent.getId()) {
-				if(a.getType() == Actor.FIREBALL)
+				if(a.getType() == Actor.LIGHTNINGBOLT)
 					a.destroy();
 				if(a.getType() == Actor.PLAYER) {
 					Player p = (Player) a;
@@ -50,5 +50,4 @@ public class Fireball extends Actor{
 	public int getType() {
 		return Actor.FIREBALL;
 	}
-
 }

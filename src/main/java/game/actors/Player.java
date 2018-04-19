@@ -150,4 +150,5 @@ public class Player extends Actor{
 		stats.damage = getStatistics().getDamage();
 		return stats;
 	}
+	
 }

@@ -6,6 +6,7 @@ import game.actors.Actor;
 import game.actors.Player;
 import game.actors.TileActor;
 import game.skill.Blink;
+import game.skill.CastDrain;
 import game.skill.Skill;
 import game.skill.CastFireball;
 import game.skill.CastLightningBolt;
@@ -248,8 +249,9 @@ public class Game implements Runnable {
 		Skill Q =  new CastFireball(p, this) ;
 		Skill W =  new Blink(p, this);
 		Skill E =  new CastLightningBolt(p, this);
-		Skill R =  new Restore(p, this);
-
+		//Skill R =  new Restore(p, this);
+		Skill R =  new CastDrain(p, this, players);
+		
 		p.setSkill(Q, (byte) 0);
 		p.setSkill(W, (byte) 1);
 		p.setSkill(E, (byte) 2);
