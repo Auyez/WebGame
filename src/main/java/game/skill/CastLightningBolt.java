@@ -22,6 +22,7 @@ public class CastLightningBolt implements Skill {
 	@Override
 	public boolean use(Vec2 target) {
 		if (!isActivated) {
+			caster.getStatistics().skillUsed(getId());
 			isActivated = true;
 			cooldown = Constants.LIGHTNINGBOLT_COOLDOWN;
 			LightningBolt l = new LightningBolt(caster.getCenter(), target, Constants.LIGHTNINGBOLT_SIZE, game.getFreeId(), caster);

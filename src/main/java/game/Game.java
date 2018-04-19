@@ -15,6 +15,7 @@ import game.skill.Restore;
 import lobby.Protocol;
 import lobby.Protocol.Server.Input;
 import website.Database;
+import website.Database.UserSkillUsage;
 
 import javax.websocket.Session;
 import javax.xml.crypto.Data;
@@ -107,9 +108,29 @@ public class Game implements Runnable {
 	private void sendStatistics() {
 		Protocol.Client.ClientMsg message = new Protocol.Client.ClientMsg();
 		message.statistics = new Protocol.Client.Statistics();
+		Database db = Database.getInstance();
 		
 		for (Player p : players) {
 			message.statistics.items.add(p.generateStats());
+			try{
+				String username = db.getUsername(p.getId());
+				List<UserSkillUsage> usus = db.getUserStatistics(username);
+				for(Skill s : p.getSkills()) {
+					boolean found = false;
+					for(UserSkillUsage usu : usus) {
+						if(usu.getSkillId() == s.getId()) {
+							found = true;
+							db.updateSkillUsage(username, usu.getCount() + p.getStatistics().getSkillCount(s.getId()), 
+											s.getId(), usu.getDamage() + p.getStatistics().getSkillDamage(s.getId()));
+							break;
+						}
+					}
+					if(!found)
+						db.insertSkillUsage(username, p.getStatistics().getSkillCount(s.getId()), s.getId(), p.getStatistics().getSkillDamage(s.getId()));
+				}
+			} catch(Exception e) {
+				System.out.println(e);
+			}
 		}
 		
 		synchronized (sessions) {

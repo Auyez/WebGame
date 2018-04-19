@@ -35,6 +35,7 @@ public class Blink implements Skill{
 				cooldown = 0.0f;
 			} else {
 				caster.getInput().clrMouse();
+				caster.getStatistics().skillUsed(getId());
 			}
 		}
 		return isActivated;

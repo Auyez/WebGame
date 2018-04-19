@@ -28,6 +28,7 @@ public class CastDrain implements Skill {
 	@Override
 	public boolean use(Vec2 target) {
 		if (!isActivated) {
+			caster.getStatistics().skillUsed(getId());
 			isActivated = true;
 			cooldown = Constants.DRAIN_COOLDOWN;
 			Drain d = new Drain(caster.getCenter(), target, Constants.FIREBALL_SIZE, game.getFreeId(), caster, players);

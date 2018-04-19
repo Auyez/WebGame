@@ -124,7 +124,7 @@ function FeedbackManager(actorManager, game, skills) {
 				if ( !(player.id in this.bars)){				
 					var hpBar = new HealthBar(game, {x: sprite.x, y: sprite.y - 10, width: 32, height: 4});
 					hpBar.setPercent(100);
-					hpBar.setBarColor('#FFFF00');
+					hpBar.setBarColor('#FF0000');
 					if(this.self_id == player.id)
 						hpBar.setBarColor('#67C8FF');
 					this.bars[player.id] = hpBar;

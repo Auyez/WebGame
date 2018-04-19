@@ -22,6 +22,7 @@ public class CastFireball implements Skill{
 	@Override
 	public boolean use(Vec2 target) {
 		if (!isActivated) {
+			caster.getStatistics().skillUsed(getId());
 			isActivated = true;
 			cooldown = Constants.FIREBALL_COOLDOWN;
 			Fireball f = new Fireball(caster.getCenter(), target, Constants.FIREBALL_SIZE, game.getFreeId(), caster);

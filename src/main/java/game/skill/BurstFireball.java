@@ -22,6 +22,7 @@ public class BurstFireball implements Skill{
 	@Override
 	public boolean use(Vec2 target) {
 		if (!isActivated) {
+			caster.getStatistics().skillUsed(getId());
 			isActivated = true;
 			cooldown = Constants.BURST_FIREBALL_COOLDOWN;
 			FireballBursted f = new FireballBursted(caster.getCenter(), target, Constants.FIREBALL_SIZE, game.getFreeId(), caster);

@@ -6,7 +6,7 @@ public class Constants {
 	public static final int	GAME_WIDTH = 1500;
 	public static final int	GAME_HEIGHT = 900;
 	public static final int GAME_TILE_SIZE = 30;
-	public static final int GAME_TIME = 20;
+	public static final int GAME_TIME = 60;
 	
 	public static final Vec2[] SPAWN_POINTS = {new Vec2(47,1), new Vec2(2, 1), new Vec2(47,27), new Vec2(2, 27)}; //given in tiles
 	//PLAYER

@@ -98,6 +98,28 @@ public class Database {
         return statistics;
     }
 
+    public void updateSkillUsage(String username, int count, int id, int damage) throws SQLException
+    {
+    	String query = "UPDATE user_used_skill SET count=" + count + ", damage="
+    					+ damage + " WHERE username=" + username + " AND skill_id=" + id + ";";
+        PreparedStatement statement1 = connection.prepareStatement(query);
+        statement1.executeUpdate();
+    }
+    
+    public void insertSkillUsage(String username, int count, int id, int damage) throws SQLException
+    {
+    	String query = "INSERT INTO user_used_skill SET count=" + count + ", damage="
+    					+ damage + " WHERE username=" + username + " AND skill_id=" + id + ";";
+        String command = "INSERT INTO user_used_skill (count, damage, username, skill_id)" + 
+    					" VALUES (?, ?, ?, ?);" ;
+        PreparedStatement statement1 = connection.prepareStatement(command);
+        statement1.setInt(1, count);
+        statement1.setInt(2, damage);
+        statement1.setString(3, username);
+        statement1.setInt(4, id);
+        statement1.executeUpdate();
+    }
+    
     public class UserSkillUsage {
         private int count;
         private int damage;
@@ -127,7 +149,6 @@ public class Database {
             this.skillId = skillId;
         }
     }
-
 
 
 

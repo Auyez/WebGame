@@ -123,6 +123,7 @@ public class Player extends Actor{
 		statistics.initializeSkill(s.getId());
 	}
 	
+	public Skill[] getSkills() {return skills;}
 	public boolean isDead() { return isDead;}
 	public void setHp(int hp) { this.hp = hp;}
 	public int getHp() {return hp;}

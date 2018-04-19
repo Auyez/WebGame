@@ -21,6 +21,7 @@ public class Restore implements Skill{
 	//target - center of the position where we want to blink
 	public boolean use(Vec2 target) {
 		if(!isActivated && caster.getHp() < Constants.PLAYER_HP) {
+			caster.getStatistics().skillUsed(getId());
 			cooldown = Constants.RESTORE_COOLDOWN;
 			isActivated = true;
 			caster.setHp(caster.getHp() + Constants.RESTORE_AMOUNT);

@@ -40,7 +40,7 @@
 </nav>
 
 <div>
-    <p id="usernameHtml" class="user"></p>
+    <p id="usernameHtml" class="user" style="color: white; margin-left: 45px;"></p>
     <table id="statisticsHtml" style="border: 1px solid black;"></table>
 
     <div id="skillmenu">
@@ -78,26 +78,29 @@ body {
 }
 
 .btn-block {
-    background-color: grey;
-    color: white;
+	margin-left: 40px;
+	width: 200px;
+    color: black;
 }
-
+table{
+	margin-left: 40px;
+}
 tr {
-    background-color: grey;
-    opacity: 0.5;
+	margin-left: 50px;
+    background-color: white;
 }
 
 td {
-    background-color: grey;
+    background-color: white;
     opacity: 0.5;   
 }
 
 .esp {
-    color: white;
+    color: black;
 }
 
 .user {
-    color: white;
+    color: black;
 }
 
 .list-group {
@@ -176,7 +179,7 @@ td {
 
         function refreshStatistics(statistics) {
             var statisticsHtml = $('#statisticsHtml');
-            statisticsHtml.append('<tr><th>skill</th><th>damage done</th><th>#used</th></tr>');
+            statisticsHtml.append('<tr><th>skill</th><th>|damage</th><th>|uses</th></tr>');
 
             console.log(statistics);
             for(var i in statistics) {
