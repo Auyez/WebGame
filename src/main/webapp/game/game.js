@@ -4,35 +4,37 @@ var MAX_HP = 300;
 
 function CreateGame(parent, socket, lobbyIndex, mapJson) {
 	var game = new Phaser.Game(
-			            1600, 900, Phaser.AUTO, parent,
+			            1605, 900, Phaser.AUTO, parent,
 			            {
 			            	preload: preload, 
 			            	create: create, 
 			            	update: update
 			            }
-		        	);
+		        	);	
+	var skills = [];
 	var actorManager = new ActorManager(game);
-	var feedbackManager = new FeedbackManager(actorManager, game);
+	var feedbackManager = new FeedbackManager(actorManager, game, skills);
     var cursors;
 	var q,w,e,r;
 	var inputMessage = null;
 	var ready = false;
-
+	var bmpText;
+	
     function preload() {
         //game.load.image('tile', 'game/assets/map.png');    	
+    	this.game.load.bitmapFont('font', 'game/assets/font.png', 'game/assets/font.fnt');
         this.game.load.tilemap('MyTilemap', null, mapJson, Phaser.Tilemap.TILED_JSON);
-        this.game.load.image('tile-set', 'game/assets/tiles.png');
-        
+        this.game.load.image('tile-set', 'game/assets/tiles.png');      
+        this.game.stage.backgroundColor = "#bdc1ba";
         ActorManager.preload(game);
     }
     
-    function create() {
+    function create() {   	
     	var Background = game.add.group();
     	var SpriteLevel = game.add.group();
         var map = this.game.add.tilemap('MyTilemap');
         map.addTilesetImage('tiles', 'tile-set');
         Background.add(map.createLayer('Cosmetic'));
-        
     	ready = true;
     	
         var servermsg = new Protocol.Server.ServerMsg();
@@ -58,7 +60,12 @@ function CreateGame(parent, socket, lobbyIndex, mapJson) {
 		e.onDown.add(function(){spell(2)});
 		r.onDown.add(function(){spell(3)});
     	game.input.onDown.add(move, this);
-    	
+
+    	bmpText = game.add.bitmapText(1520, 50, 'font', 'Q\n\nW\n\nE\n\nR', 64);
+    	for(var i = 0; i < 4; i++){
+    		var skill = game.add.bitmapText(1500, 120 + i*(32*4), 'font', 'ready', 20);
+    		skills.push(skill);
+    	}   	
     }
 
     function update() {
@@ -104,19 +111,12 @@ function CreateGame(parent, socket, lobbyIndex, mapJson) {
 	return game;
 }
 
-function FeedbackManager(actorManager, game) {
+function FeedbackManager(actorManager, game, skills) {
 	var feedback = document.querySelector("#feedback");
-	var style = { font: "65px Arial", fill: "#ff0044", align: "center" };
 	this.bars = {}
-
-
 	this.onmessage = function(playersMsg, cooldownsMsg) {
 		var info = "";
-		//var hpStats = "<div>";
 		for (var i in playersMsg) {
-			//hpStats += "Player " + i + ": ";
-			//hpStats += playersMsg[i];
-			//hpStats += "<br>";
 			var player = playersMsg[i];
 			if ( player.id in actorManager.actors ){
 				var sprite = actorManager.actors[player.id].sprite;
@@ -139,19 +139,19 @@ function FeedbackManager(actorManager, game) {
 				}
 			}
 		}
-		//hpStats += "</div><br>"
-		//info += hpStats;
-		var cooldownStats = "<div>"
 	    
 		for (let i in cooldownsMsg) {
-			var skillInfo = cooldownsMsg[i];
-			cooldownStats += skillInfo.skillType;
-			cooldownStats += ": ";
-			cooldownStats += skillInfo.cooldown;
-			cooldownStats += "<br>"
+			var skill = skills[cooldownsMsg[i].skillType];
+			if (cooldownsMsg[i].cooldown == 0){
+				skill.centerX = 1550;
+				skill.fontSize = 20;
+				skill.text = "ready";
+			}else{
+				skill.text = cooldownsMsg[i].cooldown.toString();
+				skill.centerX = 1550;
+				skill.fontSize = 50;
+			}
 		}
-		cooldownStats += "</div>";
-		info += cooldownStats;
 		feedback.innerHTML = info;
 	}
 	
