@@ -11,6 +11,7 @@ public class CastFireball implements Skill{
 	private Game 		game;
 	private float 		cooldown;
 	private boolean		isActivated;
+	
 	public CastFireball(Player caster, Game game) {
 		this.caster = caster;
 		this.game = game;

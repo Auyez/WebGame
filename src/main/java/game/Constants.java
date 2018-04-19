@@ -26,7 +26,9 @@ public class Constants {
 	public static final int FIREBALL_RANGE = 500;
 	public static final int FIREBALL_COOLDOWN = 1;
 	public static final int FIREBALL_SIZE = 12;
-	
+	//Fireball burst
+	public static final int BURST_FIREBALL_DMG = 35;
+	public static final int BURST_FIREBALL_COOLDOWN = 3;
 	//Lightning Bolt
 	public static final int LIGHTNINGBOLT_DMG = 100;
 	public static final int LIGHTNINGBOLT_SPEED = 2000;
@@ -44,7 +46,9 @@ public class Constants {
 	//Blink
 	public static final int BLINK_COOLDOWN = 3;
 	public static final int BLINK_RANGE = 600;
-
+	
+	//RESTORE
+	public static final int RESTORE_AMOUNT = 50;
 	public static final int RESTORE_COOLDOWN = 15;
 
 

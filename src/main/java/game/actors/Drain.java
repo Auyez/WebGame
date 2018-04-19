@@ -61,6 +61,8 @@ public class Drain extends Actor implements Projectile{
 						parent.setHp(parent.getHp() + Constants.DRAIN_DMG);
 					}
 					destroy();
+				}else if (a.getType() == Actor.TILE){
+					destroy();
 				}
 			}
 		}

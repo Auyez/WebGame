@@ -42,6 +42,8 @@ public class LightningBolt extends Actor implements Projectile{
 					p.setHp(p.getHp() - Constants.LIGHTNINGBOLT_DMG);
 					parent.getStatistics().damageDone(Constants.LIGHTNINGBOLT_DMG);
 					destroy();
+				}else if (a.getType() == Actor.TILE){
+					destroy();
 				}
 			}
 		}

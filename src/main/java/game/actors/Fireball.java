@@ -8,6 +8,7 @@ public class Fireball extends Actor implements Projectile{
 	private Vec2 		direction;
 	private Player 		parent;
 	private int 		traveled;
+	private int			damage;
 	
 	public Fireball(Vec2 start, Vec2 target, int size, int id, Player parent) {
 		super(0, 0, size, size, id);
@@ -18,6 +19,7 @@ public class Fireball extends Actor implements Projectile{
 		this.parent = parent;
 		traveled = 0;
 		speed = Constants.FIREBALL_SPEED;
+		damage = Constants.FIREBALL_DMG;
 	}
 
 	@Override
@@ -37,10 +39,12 @@ public class Fireball extends Actor implements Projectile{
 				if(a.isProjectile() && ((Projectile) a).getParentId() != parent.getId()) {
 					a.destroy();
 					destroy();
-				}if(a.getType() == Actor.PLAYER) {
+				}else if(a.getType() == Actor.PLAYER) {
 					Player p = (Player) a;
-					p.setHp(p.getHp() - Constants.FIREBALL_DMG);
-					parent.getStatistics().damageDone(Constants.FIREBALL_DMG);
+					p.setHp(p.getHp() - damage);
+					parent.getStatistics().damageDone(damage);
+					destroy();
+				}else if (a.getType() == Actor.TILE){
 					destroy();
 				}
 			}
@@ -55,5 +59,9 @@ public class Fireball extends Actor implements Projectile{
 	@Override
 	public int getParentId() {
 		return parent.getId();
+	}
+	
+	public void setDamage(int damage) {
+		this.damage = damage;
 	}
 }
