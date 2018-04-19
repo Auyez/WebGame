@@ -34,7 +34,7 @@ public class Fireball extends Actor{
 	public void resolve_collision(long delta, Actor a) {
 		if (a != null && !isDestroyed()) {
 			if (a.getId() != parent.getId()) {
-				if(a.getType() == Actor.LIGHTNINGBOLT)
+				if(a.isProjectile())
 					a.destroy();
 				if(a.getType() == Actor.PLAYER) {
 					Player p = (Player) a;

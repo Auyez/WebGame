@@ -69,6 +69,10 @@ public abstract class Actor{
 			lowerBox.setLocation((int)position.getX(), (int)position.getY() + (hitbox.height - lowerBox.height) );
 	}
 	
+	public boolean isProjectile() {
+		int t = getType();
+		return t == FIREBALL || t == LIGHTNINGBOLT || t == DRAIN;
+	}
 	public void destroy() { destroyed = true; }
 	public void back() {destroyed = false;}
 	public boolean isDestroyed() {return destroyed;}

@@ -48,9 +48,9 @@ public class Drain extends Actor{
 	public void resolve_collision(long delta, Actor a) {
 		if (a != null && !isDestroyed()) {
 			if (a.getId() != parent.getId()) {
-				if(a.getType() == Actor.DRAIN)
+				if(a.isProjectile()) {
 					a.destroy();
-				if(a.getType() == Actor.PLAYER) {
+				}else if(a.getType() == Actor.PLAYER) {
 					Player p = (Player) a;
 					p.setHp(p.getHp() - Constants.DRAIN_DMG);
 					parent.getStatistics().damageDone(Constants.DRAIN_DMG);

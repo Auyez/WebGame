@@ -52,4 +52,9 @@ public class CastDrain implements Skill {
 		return cooldown;
 	}
 
+	@Override
+	public void reset() {
+		isActivated = false;
+		cooldown = 0;
+	}
 }
