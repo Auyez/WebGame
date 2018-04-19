@@ -29,7 +29,7 @@ function CreateGame(parent, socket, lobbyIndex, mapJson) {
         ActorManager.preload(game);
     }
     
-    function create() {   	
+    function create() {
     	var Background = game.add.group();
     	var SpriteLevel = game.add.group();
         var map = this.game.add.tilemap('MyTilemap');
@@ -112,7 +112,8 @@ function CreateGame(parent, socket, lobbyIndex, mapJson) {
 }
 
 function FeedbackManager(actorManager, game, skills) {
-	var feedback = document.querySelector("#feedback");
+	var feedback = document.querySelector("#feedback");   	
+	this.self_id = parseInt(localStorage.getItem('user_id'));
 	this.bars = {}
 	this.onmessage = function(playersMsg, cooldownsMsg) {
 		var info = "";
@@ -124,6 +125,8 @@ function FeedbackManager(actorManager, game, skills) {
 					var hpBar = new HealthBar(game, {x: sprite.x, y: sprite.y - 10, width: 32, height: 4});
 					hpBar.setPercent(100);
 					hpBar.setBarColor('#FFFF00');
+					if(this.self_id == player.id)
+						hpBar.setBarColor('#67C8FF');
 					this.bars[player.id] = hpBar;
 				} else {
 					if (player.hp <= 0){
@@ -234,7 +237,6 @@ ActorManager.preload = function(game) {
 // rows correspond to animations
 // Add actor types to types array in ActorManager.preload()
 function Actor(game, type) {
-
     this.sprite = game.add.sprite(0, 0, Actor.getRandomSpriteKey(type));
     this.sprite.anchor.x = 0.5;
     this.sprite.anchor.y = 0.5; // position by center, not top left corner

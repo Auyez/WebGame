@@ -258,7 +258,7 @@ public class Game implements Runnable {
 			List<Integer> skillIds = Database.getInstance().getUserSkillIds(username);
 			Map<Integer, String> skillNames = Database.getInstance().getSkills();
 
-			for(int i = 0; i < 4; i++) {
+			for(int i = 0; i < Constants.PLAYER_SKILL_LIMIT; i++) {
 				Skill skill = null;
 				if(i < skillIds.size()) {
 					try{
@@ -271,19 +271,16 @@ public class Game implements Runnable {
 					}
 				}else {
 					skill = new CastFireball(p , this);
+					p.setSkill(skill, (byte) 0);
+					skill = new CastDrain(p , this);
+					p.setSkill(skill, (byte) 1);
+					skill = new Blink(p , this);
+					p.setSkill(skill, (byte) 2);
+					skill = new BurstFireball(p , this);
+					p.setSkill(skill, (byte) 3);
 				}
 				p.setSkill(skill, (byte) i);
 			}
-			/*Skill Q = new BurstFireball(p, this);
-			Skill W = new Blink(p, this);
-			Skill E = new CastLightningBolt(p, this);
-			//Skill R =  new Restore(p, this);
-			Skill R = new CastDrain(p, this);
-
-			p.setSkill(Q, (byte) 0);
-			p.setSkill(W, (byte) 1);
-			p.setSkill(E, (byte) 2);
-			p.setSkill(R, (byte) 3);*/
 			actors.add(p);
 			players.add(p);
 		} catch (SQLException ex) {
