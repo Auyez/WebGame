@@ -1,5 +1,6 @@
 var lobbyIndex = parseInt(localStorage.getItem('lobbyIndex'));
-document.title = 'Lobby' + lobbyIndex;
+var lobbyName = localStorage.getItem('lobbyName')
+document.title = lobbyName;
 var lobby1 = new Lobby(lobbyIndex, 'game1');
 //var lobby2 = new Lobby(lobbyIndex, 'game2')
 

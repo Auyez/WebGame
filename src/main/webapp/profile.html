@@ -4,22 +4,72 @@
     <meta charset="UTF-8">
     <title>Profile</title>
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+    <!-- Bootstrap ! -->
+    <!-- Latest compiled and minified CSS -->
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
+
+    <!-- jQuery library -->
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+
+    <!-- Latest compiled JavaScript -->
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
 </head>
 <body>
-    <a href="index.html">Main</a>
-    <p id="usernameHtml"></p>
-    <table id="statisticsHtml" style="border: 1px solid black;"></table>
+<nav class="navbar navbar-inverse navbar-fixed-top">
+    <div class="container-fluid">
+        <div class="navbar-header">
+            <a href="index.html" class="navbar-brand"> WARLOCK 2D </a>
+        </div>
 
-    <div id="skillmenu">
-        <ul id="equippedHtml"></ul>
-        <ul id="mySkillsHtml"></ul>
+        <div>
+            <ul class="nav navbar-nav">
+                <li ><a href="index.html"> Lobbies </a></li>
+                <li class="active"><a href="#">Profile</a></li>
+                <li ><a href="#"> About Project </a></li>
+                <li ><a href="#"> Developers </a></li>
+            </ul>
+
+            <ul class="nav navbar-nav navbar-right">
+                <form>
+                    <button type="submit" class="btn btn-link btn-logout" onclick="logout()"><span class="glyphicon glyphicon-log-out" ></span> Logout </button>
+                </form>
+            </ul>
+        </div>
     </div>
+</nav>
 
-    <button onclick="save()">Save</button>
 
-    <p id="messagebox"></p>
+<p id="usernameHtml"></p>
+<table id="statisticsHtml" style="border: 1px solid black;"></table>
 
-    <script>
+<div id="skillmenu">
+    <ul id="equippedHtml"></ul>
+    <ul id="mySkillsHtml"></ul>
+</div>
+
+<button onclick="save()">Save</button>
+
+<p id="messagebox"></p>
+
+<style>
+body {
+    background-image: url("https://static2.askmrrobot.com/amrbeta/images/backgrounds/warriorarms.jpg");
+    background-repeat: no-repeat;
+    background-position: center;
+    background-size: 100%;
+    padding-top: 65px;
+    background-attachment: fixed;
+}
+
+.list-group {
+    opacity: 0.5;
+}
+</style>
+
+<script>
         var messagebox = $('#messagebox');
         var skillLimit;
 
@@ -99,6 +149,27 @@
                 var item = `<tr><th>${skillName}</th><th>${usage.damage}</th><th>${usage.count}</th></tr>`;
                 statisticsHtml.append(item);
             }
+        }
+
+        function logout() {
+            var username = localStorage.getItem('username');
+
+            function success(data, status, jqhxr) {
+                location.href = 'login.html';
+            };
+
+            function error(jqXHR, textStatus, errorThrown) {
+                console.log('logout failed');
+            };
+
+            $.ajax({
+                type: 'POST',
+                url: 'services/user/logout',
+                data: 'username=' + username,
+                success: success,
+                error: error,
+                dataType: 'text'
+            });
         }
 
         $(document).ready(function() {
