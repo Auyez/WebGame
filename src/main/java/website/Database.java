@@ -229,9 +229,9 @@ public class Database {
                 System.out.println("Database error: couldn't load jdbc driver");
             }
             connection = DriverManager.getConnection(
-                    "jdbc:mysql://localhost:3306/WebGame?useSSL=false",
-                    "root",
-                    "1234"
+                    "jdbc:mysql://us-cdbr-iron-east-04.cleardb.net",
+                    "b7b84012b05d9b",
+                    "432f1eb0"
             );
 
         } catch (SQLException ex) {
